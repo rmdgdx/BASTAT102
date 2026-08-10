@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advanced Business Statistics · RTU · Interactive Course</title>
+<style>
+:root{
+  --gold:#D9A82C; --gold-ink:#856408; --gold-grad:linear-gradient(135deg,#EAC24C,#D7A62C);
+  --blue:#1F5FA8; --blue-ink:#184E86;
+  --ok:#1f7a46; --ok-bg:#e2f4ea; --ok-bd:#9fd4b6;
+  --no:#b23140; --no-bg:#fde7e9; --no-bd:#e6a9b1;
+  --ink:#232A33; --ink-soft:#5C5A50; --line:#E7E0CC; --bg:#FDFBF3;
+  --card:#fff; --shadow:0 1px 2px rgba(60,50,20,.06),0 10px 30px rgba(60,50,20,.08);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif;
+  font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+a{color:var(--blue-ink);}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px 90px;}
+header.hero{
+  position:relative;overflow:hidden;border-radius:0 0 30px 30px;margin-bottom:8px;
+  padding:54px 34px 60px;
+  background:
+    radial-gradient(circle at 90% 4%,#F7E9A6 0,transparent 46%),
+    radial-gradient(circle at 2% 98%,#CBDDF4 0,transparent 44%),
+    linear-gradient(135deg,#F6E6A0 0%,#EBCB5E 52%,#DCE6F6 100%);
+}
+.hero .inner{max-width:1120px;margin:0 auto;padding:0 12px;}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.8);
+  color:var(--gold-ink);font-weight:800;font-size:.74rem;letter-spacing:1.3px;text-transform:uppercase;
+  padding:6px 15px;border-radius:999px;}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:16px 0 8px;letter-spacing:-1px;color:#22303B;font-weight:850;}
+.hero p{max-width:70ch;color:#2E3945;font-size:1.06rem;margin:0 0 18px;}
+.hchips{display:flex;flex-wrap:wrap;gap:9px;align-items:center;}
+.hchips span{background:rgba(255,255,255,.82);border-radius:999px;padding:7px 15px;font-size:.82rem;font-weight:700;color:#2E3945;}
+.hero .cta{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:850;font-size:.92rem;
+  padding:10px 20px;border-radius:12px;background:#22303B;color:#fff;margin-top:4px;}
+.hero .cta:hover{filter:brightness(1.08);}
+h2.section{font-size:1.5rem;font-weight:840;letter-spacing:-.4px;margin:40px 0 4px;
+  display:flex;align-items:center;gap:12px;}
+h2.section::before{content:"";width:26px;height:26px;border-radius:8px;background:var(--gold-grad);}
+.sub{color:var(--ink-soft);margin:0 0 14px;}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 22px;font-size:.85rem;color:var(--ink-soft);align-items:center;}
+.legend b{display:inline-flex;align-items:center;gap:7px;}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;}
+.dot.g{background:var(--ok);} .dot.r{background:var(--no);}
+.grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));}
+.chapter{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 21px;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:9px;transition:.15s;border-left-width:6px;}
+.chapter:hover{transform:translateY(-2px);box-shadow:0 3px 6px rgba(60,50,20,.08),0 16px 36px rgba(60,50,20,.12);}
+.chapter.ready{border-left-color:var(--ok);}
+.chapter.todo{border-left-color:var(--no);background:linear-gradient(180deg,#fffdfa,#fff);}
+.cnum{font-size:1.35rem;display:flex;align-items:center;gap:9px;}
+.cnum>span:first-of-type{font-size:.72rem;font-weight:850;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold-ink);}
+.status{margin-left:auto;font-size:.64rem;font-weight:850;letter-spacing:.5px;text-transform:uppercase;
+  padding:4px 10px;border-radius:999px;}
+.status.g{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-bd);}
+.status.r{background:var(--no-bg);color:var(--no);border:1px solid var(--no-bd);}
+.chapter h3{margin:0;font-size:1.16rem;font-weight:820;letter-spacing:-.2px;}
+.chapter p{margin:0;color:#48505A;font-size:.93rem;flex:1;}
+.clinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:5px;}
+.cl{text-decoration:none;font-weight:800;font-size:.85rem;padding:9px 15px;border-radius:11px;transition:.15s;}
+.cl.gold{background:var(--gold-grad);color:#3A2D06;}
+.cl.blue{background:#DCE7F6;color:var(--blue-ink);}
+.cl:hover{filter:brightness(.97);}
+.cl.disabled{background:#F0ECE2;color:#A49C8C;cursor:not-allowed;border:1px dashed #D9D1BE;}
+footer{margin-top:48px;padding-top:26px;border-top:1px solid var(--line);color:var(--ink-soft);font-size:.86rem;}
+.pal{display:flex;gap:5px;margin:10px 0 0;}
+.pal i{width:34px;height:34px;border-radius:8px;border:1px solid rgba(0,0,0,.07);display:block;}
+</style>
+</head>
+<body>
+<header class="hero"><div class="inner">
+  <span class="eyebrow">🎓 Rizal Technological University · AdvStat 102</span>
+  <h1>Advanced Business Statistics</h1>
+  <p>An eleven-chapter interactive course for the Bachelor of Science in Business Administration — rigorous, worked from first principles, and built entirely as standalone HTML. Every chapter carries generated figures, worked examples, a cheat sheet, a self-assessment, curated video explainers, and a graded business case with model answers.</p>
+  <div class="hchips">
+    <a class="cta" href="syllabus.html">📄 Course Syllabus</a>
+    <span>📚 11 chapters</span><span>🎬 Per-topic video explainers</span><span>🧮 440+ quiz items</span><span>✍️ 11 graded cases</span>
+  </div>
+</div></header>
+
+<div class="wrap">
+  <h2 class="section">Chapters</h2>
+  <p class="sub">Each chapter has a <b>Lecture &amp; Notes</b> page and an <b>Exercises &amp; Essays</b> page. A card is green when both pages are uploaded and ready to use, and red when a page is still to be uploaded.</p>
+  <div class="legend">
+    <b><span class="dot g"></span> Ready — lecture &amp; exercises uploaded (1)</b>
+    <b><span class="dot r"></span> Not yet uploaded — one or both pages pending (10)</b>
+  </div>
+  <div class="grid">
+    <article class="chapter todo">
+      <div class="cnum">🧭 <span>Chapter 1</span> <span class="status r">🔴 Not yet uploaded</span></div>
+      <h3>Statistical Reasoning</h3>
+      <p>The logic of inference, data types, and why sampling works.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter01.html">📖 Lecture</a><span class="cl disabled">✍️ Exercises · not uploaded</span></div>
+    </article>
+    <article class="chapter todo">
+      <div class="cnum">📊 <span>Chapter 2</span> <span class="status r">🔴 Not yet uploaded</span></div>
+      <h3>Description &amp; Visuals</h3>
+      <p>Summarising data honestly — centre, spread, shape and the charts that don't lie.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter02.html">📖 Lecture</a><span class="cl disabled">✍️ Exercises · not uploaded</span></div>
+    </article>
+    <article class="chapter todo">
+      <div class="cnum">🎲 <span>Chapter 3</span> <span class="status r">🔴 Not yet uploaded</span></div>
+      <h3>Probability &amp; Distributions</h3>
+      <p>From counting rules to the binomial, Poisson and normal models.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter03.html">📖 Lecture</a><span class="cl disabled">✍️ Exercises · not uploaded</span></div>
+    </article>
+    <article class="chapter todo">
+      <div class="cnum">🎯 <span>Chapter 4</span> <span class="status r">🔴 Not yet uploaded</span></div>
+      <h3>Sampling &amp; the CLT</h3>
+      <p>Sampling distributions and the central limit theorem that makes inference possible.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter04.html">📖 Lecture</a><span class="cl disabled">✍️ Exercises · not uploaded</span></div>
+    </article>
+    <article class="chapter todo">
+      <div class="cnum">📏 <span>Chapter 5</span> <span class="status r">🔴 Not yet uploaded</span></div>
+      <h3>Estimation &amp; Confidence Intervals</h3>
+      <p>Point estimates, margins of error, and what a confidence interval really claims.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter05.html">📖 Lecture</a><span class="cl disabled">✍️ Exercises · not uploaded</span></div>
+    </article>
+    <article class="chapter todo">
+      <div class="cnum">⚖️ <span>Chapter 6</span> <span class="status r">🔴 Not yet uploaded</span></div>
+      <h3>Hypothesis Testing</h3>
+      <p>p-values, errors, power, and the discipline of a pre-stated test.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter06.html">📖 Lecture</a><span class="cl disabled">✍️ Exercises · not uploaded</span></div>
+    </article>
+    <article class="chapter todo">
+      <div class="cnum">👥 <span>Chapter 7</span> <span class="status r">🔴 Not yet uploaded</span></div>
+      <h3>Comparing Two Groups</h3>
+      <p>Two-sample t and z tests, paired designs, and the confounding trap.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter07.html">📖 Lecture</a><span class="cl disabled">✍️ Exercises · not uploaded</span></div>
+    </article>
+    <article class="chapter todo">
+      <div class="cnum">🔬 <span>Chapter 8</span> <span class="status r">🔴 Not yet uploaded</span></div>
+      <h3>Analysis of Variance</h3>
+      <p>One-way and two-way ANOVA, post-hoc comparisons, and the family-wise problem.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter08.html">📖 Lecture</a><span class="cl disabled">✍️ Exercises · not uploaded</span></div>
+    </article>
+    <article class="chapter todo">
+      <div class="cnum">🧮 <span>Chapter 9</span> <span class="status r">🔴 Not yet uploaded</span></div>
+      <h3>Chi-Square Tests</h3>
+      <p>Goodness-of-fit, independence, and reading categorical association.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter09.html">📖 Lecture</a><span class="cl disabled">✍️ Exercises · not uploaded</span></div>
+    </article>
+    <article class="chapter todo">
+      <div class="cnum">📈 <span>Chapter 10</span> <span class="status r">🔴 Not yet uploaded</span></div>
+      <h3>Correlation &amp; Regression</h3>
+      <p>From whether two quantities move together to how much — the least-squares line.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter10.html">📖 Lecture</a><span class="cl disabled">✍️ Exercises · not uploaded</span></div>
+    </article>
+    <article class="chapter ready">
+      <div class="cnum">🧠 <span>Chapter 11</span> <span class="status g">🟢 Ready</span></div>
+      <h3>Multiple Regression</h3>
+      <p>Holding the other things constant: partial coefficients, dummies, interaction, VIF.</p>
+      <div class="clinks"><a class="cl gold" href="chapters/Chapter11.html">📖 Lecture</a><a class="cl blue" href="chapters/Chapter11_Exercises.html">✍️ Exercises</a></div>
+    </article>
+  </div>
+
+  <footer>
+    <p><b>Advanced Business Statistics</b> — College of Business, Entrepreneurship and Accountancy, Rizal Technological University. Built as dependency-free, offline-capable HTML; open any chapter file directly in a browser or serve the folder with GitHub Pages.</p>
+    <p>Colour system — RTU Gold-dominant with Royal Blue:</p>
+    <div class="pal"><i style="background:#D9A82C"></i><i style="background:#EAC24C"></i><i style="background:#FBEEC2"></i><i style="background:#1F5FA8"></i><i style="background:#DCE7F6"></i></div>
+  </footer>
+</div>
+</body>
+</html>
