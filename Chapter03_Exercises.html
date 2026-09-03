@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 3 — Exercises &amp; Essays</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   CHAPTER 11 · MULTIPLE REGRESSION
+   Interactive learning module · single standalone file · no libraries
+   ───────────────────────────────────────────────────────────────────
+   COLOUR SYSTEM — Rizal Technological University: GOLD-dominant with
+   Royal BLUE. Nine light surface tints, each paired with a darkened
+   "ink" variant used only for text, borders and icons so that every
+   text/background pair clears WCAG AA contrast. The gold family carries
+   most surfaces; blue, green and red are kept functional (concepts,
+   recaps, warnings). The five-colour chart series palette below is
+   gold-led and validated with the dataviz colour checker.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  /* --- nine light surface tints (GOLD-dominant + BLUE) --- */
+  --p1:#F6D8CF;  /* warm red   → mistakes, warnings, "don't do this"  */
+  --p2:#DCE7F6;  /* royal blue → core concepts, definitions           */
+  --p3:#D8EACF;  /* green      → recaps, correct answers, wins         */
+  --p4:#F0E1B0;  /* amber      → key terms, vocabulary                */
+  --p5:#FBEEC2;  /* gold cream → business cases, real-world (dominant)*/
+  --p6:#FCF6D2;  /* pale gold  → TL;DR, highlights                    */
+  --p7:#ECDFBB;  /* sand       → glossary, reference tables           */
+  --p8:#F7E1BE;  /* warm gold  → activities, "try it"                 */
+  --p9:#F3F0E6;  /* warm mist  → neutral surfaces                     */
+
+  /* --- matching ink (text/border) variants, all clear WCAG AA --- */
+  --i1:#A23A29; --i2:#1C4E86; --i3:#3B6E2E; --i4:#7A5A10; --i5:#86620A;
+  --i6:#7C6710; --i7:#6C5A2A; --i8:#8A5716; --i9:#55514A;
+
+  /* --- RTU brand accents --- */
+  --gold:#D9A82C;      /* brand gold — rings, rules, accents  */
+  --gold-ink:#856408;  /* dark gold for gold text on white    */
+  --blue:#1F5FA8;      /* brand blue — secondary              */
+  --blue-ink:#184E86;
+  --gold-grad:linear-gradient(135deg,#EAC24C,#D7A62C);
+
+  --ink:#232A33;      /* body text            */
+  --ink-soft:#5C5A50; /* secondary text       */
+  --line:#E7E0CC;     /* warm hairline rules  */
+  --bg:#FDFBF3;       /* warm cream page      */
+  --radius:16px;
+  --shadow:0 1px 2px rgba(60,50,20,.06), 0 8px 24px rgba(60,50,20,.07);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; scroll-padding-top:96px;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16.5px; line-height:1.68; -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;}
+
+/* ── PROGRESS BAR ────────────────────────────────────────────────── */
+#progress{
+  position:fixed; top:0; left:0; height:5px; width:0%; z-index:200;
+  background:linear-gradient(90deg,var(--gold),#E8C24E,var(--blue));
+  transition:width .12s linear;
+}
+
+/* ── STICKY NAV ──────────────────────────────────────────────────── */
+nav#topnav{
+  position:sticky; top:0; z-index:150; background:rgba(252,252,253,.92);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+}
+.navwrap{max-width:1080px; margin:0 auto; padding:9px 20px; display:flex; align-items:center; gap:14px;}
+.navbrand{font-weight:800; font-size:.86rem; letter-spacing:.4px; white-space:nowrap; color:var(--gold-ink);}
+.navlinks{display:flex; gap:5px; overflow-x:auto; scrollbar-width:none; flex:1;}
+.navlinks::-webkit-scrollbar{display:none;}
+.navlinks a{
+  font-size:.78rem; font-weight:600; text-decoration:none; color:var(--ink-soft);
+  padding:5px 11px; border-radius:999px; white-space:nowrap; transition:.15s;
+}
+.navlinks a:hover{background:var(--p9); color:var(--ink);}
+.navlinks a.on{background:var(--gold-grad); color:#3A2D06;}
+
+/* ── LAYOUT ──────────────────────────────────────────────────────── */
+.wrap{max-width:1080px; margin:0 auto; padding:0 20px 100px;}
+section{scroll-margin-top:96px;}
+
+/* ── HERO ────────────────────────────────────────────────────────── */
+.hero{
+  margin:26px 0 34px; padding:38px 34px; border-radius:26px; position:relative; overflow:hidden;
+  background:
+    radial-gradient(circle at 90% 6%,#F7E9A6 0,transparent 44%),
+    radial-gradient(circle at 4% 96%,#CBDDF4 0,transparent 46%),
+    radial-gradient(circle at 62% 104%,#FBEFC0 0,transparent 42%),
+    linear-gradient(135deg,#F6E6A0 0%,#EBCB5E 52%,#DCE6F6 100%);
+}
+.hero .eyebrow{
+  display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.72);
+  padding:5px 15px; border-radius:999px; font-size:.74rem; font-weight:800;
+  letter-spacing:1.3px; text-transform:uppercase; color:var(--gold-ink);
+}
+.hero h1{
+  font-size:clamp(1.9rem,4.6vw,3.05rem); line-height:1.12; margin:16px 0 10px;
+  font-weight:850; letter-spacing:-.9px; color:#22303B;
+}
+.hero .sub{font-size:1.04rem; max-width:62ch; color:#2E3945; margin:0 0 20px;}
+.chips{display:flex; flex-wrap:wrap; gap:9px;}
+.chip{
+  background:rgba(255,255,255,.82); border-radius:999px; padding:7px 15px;
+  font-size:.79rem; font-weight:700; color:#2E3945; display:inline-flex; align-items:center; gap:7px;
+}
+
+/* ── HEADINGS ────────────────────────────────────────────────────── */
+h2.sec{
+  font-size:1.62rem; font-weight:840; letter-spacing:-.5px; margin:52px 0 6px;
+  display:flex; align-items:center; gap:13px; line-height:1.25;
+}
+h2.sec .n{
+  flex:none; width:46px; height:46px; border-radius:14px; display:grid; place-items:center;
+  font-size:1.02rem; font-weight:850; background:var(--gold-grad); color:#3A2D06;
+}
+h3.sub{font-size:1.13rem; font-weight:800; margin:30px 0 8px; color:var(--i2); letter-spacing:-.2px;}
+h4.mini{font-size:.79rem; font-weight:850; letter-spacing:1.2px; text-transform:uppercase; color:var(--ink-soft); margin:22px 0 7px;}
+p{margin:0 0 14px;}
+.lead{font-size:1.08rem; color:#37414D;}
+
+/* ── CARDS / CALLOUTS ────────────────────────────────────────────── */
+.card{border-radius:var(--radius); padding:19px 22px; margin:18px 0; border:1px solid rgba(0,0,0,.05);}
+.card .hd{display:flex; align-items:center; gap:9px; font-weight:840; font-size:.87rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:9px;}
+.card p:last-child,.card ul:last-child,.card ol:last-child{margin-bottom:0;}
+.c-tldr{background:var(--p6);} .c-tldr .hd{color:var(--i6);}
+.c-concept{background:var(--p2);} .c-concept .hd{color:var(--i2);}
+.c-recap{background:var(--p3);} .c-recap .hd{color:var(--i3);}
+.c-term{background:var(--p4);} .c-term .hd{color:var(--i4);}
+.c-biz{background:var(--p5);} .c-biz .hd{color:var(--i5);}
+.c-warn{background:var(--p1);} .c-warn .hd{color:var(--i1);}
+.c-try{background:var(--p8);} .c-try .hd{color:var(--i8);}
+.c-ref{background:var(--p7);} .c-ref .hd{color:var(--i7);}
+.c-neutral{background:var(--p9);} .c-neutral .hd{color:var(--i9);}
+
+/* ── INLINE BITS ─────────────────────────────────────────────────── */
+.kt{background:var(--p4); color:var(--i4); font-weight:750; padding:1px 7px; border-radius:6px; white-space:nowrap;}
+.hl{background:var(--p6); padding:1px 5px; border-radius:5px; font-weight:650;}
+.no{color:var(--i1); font-weight:750;}
+.yes{color:var(--i3); font-weight:750;}
+code,.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.9em; background:var(--p9); padding:2px 6px; border-radius:5px;}
+.formula{
+  background:#fff; border:2px dashed var(--gold); border-radius:12px; padding:13px 18px;
+  margin:14px 0; text-align:center; font-family:"Cambria Math",Georgia,serif; font-size:1.06rem;
+}
+
+/* ── TABLES ──────────────────────────────────────────────────────── */
+.tbl-scroll{overflow-x:auto; margin:16px 0; border-radius:14px; border:1px solid var(--line);}
+table{width:100%; border-collapse:collapse; font-size:.92rem; background:#fff; min-width:560px;}
+th{background:var(--p4); color:var(--i4); text-align:left; padding:11px 14px; font-weight:820; font-size:.78rem; letter-spacing:.7px; text-transform:uppercase;}
+td{padding:11px 14px; border-top:1px solid var(--line); vertical-align:top;}
+tbody tr:nth-child(even) td{background:#FAFBFC;}
+td.ctr,th.ctr{text-align:center;}
+
+/* ── ACCORDION ───────────────────────────────────────────────────── */
+details.acc{background:#fff; border:1px solid var(--line); border-radius:14px; margin:11px 0; overflow:hidden;}
+details.acc>summary{
+  cursor:pointer; padding:14px 18px; font-weight:750; list-style:none;
+  display:flex; align-items:center; gap:11px; transition:.15s;
+}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:"＋"; margin-left:auto; font-weight:800; color:var(--ink-soft); font-size:1.1rem;}
+details.acc[open]>summary::after{content:"−";}
+details.acc>summary:hover{background:var(--p9);}
+details.acc[open]>summary{background:var(--p9); border-bottom:1px solid var(--line);}
+.acc-body{padding:16px 18px 18px;}
+.acc-body p:last-child,.acc-body ul:last-child{margin-bottom:0;}
+
+/* ── GRID ────────────────────────────────────────────────────────── */
+.grid{display:grid; gap:14px; margin:18px 0;}
+.g2{grid-template-columns:repeat(auto-fit,minmax(255px,1fr));}
+.g3{grid-template-columns:repeat(auto-fit,minmax(195px,1fr));}
+.g4{grid-template-columns:repeat(auto-fit,minmax(158px,1fr));}
+.tile{border-radius:14px; padding:16px 17px; border:1px solid rgba(0,0,0,.05);}
+.tile .ic{font-size:1.5rem; line-height:1; display:block; margin-bottom:8px;}
+.tile b{display:block; font-size:.98rem; margin-bottom:4px;}
+.tile span.d{font-size:.85rem; color:#4A5461; line-height:1.55;}
+
+/* ── STEPS ───────────────────────────────────────────────────────── */
+.steps{counter-reset:s; padding:0; margin:16px 0; list-style:none;}
+.steps li{counter-increment:s; position:relative; padding-left:48px; margin-bottom:15px;}
+.steps li::before{
+  content:counter(s); position:absolute; left:0; top:-1px; width:33px; height:33px;
+  border-radius:11px; background:var(--p5); color:var(--i5);
+  display:grid; place-items:center; font-weight:850; font-size:.94rem;
+}
+
+/* ── QUIZ ────────────────────────────────────────────────────────── */
+.quizbar{
+  position:sticky; top:52px; z-index:90; background:#fff; border:1px solid var(--line);
+  border-radius:14px; padding:12px 17px; margin:18px 0; display:flex; flex-wrap:wrap;
+  align-items:center; gap:12px; box-shadow:var(--shadow);
+}
+.quizbar .score{font-weight:850; font-size:1rem;}
+.quizbar .meter{flex:1; min-width:130px; height:9px; background:var(--p9); border-radius:99px; overflow:hidden;}
+.quizbar .meter i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--gold),var(--blue)); transition:width .3s;}
+.btn{
+  border:none; border-radius:999px; padding:8px 17px; font-size:.83rem; font-weight:750;
+  cursor:pointer; font-family:inherit; transition:.15s; background:var(--p9); color:var(--ink);
+}
+.btn:hover{filter:brightness(.96);}
+.btn.primary{background:var(--gold-grad); color:#3A2D06;}
+.btn.ghost{background:transparent; border:1px solid var(--line); color:var(--ink-soft);}
+
+.q{background:#fff; border:1px solid var(--line); border-radius:16px; padding:19px 21px; margin:14px 0;}
+.q .qhead{display:flex; gap:12px; align-items:flex-start; margin-bottom:13px;}
+.q .qnum{
+  flex:none; width:32px; height:32px; border-radius:10px; background:var(--p4); color:var(--i4);
+  display:grid; place-items:center; font-weight:850; font-size:.86rem;
+}
+.q .qtext{font-weight:620; line-height:1.6;}
+.q .qtext .scen{display:block; color:var(--ink-soft); font-weight:450; font-size:.93rem; margin-bottom:6px;}
+.q .bloom{
+  display:inline-block; font-size:.66rem; font-weight:850; letter-spacing:1px; text-transform:uppercase;
+  background:var(--p7); color:var(--i7); padding:3px 9px; border-radius:999px; margin-bottom:8px;
+}
+.opts{display:grid; gap:8px;}
+.opt{
+  display:flex; gap:11px; align-items:flex-start; padding:11px 14px; border-radius:11px;
+  border:1.5px solid var(--line); background:#fff; cursor:pointer; transition:.14s;
+  font-size:.94rem; line-height:1.5; text-align:left; font-family:inherit; color:var(--ink); width:100%;
+}
+.opt:hover:not(.locked){background:var(--p9); border-color:#CDD5DE;}
+.opt .ltr{
+  flex:none; width:24px; height:24px; border-radius:7px; background:var(--p9); color:var(--ink-soft);
+  display:grid; place-items:center; font-weight:850; font-size:.78rem;
+}
+.opt.correct{background:var(--p3); border-color:var(--i3);}
+.opt.correct .ltr{background:var(--i3); color:#fff;}
+.opt.wrong{background:var(--p1); border-color:var(--i1);}
+.opt.wrong .ltr{background:var(--i1); color:#fff;}
+.opt.locked{cursor:default;}
+.expl{margin-top:13px; border-radius:12px; padding:15px 17px; background:var(--p9); display:none;}
+.expl.show{display:block;}
+.expl .vt{font-weight:850; font-size:.85rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:7px; display:flex; align-items:center; gap:7px;}
+.expl .vt.ok{color:var(--i3);} .expl .vt.no{color:var(--i1);}
+.expl p{font-size:.93rem; margin:0 0 9px;}
+.expl .dis{margin-top:10px; padding-top:10px; border-top:1px dashed #CFD6DE;}
+.expl .dis div{font-size:.885rem; margin-bottom:5px; color:#404A56;}
+.expl .dis b{color:var(--i1);}
+
+/* ── ESSAY ───────────────────────────────────────────────────────── */
+.essay{background:#fff; border:1px solid var(--line); border-left:6px solid var(--p5); border-radius:16px; padding:21px 23px; margin:18px 0;}
+.essay .etag{font-size:.72rem; font-weight:850; letter-spacing:1.2px; text-transform:uppercase; color:var(--i5); margin-bottom:7px;}
+.essay .eq{font-size:1.04rem; font-weight:750; margin-bottom:11px; line-height:1.5;}
+.rubric{font-size:.88rem;}
+.rubric td,.rubric th{padding:8px 12px;}
+
+/* ── GLOSSARY ────────────────────────────────────────────────────── */
+.gloss{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(268px,1fr)); margin:16px 0;}
+.gitem{background:var(--p7); border-radius:12px; padding:13px 15px;}
+.gitem b{display:block; color:var(--i7); font-size:.95rem; margin-bottom:3px;}
+.gitem span{font-size:.87rem; color:#3E4854; line-height:1.55;}
+
+/* ── MISC ────────────────────────────────────────────────────────── */
+.palette{display:flex; gap:5px; margin:12px 0 0; flex-wrap:wrap;}
+.sw{width:38px; height:38px; border-radius:9px; border:1px solid rgba(0,0,0,.07);}
+hr.div{border:none; border-top:1px solid var(--line); margin:44px 0;}
+footer.end{margin-top:56px; padding:30px 0 0; border-top:1px solid var(--line); font-size:.86rem; color:var(--ink-soft);}
+.backtop{position:fixed; right:18px; bottom:18px; z-index:120; width:46px; height:46px; border-radius:50%;
+  background:var(--gold-grad); color:#3A2D06; border:none; font-size:1.15rem; cursor:pointer; box-shadow:var(--shadow); display:none;}
+.backtop.on{display:block;}
+
+@media(max-width:640px){
+  body{font-size:16px;}
+  .hero{padding:28px 22px; border-radius:20px;}
+  h2.sec{font-size:1.36rem;}
+  h2.sec .n{width:38px; height:38px; font-size:.9rem;}
+  .card{padding:16px 17px;}
+  .q{padding:16px 15px;}
+  .quizbar{top:50px;}
+}
+/* ── PRINT / PDF ─────────────────────────────────────────────────
+   Turns the interactive module into a static answer-key workbook:
+   every explanation, model answer and rubric is forced open, all
+   chrome is stripped, and nothing that must be read together is
+   allowed to break across a page.                                  */
+@page{ size:Letter; margin:14mm 12mm 15mm; }
+
+@media print{
+  /* strip interactive chrome */
+  nav#topnav,#progress,.backtop,.quizbar{ display:none !important; }
+
+  /* force every hidden layer open */
+  .expl{ display:block !important; }
+  details.acc{ page-break-inside:avoid; }
+  details.acc>summary::after{ content:"" !important; }
+  details.acc>summary{ background:var(--p9) !important; border-bottom:1px solid var(--line); }
+  details.acc:not([open])>.acc-body{ display:block !important; }
+
+  /* keep tint fills — they carry the semantic colour coding */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+
+  body{ font-size:10pt; line-height:1.5; background:#fff; }
+  .wrap{ max-width:none; padding:0 0 8pt; }
+  html{ scroll-behavior:auto; }
+
+  /* never split a unit of meaning across pages */
+  .card,.essay,.tile,.gitem,.formula,.acc-body,
+  .hero,.opts,.expl,.steps li{ page-break-inside:avoid; break-inside:avoid; }
+  /* Long reference tables must be allowed to flow. This chapter has several that
+     exceed a full page (the formula card, the case model answers); forcing them
+     whole strands the page before each one. Rows stay intact and the header
+     repeats on every page the table spans. */
+  .tbl-scroll{ break-inside:auto; page-break-inside:auto; }
+  /* An item may split, but only at the seam between its options and its
+     explanation — the stem+options block and the explanation each stay whole. */
+  .q{ break-inside:auto; }
+  .q .qhead{ break-after:avoid; }
+  /* Essay model answers and rubrics run close to a full page; keeping them
+     atomic would strand half a page before each. Let them flow, but keep
+     their internal tables and paragraphs whole. */
+  .essay details.acc, .essay .acc-body{ break-inside:auto; page-break-inside:auto; }
+  .essay details.acc>summary{ break-after:avoid; }
+  .essay .acc-body p, .essay .acc-body li{ break-inside:avoid; }
+  h2.sec,h3.sub,h4.mini{ page-break-after:avoid; break-after:avoid; }
+  tr,thead{ page-break-inside:avoid; }
+  thead{ display:table-header-group; }
+
+  /* major sections start a fresh page */
+  #cheat,#hots,#drill,#case{ page-break-before:always; }
+  hr.div{ display:none; }
+
+  /* tighten spacing that only exists for on-screen scrolling */
+  h2.sec{ margin:20pt 0 4pt; font-size:15pt; }
+  h3.sub{ margin:14pt 0 4pt; }
+  .card,.q,.essay{ margin:8pt 0; }
+  section{ scroll-margin-top:0; }
+  table{ min-width:0; font-size:8.6pt; }
+  .tbl-scroll{ overflow:visible; }
+  .grid{ gap:8pt; }
+
+  /* Quiz items are the bulk of the page count. Because each item is kept
+     whole (page-break-inside:avoid), an item taller than half a page wastes
+     the remainder. These densities are tuned so two reinforcement items fit
+     per page while the item stays comfortably readable. */
+  .q{ padding:11px 13px; margin:6pt 0; }
+  .q .qhead{ margin-bottom:8px; }
+  .q .qnum{ width:26px; height:26px; font-size:.78rem; }
+  .q .qtext{ font-size:9.5pt; line-height:1.45; }
+  .q .qtext .scen{ font-size:9pt; margin-bottom:4px; }
+  .q .bloom{ font-size:.62rem; padding:2px 7px; margin-bottom:5px; }
+  .opts{ gap:5px; }
+  .expl{ margin-top:9px; padding:10px 12px; }
+  .expl .vt{ font-size:.78rem; margin-bottom:5px; }
+  .expl p{ font-size:8.9pt; line-height:1.45; margin-bottom:6px; }
+  .expl .dis{ margin-top:7px; padding-top:7px; }
+  .expl .dis div{ font-size:8.5pt; line-height:1.42; margin-bottom:4px; }
+
+
+  figure.fig, .figcard, .figpair, .calc, pre.term{ page-break-inside:avoid; break-inside:avoid; }
+  .figpair.side{ grid-template-columns:1fr 1fr; }
+  figure.fig svg, .figcard svg{ max-height:none; }
+
+  /* answer key styling: correct option stays clearly marked */
+  .opt{ border-width:1px; padding:5px 10px; font-size:8.9pt; line-height:1.4; }
+  .opt .ltr{ width:20px; height:20px; font-size:.7rem; }
+  .opt.correct{ background:var(--p3) !important; border-color:var(--i3) !important; }
+  .opt.correct .ltr{ background:var(--i3) !important; color:#fff !important; }
+}
+
+/* ── CHART SERIES PALETTE ────────────────────────────────────────
+   The nine Pastel1 fills above are SURFACE colours: too light and too
+   low-chroma to encode data (measured — see §2.9). These five series
+   colours are GOLD-led and pushed into the accessible lightness/chroma
+   band. Verified with the dataviz validator: ALL CHECKS PASS on the
+   light surface (worst adjacent pair clears the floor with the legend
+   + direct labels every figure already carries).
+      gold → --s1   blue → --s2   green → --s3
+      plum → --s4   brick → --s5                                 */
+:root{
+  --s1:#A6790C; --s2:#1F5FA8; --s3:#3F8A3F; --s4:#8B4E9C; --s5:#B4523E;
+}
+
+/* ── FIGURES ─────────────────────────────────────────────────────── */
+figure.fig{ margin:18px 0; }
+figure.fig svg{ border:1px solid var(--line); border-radius:14px; background:#fff; }
+figcaption{ font-size:.85rem; color:var(--ink-soft); margin-top:7px; line-height:1.55; }
+figcaption b{ color:var(--ink); }
+.figpair{ display:grid; gap:14px; grid-template-columns:1fr; margin:18px 0; }
+@media(min-width:900px){ .figpair.side{ grid-template-columns:1fr 1fr; } }
+.figcard{ border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; }
+.figcard>.tag{
+  font-size:.74rem; font-weight:850; letter-spacing:1.1px; text-transform:uppercase;
+  padding:7px 13px; display:flex; align-items:center; gap:7px;
+}
+.figcard.bad>.tag{ background:var(--p1); color:var(--i1); }
+.figcard.good>.tag{ background:var(--p3); color:var(--i3); }
+.figcard svg{ border:none; border-radius:0; }
+.figcard>.note{ font-size:.83rem; color:#404A56; padding:10px 13px 12px; line-height:1.55; border-top:1px solid var(--line); }
+.figcard>.note b{ color:var(--ink); }
+.swatchrow{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin:10px 0; }
+.swatchrow .s{ width:30px; height:30px; border-radius:8px; border:1px solid rgba(0,0,0,.08); }
+.swatchrow .arrow{ color:var(--ink-soft); font-weight:800; }
+pre.term{
+  background:#1D2530; color:#D8DEE6; border-radius:12px; padding:13px 15px; margin:12px 0;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.74rem;
+  line-height:1.65; overflow-x:auto; white-space:pre;
+}
+pre.term .pass{ color:#8FD68F; } pre.term .fail{ color:#FF9A94; } pre.term .warn{ color:#F3D07A; }
+.calc{
+  background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold);
+  border-radius:12px; padding:14px 17px; margin:14px 0;
+  font-family:"Cambria Math",Georgia,serif; font-size:.97rem; line-height:1.85;
+}
+.calc .step{ display:block; }
+.calc .res{ font-weight:800; color:var(--i2); font-family:inherit; }
+.calc .lbl{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-size:.74rem; font-weight:850; letter-spacing:.9px; text-transform:uppercase;
+  color:var(--ink-soft); display:block; margin-bottom:4px; }
+
+/* ── Z-TABLE ─────────────────────────────────────────────────────── */
+table.ztab{ font-size:.68rem; min-width:640px; font-variant-numeric:tabular-nums; }
+table.ztab th{ font-size:.62rem; padding:5px 3px; text-align:center; letter-spacing:0; }
+table.ztab td{ padding:3.5px 3px; text-align:center; border-color:#EDF0F4; }
+table.ztab td.zh{ background:var(--p4); color:var(--i4); font-weight:850; }
+table.ztab td.hi{ background:var(--p6); font-weight:800; }
+table.ztab tbody tr:nth-child(even) td{ background:#FAFBFC; }
+table.ztab tbody tr:nth-child(even) td.zh{ background:var(--p4); }
+table.ztab tbody tr:nth-child(even) td.hi{ background:var(--p6); }
+
+/* ── DESIGN / CONCEPT CARDS ──────────────────────────────────────── */
+.dist{ border:1px solid var(--line); border-radius:16px; overflow:hidden; margin:14px 0; background:#fff; }
+.dist>.dh{ padding:9px 14px; font-weight:850; font-size:.92rem; display:flex; align-items:center; gap:9px; }
+.dist>.db{ padding:13px 15px; }
+.dist>.db p:last-child{ margin-bottom:0; }
+.dist.binom>.dh{ background:var(--p2); color:var(--i2); }
+.dist.pois>.dh{ background:var(--p3); color:var(--i3); }
+.dist.norm>.dh{ background:var(--p4); color:var(--i4); }
+.dist.warn>.dh{ background:var(--p1); color:var(--i1); }
+
+/* ── THE THREE-DISTRIBUTION DISAMBIGUATION STRIP ─────────────────── */
+.three{ display:grid; gap:0; grid-template-columns:1fr; border:1px solid var(--line);
+  border-radius:16px; overflow:hidden; margin:16px 0; background:#fff; }
+@media(min-width:760px){ .three{ grid-template-columns:repeat(3,1fr); } }
+.three>div{ padding:14px 16px; border-top:1px solid var(--line); }
+@media(min-width:760px){ .three>div{ border-top:none; border-left:1px solid var(--line); }
+  .three>div:first-child{ border-left:none; } }
+.three .tt{ font-weight:850; font-size:.9rem; margin-bottom:6px; display:flex; align-items:center; gap:7px; }
+.three .tf{ font-family:"Cambria Math",Georgia,serif; background:var(--p9); border-radius:8px;
+  padding:6px 9px; margin:8px 0; font-size:.92rem; text-align:center; }
+.three p{ font-size:.87rem; margin:0; color:#414B57; line-height:1.55; }
+
+/* ── TWO-VIEW TAB BAR (Lecture / Exercises) ─────────────────────── */
+.navtabs{ display:flex; gap:7px; margin-left:auto; flex:none; }
+.navtabs a{
+  display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+  font-size:.8rem; font-weight:800; letter-spacing:.2px; padding:7px 15px;
+  border-radius:999px; color:var(--blue-ink); background:var(--p2);
+  border:1px solid transparent; white-space:nowrap; transition:.15s;
+}
+.navtabs a:hover{ filter:brightness(.97); }
+.navtabs a.active{ background:var(--gold-grad); color:#3A2D06; box-shadow:0 1px 4px rgba(120,90,10,.3); }
+@media(max-width:720px){ .navtabs a .lbl2{ display:none; } }
+@media(max-width:640px){ .navtabs a{ padding:6px 11px; font-size:.74rem; } }
+
+/* ── PER-TOPIC VIDEO CARD ───────────────────────────────────────── */
+.vidbox{
+  display:flex; gap:14px; align-items:center; text-decoration:none; color:inherit;
+  background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold);
+  border-radius:13px; padding:12px 16px; margin:16px 0; transition:.15s;
+}
+.vidbox:hover{ background:var(--p6); box-shadow:var(--shadow); }
+.vidbox .play{
+  flex:none; width:46px; height:46px; border-radius:12px; background:#E12D2D;
+  display:grid; place-items:center; color:#fff; font-size:1.15rem;
+}
+.vidbox .vmeta{ min-width:0; }
+.vidbox .vk{ font-size:.68rem; font-weight:850; letter-spacing:1.1px; text-transform:uppercase; color:var(--gold-ink); display:block; margin-bottom:2px; }
+.vidbox .vt{ font-weight:750; font-size:.97rem; line-height:1.35; display:block; color:var(--ink); }
+.vidbox .vch{ font-size:.83rem; color:var(--ink-soft); }
+.vidbox .go{ margin-left:auto; flex:none; color:var(--ink-soft); font-weight:800; font-size:1.1rem; }
+@media(max-width:640px){ .vidbox .go{ display:none; } }
+@media print{ .vidbox,.navtabs{ display:none !important; } }
+
+/* ── static MCQ options + answer dropdowns (exercises pages) ─────── */
+.optrow{display:flex;gap:11px;align-items:flex-start;padding:9px 13px;border:1.5px solid var(--line);
+  border-radius:11px;margin:7px 0;background:#fff;font-size:.95rem;line-height:1.5;}
+.optrow .ltr{flex:none;width:24px;height:24px;border-radius:7px;background:var(--p9);color:var(--ink-soft);
+  display:grid;place-items:center;font-weight:850;font-size:.78rem;}
+.q .opts{display:block;margin-top:4px;}
+details.acc.ans{margin:12px 0 2px;}
+details.acc.ans>summary{color:var(--blue-ink);font-weight:800;}
+.ansbody .key,.acc-body .key{font-weight:850;color:var(--i3);}
+.exbar{position:sticky;top:52px;z-index:90;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:11px 16px;margin:16px 0;display:flex;flex-wrap:wrap;gap:10px;align-items:center;box-shadow:var(--shadow);}
+.exbar .lbl{font-weight:850;}
+@media print{.exbar{display:none!important;} details.acc.ans>.acc-body{display:block!important;}}
+
+</style>
+</head>
+<body data-palette="#A6790C,#1F5FA8,#3F8A3F,#8B4E9C,#B4523E">
+<div class="rtu-instructor-banner" style="background:linear-gradient(135deg,#12213f 0%,#1a2f5a 60%,#24457e 100%);color:#eaf0fb;border-bottom:3px solid #c9a227;font-family:-apple-system,'Segoe UI',Arial,sans-serif;text-align:center;padding:9px 16px;font-size:.82rem;line-height:1.45;letter-spacing:.02em;"><span style="font-weight:800;color:#fff;">🎓 Advanced Business Statistics</span>&nbsp;—&nbsp; a class of <b style="color:#f2d98b;">Dr.&nbsp;Ryan&nbsp;Manuel&nbsp;D.&nbsp;Guido</b><span style="opacity:.85;">&nbsp;·&nbsp; Rizal Technological University · CBEA</span></div>
+<nav id="topnav"><div class="navwrap"><span class="navbrand">✍️ CH 3 · EXERCISES &amp; ESSAYS</span><div class="navlinks"><a href="#exstart" class="on">Overview</a><a href="#reinf">⚡ Reinforcement</a><a href="#case">✍️ Case &amp; Essays</a></div><div class="navtabs"><a href="Chapter03.html">📖 <span class="lbl2">Lecture &amp; </span>Notes</a><a href="Chapter03_Exercises.html" class="active">✍️ <span class="lbl2">Exercises &amp; </span>Essays</a></div></div></nav>
+<div class="wrap">
+<section id="exstart"><div class="hero"><span class="eyebrow">✍️ Chapter 3 · Practice &amp; Assessment</span><h1>Probability &amp; Distributions<br>Exercises &amp; Essays</h1><p class="sub">Twenty higher-order multiple-choice items to test your reasoning, followed by a business-case essay test. For each question, decide on your answer first, then open the dropdown to check it and read a brief explanation. The full teaching material is on the <a href="Chapter03.html"><b>Lecture &amp; Notes</b></a> tab.</p><div class="chips"><span class="chip">⚡ 20 higher-order items</span><span class="chip">🧮 1 business case</span><span class="chip">✍️ 3 essays</span></div></div></section>
+<section id="reinf"><hr class="div"><h2 class="sec"><span class="n" style="background:var(--gold-grad); color:#3A2D06;">⚡</span>Part I · Reinforcement Exercises — Higher-Order Thinking</h2><p class="lead">Twenty multiple-choice items. Most turn on a judgement, not a formula. Choose your answer, then use the dropdown to check it and read why.</p><div class="exbar"><span class="lbl">20 items</span><button class="btn primary" onclick="exAll(true)">Reveal all answers</button><button class="btn ghost" onclick="exAll(false)">Hide all</button></div><div class="q"><div class="qhead"><div class="qnum">1</div><div class="qtext"><span class="scen">A retail analyst writes: “Being a first-time buyer and paying by e-wallet are mutually exclusive, so they must be independent.”</span>What is wrong with this reasoning?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Nothing — mutually exclusive events are a special case of independent events.</span></div><div class="optrow"><span class="ltr">B</span><span>Mutually exclusive means the two cannot occur together, so knowing one occurred tells you the other definitely did not — which is maximum dependence, the opposite of independence.</span></div><div class="optrow"><span class="ltr">C</span><span>The events are independent, but only if their probabilities are equal.</span></div><div class="optrow"><span class="ltr">D</span><span>The reasoning is fine, but it should have said “collectively exhaustive” instead.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> Mutually exclusive means the two cannot occur together, so knowing one occurred tells you the other definitely did not — which is maximum dependence, the opposite of independence.</p><p style="margin:0">The two ideas are close to opposites. Mutually exclusive means P(A ∩ B) = 0; independent means P(A ∩ B) = P(A)·P(B). If both events have positive probability, then P(A)·P(B) &gt; 0 ≠ 0, so the two conditions cannot hold together. Intuitively: if learning that A happened tells you with certainty that B did not, that is the strongest possible dependence. Note that the analyst's premise is also questionable — a first-time buyer can obviously pay by e-wallet — so the claim fails twice over.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">2</div><div class="qtext"><span class="scen">A quality inspector draws a sample of <b>20</b> units from a large production run in which <b>3%</b> of units are defective. She wants the probability that <b>at least one</b> unit in her sample is defective.</span>Which computation is correct?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>20 × 0.03 × 0.97 = 0.582</span></div><div class="optrow"><span class="ltr">B</span><span>20 × 0.03 = 0.600</span></div><div class="optrow"><span class="ltr">C</span><span>1 − (0.97)²⁰ = 1 − 0.5438 = 0.4562</span></div><div class="optrow"><span class="ltr">D</span><span>(0.03)²⁰, which is essentially zero</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> 1 − (0.97)²⁰ = 1 − 0.5438 = 0.4562</p><p style="margin:0">“At least one” is the complement of “none”. P(no defectives) = (0.97)²⁰ = 0.5438, so P(at least one) = 1 − 0.5438 = <b>0.4562</b>. One line instead of twenty. This is the complement rule doing exactly the job it exists for — and note the result is a genuinely useful number: even at a 3% defect rate, a sample of 20 catches at least one defective less than half the time, which is why acceptance sampling plans need larger samples than managers expect.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">3</div><div class="qtext"><span class="scen">A batch contains <b>20</b> units, <b>4</b> of which are defective. Two units are drawn <b>without replacement</b> for inspection.</span>What is the probability that both are defective, and why does it differ from the with-replacement answer?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>0.2000, since the defect rate is 4/20 and it applies to both draws.</span></div><div class="optrow"><span class="ltr">B</span><span>0.0400, because with a batch this large the finite-population effect is negligible.</span></div><div class="optrow"><span class="ltr">C</span><span>0.0400, and it does not differ — drawing two units is the same either way.</span></div><div class="optrow"><span class="ltr">D</span><span>0.0316, which is about 21% lower than the with-replacement value of 0.0400, because removing the first defective reduces both the count and the pool.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> 0.0316, which is about 21% lower than the with-replacement value of 0.0400, because removing the first defective reduces both the count and the pool.</p><p style="margin:0">Without replacement the second probability is conditional on the first: P(both) = (4/20)(3/19) = 0.2 × 0.15789 = <b>0.03158</b>. With replacement it would be (4/20)² = 0.0400. The without-replacement figure is lower because removing a defective leaves only 3 defectives in a pool of 19. The general lesson: <b>sampling without replacement destroys independence</b>, and the effect matters whenever the sample is a meaningful fraction of the population — here 2 of 20, or 10%.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">4</div><div class="qtext"><span class="scen">A bank's marketing head reports: “Eighty per cent of customers who took our new loan product had visited the branch in the previous month. Branch visits clearly drive loan uptake, so we should increase foot traffic.”</span>What is the flaw?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The 80% is P(visited | took loan), but the decision requires P(took loan | visited) — a different quantity that could be very small if most visitors take no loan.</span></div><div class="optrow"><span class="ltr">B</span><span>The sample size is not reported, so no conclusion is possible.</span></div><div class="optrow"><span class="ltr">C</span><span>The claim confuses mutually exclusive events with independent ones.</span></div><div class="optrow"><span class="ltr">D</span><span>There is no flaw; 80% is a strong enough association to justify the action.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> The 80% is P(visited | took loan), but the decision requires P(took loan | visited) — a different quantity that could be very small if most visitors take no loan.</p><p style="margin:0">The reported figure conditions on <em>taking the loan</em> and looks backwards at behaviour. The decision needs the forward conditional: of the customers who visit, what share take a loan? If 50,000 customers visit monthly and 400 take the loan, then P(loan | visit) is under 1% even though 80% of borrowers visited. Driving foot traffic on the strength of the reversed conditional could be one of the least efficient interventions available. This is the same P(A|B) versus P(B|A) error as the fraud filter, in a friendlier disguise.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">5</div><div class="qtext"><span class="scen">A logistics firm receives an average of <b>3 damage claims per day</b>. Management asks for the probability of a <b>two-day weekend with no claims at all</b>. Claims arise independently.</span>Which computation is correct?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>e⁻³ = 0.0498, since the rate is 3 per day</span></div><div class="optrow"><span class="ltr">B</span><span>e⁻⁶ = 0.0025, because λ must be rescaled to 6 for a two-day interval</span></div><div class="optrow"><span class="ltr">C</span><span>(e⁻³)² × 2 = 0.0050</span></div><div class="optrow"><span class="ltr">D</span><span>2 × e⁻³ = 0.0996</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> e⁻⁶ = 0.0025, because λ must be rescaled to 6 for a two-day interval</p><p style="margin:0">λ is tied to an interval. Over two days the expected number of claims is 6, so λ = 6 and P(X = 0) = e⁻⁶ = <b>0.00248</b>. Using the daily λ gives 0.0498 — twenty times too large, and the single most common Poisson error. Note that squaring the one-day probability, (e⁻³)² = e⁻⁶, happens to give the same answer here because the days are independent; that is a legitimate alternative route, but only if you square rather than double.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">6</div><div class="qtext"><span class="scen">A operations analyst models daily IT helpdesk tickets as Poisson. Over 90 days the observed mean is <b>8.1 tickets</b> and the observed variance is <b>34.6</b>.</span>What should she conclude?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The model fits, but λ should be set to the average of 8.1 and 34.6.</span></div><div class="optrow"><span class="ltr">B</span><span>The Poisson model fits well, since the mean is close to a whole number.</span></div><div class="optrow"><span class="ltr">C</span><span>The data is overdispersed — variance far exceeds the mean — so the independence assumption has failed and Poisson is the wrong model.</span></div><div class="optrow"><span class="ltr">D</span><span>The variance should be ignored, because the Poisson has only one parameter.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> The data is overdispersed — variance far exceeds the mean — so the independence assumption has failed and Poisson is the wrong model.</p><p style="margin:0">A Poisson distribution has mean equal to variance. Here the variance is more than four times the mean, which is decisive evidence against it. The usual business cause is <b>clustering</b>: a single system outage generates dozens of tickets at once, so arrivals are not independent — condition 3 fails. Recognising this is valuable, because it means the model would badly understate the probability of a very heavy day, which is exactly the day staffing needs to cover.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">7</div><div class="qtext"><span class="scen">A recruiter states: “We interview 15 candidates and each has a 20% chance of being hired, so the number hired is binomial with n = 15 and p = 0.20.” In fact the firm has exactly 3 vacancies and stops interviewing once they are filled.</span>Which binomial condition fails?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Two outcomes per trial</span></div><div class="optrow"><span class="ltr">B</span><span>None — the model is appropriate</span></div><div class="optrow"><span class="ltr">C</span><span>Constant probability of success on each trial</span></div><div class="optrow"><span class="ltr">D</span><span>A fixed number of trials decided in advance</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> A fixed number of trials decided in advance</p><p style="margin:0">Because interviewing stops once three vacancies are filled, the number of trials is <b>not fixed</b> — it is itself random, determined by how quickly successes accumulate. Condition 1 has failed. When the number of successes is fixed and the number of trials is random, the situation is the mirror image of the binomial (a negative binomial), and applying the binomial formula would misstate the probabilities. Note also a second, subtler failure: with only 3 vacancies the later candidates' hire probabilities depend on earlier outcomes, so independence is compromised too.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">8</div><div class="qtext"><span class="scen">An analyst must model the number of customers <b>arriving at a branch between 10am and 11am</b>. She has historical data showing an average of 47 arrivals in that hour.</span>Which distribution is appropriate, and what is the decisive reason?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Poisson, because there is an interval and a rate but no countable set of non-arrivals.</span></div><div class="optrow"><span class="ltr">B</span><span>Normal, because 47 is a large number and large counts are normally distributed.</span></div><div class="optrow"><span class="ltr">C</span><span>None of the three — arrival counts require a distribution not covered in this chapter.</span></div><div class="optrow"><span class="ltr">D</span><span>Binomial, because each minute of the hour either has an arrival or does not.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> Poisson, because there is an interval and a rate but no countable set of non-arrivals.</p><p style="margin:0">Apply the decisive test: <b>can you count the non-events?</b> You cannot say how many customers <em>failed</em> to arrive between 10am and 11am, because there was never a defined set of arrival opportunities. There is an interval (one hour) and a rate (λ = 47), which is the Poisson signature. Binomial requires a fixed n with countable failures; that structure simply does not exist here.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">9</div><div class="qtext"><span class="scen">A coffee chain's delivery times are approximately normal with <b>μ = 42</b> minutes and <b>σ = 6</b> minutes.</span>What proportion of deliveries take between 48 and 54 minutes?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>0.8185</span></div><div class="optrow"><span class="ltr">B</span><span>0.1359</span></div><div class="optrow"><span class="ltr">C</span><span>0.1587</span></div><div class="optrow"><span class="ltr">D</span><span>0.0228</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> 0.1359</p><p style="margin:0">z₁ = (48 − 42)/6 = +1.00 and z₂ = (54 − 42)/6 = +2.00. Then P(1 &lt; z &lt; 2) = Φ(2.00) − Φ(1.00) = 0.9772 − 0.8413 = <b>0.1359</b>. Both boundaries are above the mean, so both z-values are positive and you subtract the smaller cumulative area from the larger.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">10</div><div class="qtext"><span class="scen">A filling machine dispenses coffee beans with mean <b>250 g</b> and standard deviation <b>8 g</b>, normally distributed. Regulations require that no more than <b>2.5%</b> of bags exceed the stated upper limit.</span>What upper limit should be printed on the bag?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>258.00 g</span></div><div class="optrow"><span class="ltr">B</span><span>263.16 g</span></div><div class="optrow"><span class="ltr">C</span><span>265.68 g</span></div><div class="optrow"><span class="ltr">D</span><span>270.64 g</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> 265.68 g</p><p style="margin:0">This is a backward problem. If only 2.5% may exceed the limit, then 97.5% must fall below it, so we need z with Φ(z) = 0.9750, which is <b>z = 1.96</b>. Then x = μ + zσ = 250 + 1.96(8) = 250 + 15.68 = <b>265.68 g</b>. Note the direction of reasoning: the tail probability given is the <em>upper</em> tail, so convert it to a cumulative area before looking up z.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">11</div><div class="qtext"><span class="scen">A binomial variable has <b>n = 200</b> and <b>p = 0.15</b>. An analyst wants P(X ≥ 40) using the normal approximation.</span>Which value should be standardised?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>40.5, because the continuity correction always adds 0.5</span></div><div class="optrow"><span class="ltr">B</span><span>39, because the correction moves to the previous whole number</span></div><div class="optrow"><span class="ltr">C</span><span>40, because that is the value in the question</span></div><div class="optrow"><span class="ltr">D</span><span>39.5, because the value 40 is included and the boundary must move outward by half a unit</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> 39.5, because the value 40 is included and the boundary must move outward by half a unit</p><p style="margin:0">The bar representing X = 40 spans 39.5 to 40.5 under the continuous curve. Since “at least 40” <b>includes</b> 40, the whole bar belongs in the region, so the boundary moves <b>outward</b> to 39.5. Then z = (39.5 − 30)/5.0498 = 1.88 and the answer is 1 − 0.9699 = 0.0301, against an exact binomial value of 0.0335. Standardising 40 instead gives 0.0238 — an error about 2.8 times larger.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">12</div><div class="qtext"><span class="scen">An analyst wants P(X ≥ 5) for a binomial with <b>n = 500</b> and <b>p = 0.006</b>. She proposes the normal approximation with μ = 3 and σ = √(500 × 0.006 × 0.994) = 1.73.</span>Evaluate her approach.</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Unsound — np = 3, which fails the np ≥ 5 condition, so the binomial is still strongly right-skewed. The Poisson with λ = np = 3 is the appropriate approximation here.</span></div><div class="optrow"><span class="ltr">B</span><span>Unsound, because the normal approximation may never be used when p is below 0.5.</span></div><div class="optrow"><span class="ltr">C</span><span>Sound, provided she also applies the continuity correction.</span></div><div class="optrow"><span class="ltr">D</span><span>Sound — n = 500 is large, which is what the approximation requires.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> Unsound — np = 3, which fails the np ≥ 5 condition, so the binomial is still strongly right-skewed. The Poisson with λ = np = 3 is the appropriate approximation here.</p><p style="margin:0">Both conditions must hold, and np = 500(0.006) = <b>3</b>, which is below 5. Large n is not sufficient — with p this small the distribution remains crushed against zero and a symmetric curve cannot fit it. The right tool is the <b>Poisson</b> with λ = np = 3, which is designed for large n with small p. In this instance Poisson gives P(X ≥ 5) = 0.1847 against an exact binomial value of 0.1842 — accurate to three decimal places, where the normal approximation would perform poorly.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">13</div><div class="qtext"><span class="scen">Two mutually exclusive investments are compared.<br><b>Project A</b> — E(X) = ₱2.0M, σ = ₱0.4M<br><b>Project B</b> — E(X) = ₱2.2M, σ = ₱11.4M, with a 20% chance of losing ₱20M. The firm's total equity is ₱15M.</span>Which recommendation is most defensible?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Project B, because it has the higher expected monetary value.</span></div><div class="optrow"><span class="ltr">B</span><span>Project A, because although its EMV is ₱0.2M lower, Project B carries a 20% chance of a loss that exceeds the firm's entire equity.</span></div><div class="optrow"><span class="ltr">C</span><span>Project B, because a higher standard deviation means greater upside potential.</span></div><div class="optrow"><span class="ltr">D</span><span>Neither can be compared, because expected values are only valid for repeated decisions.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> Project A, because although its EMV is ₱0.2M lower, Project B carries a 20% chance of a loss that exceeds the firm's entire equity.</p><p style="margin:0">EMV is the right starting point and the wrong stopping point. Project B's advantage is ₱0.2M — about 9% — while its downside branch would wipe out the firm: a ₱20M loss against ₱15M of equity is insolvency, not a bad quarter. Expected value implicitly assumes you can absorb the worst outcome and repeat the bet enough times for the average to materialise. A firm that cannot survive one draw from the distribution cannot rely on its long-run mean. This is why EMV must always be reported with σ and with an explicit check on the worst branch.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">14</div><div class="qtext"><span class="scen">A pre-employment integrity test flags dishonest applicants with 90% sensitivity and wrongly flags 5% of honest applicants. In the applicant pool, <b>4%</b> are genuinely dishonest.</span>Approximately what proportion of flagged applicants are genuinely dishonest?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>5%</span></div><div class="optrow"><span class="ltr">B</span><span>90%</span></div><div class="optrow"><span class="ltr">C</span><span>43%</span></div><div class="optrow"><span class="ltr">D</span><span>4%</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> 43%</p><p style="margin:0">P(Flag) = 0.90(0.04) + 0.05(0.96) = 0.036 + 0.048 = 0.084. Then P(Dishonest | Flag) = 0.036/0.084 = <b>0.4286</b>, about 43%. So the majority of flagged applicants are honest — even at a 4% base rate, which is twenty times higher than the fraud example's 0.2%. The comparison is instructive: raising the base rate from 0.2% to 4% lifted the reversed conditional from 8.7% to 43%, which is why screening tools should be pointed at populations where the base rate is already elevated.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">15</div><div class="qtext"><span class="scen">A firm must fill three distinct roles — Chief Analyst, Deputy Analyst and Data Steward — from a shortlist of seven candidates. Separately, it must choose three members for an unranked advisory panel from the same seven.</span>How many ways are there in each case?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>35 for the roles and 210 for the panel</span></div><div class="optrow"><span class="ltr">B</span><span>343 for the roles and 21 for the panel</span></div><div class="optrow"><span class="ltr">C</span><span>210 for the roles and 210 for the panel</span></div><div class="optrow"><span class="ltr">D</span><span>210 for the roles and 35 for the panel</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> 210 for the roles and 35 for the panel</p><p style="margin:0">The three roles are distinct, so order matters: 7P3 = 7 × 6 × 5 = <b>210</b>. The panel is unranked, so only membership matters: 7C3 = 210/3! = <b>35</b>. The ratio is exactly 3! = 6, the number of ways to rearrange any chosen trio among the three roles. The test to apply: <em>if I swap two selected people, is the result different?</em> For roles yes; for a panel no.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">16</div><div class="qtext"><span class="scen">An analyst reports: “Delivery time is normal with μ = 42 and σ = 6, so the probability a delivery takes exactly 45 minutes is about 0.06.”</span>What is wrong?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>For a continuous distribution the probability of any single exact value is zero, because a single point encloses no area; the analyst should report an interval such as P(44.5 < X < 45.5).</span></div><div class="optrow"><span class="ltr">B</span><span>Nothing is wrong — 0.06 is the correct height of the density curve at 45.</span></div><div class="optrow"><span class="ltr">C</span><span>The probability should be computed as 1/6, since σ = 6.</span></div><div class="optrow"><span class="ltr">D</span><span>The arithmetic is wrong; the correct value is about 0.04.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> For a continuous distribution the probability of any single exact value is zero, because a single point encloses no area; the analyst should report an interval such as P(44.5 < X < 45.5).</p><p style="margin:0">Probability for a continuous variable is <b>area</b> under the density curve, and a single point has no width and therefore no area. So P(X = 45) = 0 exactly. What the analyst has probably computed is the <em>density</em> at 45, which is a height, not a probability — densities can even exceed 1 for tightly concentrated variables. The professional statement is an interval. Note the useful corollary: because single points carry zero probability, P(X ≤ 45) = P(X &lt; 45), which is why continuous problems need no endpoint fussing — unlike the discrete case in §3.10.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">17</div><div class="qtext"><span class="scen">A supplier's on-time delivery rate is 92%. Over the next 30 shipments, an analyst wants the probability that at least 25 arrive on time, and computes it as a binomial. A colleague objects that “30 shipments is too small for probability to work.”</span>Evaluate the objection.</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The colleague is right — probability calculations need at least 30 observations.</span></div><div class="optrow"><span class="ltr">B</span><span>The colleague is wrong. The binomial is exact for any n and needs no minimum; a minimum applies only to the normal <em>approximation</em>, and here nq = 2.4 means that approximation should be avoided.</span></div><div class="optrow"><span class="ltr">C</span><span>The colleague is right, but only because p is above 0.9.</span></div><div class="optrow"><span class="ltr">D</span><span>The colleague is wrong, and the normal approximation may be used freely since n = 30.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> The colleague is wrong. The binomial is exact for any n and needs no minimum; a minimum applies only to the normal <em>approximation</em>, and here nq = 2.4 means that approximation should be avoided.</p><p style="margin:0">Two distinct ideas are being conflated. The binomial formula is <b>exact</b> — it gives the correct probability for n = 3 or n = 3,000, with no sample-size requirement. Minimum-size conditions attach to <em>approximations</em>. And here the approximation would be a poor choice for a reason worth noticing: np = 27.6 comfortably clears 5, but nq = 30(0.08) = <b>2.4</b> does not, so the distribution is strongly left-skewed. Compute the binomial directly.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">18</div><div class="qtext"><span class="scen">An analyst computes the probability that a customer both subscribes to the newsletter and makes a purchase as P(N) × P(B) = 0.30 × 0.20 = 0.06. Company records show that 12% of customers do both.</span>What does the discrepancy tell you?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Nothing — a difference of 6 percentage points is within normal sampling variation.</span></div><div class="optrow"><span class="ltr">B</span><span>One of the two individual probabilities must be wrong.</span></div><div class="optrow"><span class="ltr">C</span><span>The events are not independent — the actual joint probability is double the independence prediction, so P(B | N) = 0.12/0.30 = 0.40 rather than 0.20.</span></div><div class="optrow"><span class="ltr">D</span><span>The records must be wrong, since 0.06 follows from the multiplication rule.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> The events are not independent — the actual joint probability is double the independence prediction, so P(B | N) = 0.12/0.30 = 0.40 rather than 0.20.</p><p style="margin:0">The multiplication shortcut P(A ∩ B) = P(A)P(B) is valid <b>only</b> for independent events. Observing 0.12 where independence predicts 0.06 is direct evidence that the events are dependent, and it lets you recover the conditional: P(B | N) = P(N ∩ B)/P(N) = 0.12/0.30 = <b>0.40</b>. Newsletter subscribers buy at twice the base rate. That is a finding, not an error — and it would have been erased by assuming independence.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">19</div><div class="qtext"><span class="scen">A student writes: “Since the empirical rule says 95% of values lie within two standard deviations, and our claim amounts have mean ₱4,200 and standard deviation ₱3,800, about 95% of claims fall between −₱3,400 and ₱11,800.” Claim amounts are strongly right-skewed.</span>Which criticism is most complete?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The arithmetic is wrong — two standard deviations either side of ₱4,200 gives ₱400 to ₱8,000.</span></div><div class="optrow"><span class="ltr">B</span><span>The rule applies, but only after the claim amounts have been converted to z-scores.</span></div><div class="optrow"><span class="ltr">C</span><span>The interval should have been computed with three standard deviations rather than two.</span></div><div class="optrow"><span class="ltr">D</span><span>The empirical rule is a property of the normal curve only; for skewed data it can be badly wrong, and the negative lower bound is itself the tell that a symmetric model has been forced onto an asymmetric variable. Chebyshev's theorem would give a valid but looser guarantee of at least 75%.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> The empirical rule is a property of the normal curve only; for skewed data it can be badly wrong, and the negative lower bound is itself the tell that a symmetric model has been forced onto an asymmetric variable. Chebyshev's theorem would give a valid but looser guarantee of at least 75%.</p><p style="margin:0">The 68–95–99.7 figures are the areas Φ(1) − Φ(−1), Φ(2) − Φ(−2) and Φ(3) − Φ(−3) of the <b>normal</b> curve, as Figure 3.11 shows. They carry no general validity. The negative lower bound is diagnostic: claim amounts cannot be below zero, so a symmetric interval has produced an impossible region — which by itself should stop the analysis. Chebyshev's theorem assumes nothing about shape and guarantees at least 1 − 1/2² = 75% within two standard deviations.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">20</div><div class="qtext"><span class="scen">An e-commerce firm wants to deploy an automated model that blocks suspected fraudulent orders. The model has 93% sensitivity and a 3% false-positive rate. Company-wide, 0.4% of orders are fraudulent, but among orders that are shipping to a newly-added address <em>and</em> paid with a card issued abroad, the fraud rate is 11%.</span>Which deployment design makes the best use of the model?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Apply it only to the elevated-risk segment and route flags to human review rather than automatic blocking, because the reversed conditional is far more favourable where the base rate is higher.</span></div><div class="optrow"><span class="ltr">B</span><span>Apply it to all orders but lower the sensitivity, which will reduce the number of false positives.</span></div><div class="optrow"><span class="ltr">C</span><span>Do not deploy it — a 3% false-positive rate is too high for any use.</span></div><div class="optrow"><span class="ltr">D</span><span>Apply it to all orders and block every flagged order automatically, since 93% sensitivity is high.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> Apply it only to the elevated-risk segment and route flags to human review rather than automatic blocking, because the reversed conditional is far more favourable where the base rate is higher.</p><p style="margin:0">Run both numbers. Company-wide: P(Flag) = 0.93(0.004) + 0.03(0.996) = 0.00372 + 0.02988 = 0.0336, so P(Fraud | Flag) = 0.00372/0.0336 = <b>11%</b> — nine of ten blocked orders would be legitimate. In the elevated segment: P(Flag) = 0.93(0.11) + 0.03(0.89) = 0.1023 + 0.0267 = 0.129, so P(Fraud | Flag) = 0.1023/0.129 = <b>79%</b>. Same model, seven-fold improvement in precision, purely from where it is pointed. Human review on top is what keeps the residual 21% of false positives from becoming lost customers.</p></div></details></div></section>
+<section id="case"><hr class="div"><h2 class="sec"><span class="n" style="background:var(--p2); color:var(--i2);">✍️</span>Part II · Business Case &amp; Essay Test</h2><p class="lead">Read the case, then answer the three essay questions. Write your response first; the dropdown under each item reveals a brief answer key — what a strong response must establish.</p><p class="lead">One memo, five probability errors, and a ₱20 million decision resting on them. Read the case, then answer three essay questions. Model answers with full arithmetic and rubrics follow — write yours <b>before</b> you open them.</p><div class="card c-biz">
+  <div class="hd">🛵 Case: Padala Express — the quarterly operations memo</div>
+
+  <p><b>Background.</b> Padala Express runs last-mile parcel delivery across Metro Manila using a pool of contracted motorcycle riders. A newly hired operations analyst has prepared a memo covering four operational questions and one strategic one. The underlying figures below are all correct; the analyst's <em>use</em> of them is what you are auditing.</p>
+
+  <div class="tbl-scroll" style="margin:14px 0;">
+  <table>
+    <thead><tr><th style="width:5%">#</th><th style="width:26%">Quantity</th><th style="width:34%">What the historical data says</th><th>Question management asked</th></tr></thead>
+    <tbody>
+      <tr><td class="ctr"><b>A</b></td><td><b>Rider no-shows</b></td><td>40 riders are scheduled per shift; 8% independently fail to log in</td><td>How likely is a shift with 8 or more no-shows? (8 is the point at which service degrades.)</td></tr>
+      <tr><td class="ctr"><b>B</b></td><td><b>Parcel damage claims</b></td><td>An average of 2.5 claims per day, arising from independent causes</td><td>What is the probability of a completely claim-free week?</td></tr>
+      <tr><td class="ctr"><b>C</b></td><td><b>Delivery time</b></td><td>Approximately normal, μ = 38 min, σ = 7 min</td><td>What delivery window can we advertise and meet 90% of the time?</td></tr>
+      <tr><td class="ctr"><b>D</b></td><td><b>Risky-rider screening model</b></td><td>Flags 88% of riders who will cause a serious incident within six months; wrongly flags 6% of those who will not. Historically 3% of riders cause such an incident.</td><td>If the model flags a rider, how confident can we be that they are genuinely high-risk?</td></tr>
+      <tr><td class="ctr"><b>E</b></td><td><b>Cebu expansion</b></td><td>Strong demand p = 0.30 → +₱15M · Moderate p = 0.45 → +₱4M · Weak p = 0.25 → −₱20M. Company equity is <b>₱16M</b>.</td><td>Should we proceed?</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p><b>The analyst's memo, verbatim:</b></p>
+  <div style="background:#fff; border-radius:12px; padding:15px 18px; margin:12px 0; border-left:4px solid var(--i5); font-style:italic;">
+    <p style="margin:0 0 9px"><b>A.</b> With 40 riders and an 8% no-show rate, no-shows are normally distributed with μ = 3.2 and σ = 1.72. So P(X ≥ 8) = P(z &gt; 2.80) = <b>0.0026</b>. A degraded shift is a once-in-400-shifts event and needs no contingency planning.</p>
+    <p style="margin:0 0 9px"><b>B.</b> Claims follow a Poisson distribution with λ = 2.5. The probability of a claim-free week is therefore e<sup>−2.5</sup> = <b>0.082</b>, or about one week in twelve.</p>
+    <p style="margin:0 0 9px"><b>C.</b> Using z = 1.28 for 90%, the advertised window should be 38 + 1.28(7) = <b>46.96, so 47 minutes</b>.</p>
+    <p style="margin:0 0 9px"><b>D.</b> The screening model is 88% accurate, so when it flags a rider we can be <b>88% confident</b> the rider is genuinely high-risk. I recommend automatically deactivating every flagged rider.</p>
+    <p style="margin:0 0 9px"><b>E.</b> The Cebu expansion has an expected monetary value of <b>+₱1.3M</b>. Since the EMV is positive, we should proceed.</p>
+    <p style="margin:0"><b>F.</b> Separately, note that rider no-shows and heavy rainfall are independent events, so the probability of both occurring on a given day is simply P(no-show) × P(rain).</p>
+  </div>
+
+  <p style="margin:0"><b>Exactly one of the five substantive answers is both correctly computed <em>and</em> correctly concluded.</b> Your job is to find out which. Be careful: one other item is arithmetically right but reaches an indefensible conclusion, and saying so is part of a complete audit.</p>
+</div><div class="essay"><div class="etag">Essay 1 · 20 points · Analyse & Apply</div><div class="eq">Audit items <b>A</b>, <b>B</b>, <b>C</b> and <b>F</b>. For each, state which distribution or rule is appropriate and justify it from the stated conditions; identify whether the analyst's treatment is correct; and where it is not, recompute the answer correctly and quantify the size of the error. Then explain what practical consequence each error would have had.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>A distribution named for each item, with the specific condition that selects it.</li>
+        <li>The np ≥ 5 check performed explicitly for item A, with a stated alternative.</li>
+        <li>The λ rescaling for item B, and a sense of the magnitude of the error.</li>
+        <li>Recognition that <b>one</b> of these is actually correct.</li>
+        <li>A practical consequence for each error, not just a corrected number.</li>
+      </ul>
+    </div></details></div>
+<div class="essay"><div class="etag">Essay 2 · 20 points · Apply & Create</div><div class="eq">Address item <b>D</b>. Compute the probability that a flagged rider is genuinely high-risk, showing the full Bayes calculation and a confusion matrix per 10,000 riders. Explain in language a non-statistician operations director would accept why the answer is so far from 88%. Then design a defensible deployment of the model, and state what would have to change for automatic deactivation to become justifiable.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>The full Bayes computation, and identification of what "88%" actually is.</li>
+        <li>A whole-number confusion matrix — this is what convinces a non-statistician.</li>
+        <li>The <em>mechanism</em>: a small false-positive rate applied to a large clean population.</li>
+        <li>Use of the <b>other</b> conditional, P(risky | not flagged), which is where the model's real value lies.</li>
+        <li>A deployment design, plus the specific conditions under which the analyst's recommendation would become sound.</li>
+      </ul>
+    </div></details></div>
+<div class="essay"><div class="etag">Essay 3 · 15 points · Evaluate & Create</div><div class="eq">Address item <b>E</b>. Compute the expected monetary value and the standard deviation of the Cebu expansion. Evaluate the analyst's recommendation against the company's ₱16M equity. Then write the recommendation you would actually send to the board — including at least one way to restructure the decision so that the opportunity is not simply abandoned.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>ΣP(x) = 1 checked before anything else.</li>
+        <li>Both E(X) and σ computed, with the variance shown via E(X²) − [E(X)]².</li>
+        <li>The insolvency comparison made explicitly and numerically.</li>
+        <li>A statement of what EMV assumes and why that assumption fails here.</li>
+        <li>A restructuring proposal — not merely "reject".</li>
+      </ul>
+    </div></details></div></section>
+<footer class="end"><p><b>Advanced Business Statistics</b> · Chapter 3 — Probability &amp; Distributions · Exercises &amp; Essays. Bachelor of Science in Business Administration, College of Business, Entrepreneurship and Accountancy, Rizal Technological University.</p></footer>
+</div>
+<script>
+(function(){
+  function s(e){var h=this.getAttribute("href");if(!h||h[0]!=="#")return;var el=document.getElementById(h.slice(1));
+    if(el){e.preventDefault();el.scrollIntoView({behavior:"smooth",block:"start"});}}
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener("click",s);});
+  window.exAll=function(open){document.querySelectorAll("details.ans").forEach(function(d){d.open=open;});};
+})();
+</script>
+</body>
+</html>
