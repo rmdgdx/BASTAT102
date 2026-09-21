@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One-Sample t-Test — 30-Item Conceptual Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Spectral:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16233f; --ink-soft:#22325a; --paper:#eef1f6; --surface:#ffffff;
+  --text:#232a36; --muted:#626c7c; --blue:#2f6db0; --blue-soft:#e7f0fa;
+  --gold:#d99a24; --gold-soft:#fbf6ea; --code-bg:#1b2438; --code-text:#e7ecf7;
+  --rule:#dde3ec; --ok:#1f9d57; --bad:#cf3a3a;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0; background:var(--paper); color:var(--text);
+  font-family:"Inter",system-ui,-apple-system,sans-serif; font-size:17px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; min-height:100vh; display:flex; flex-direction:column;}
+.wrap{width:100%; max-width:760px; margin:0 auto; padding:28px 20px 60px; flex:1;}
+
+/* Header bar */
+.topbar{background:var(--ink); color:#fff;}
+.topbar .inner{max-width:760px; margin:0 auto; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;}
+.topbar .kick{font-family:"JetBrains Mono",monospace; font-size:.7rem; letter-spacing:.12em; color:var(--gold);}
+.topbar h1{font-family:"Spectral",serif; font-weight:600; font-size:1.12rem; margin:2px 0 0; line-height:1.2;}
+.topbar .who{font-size:.72rem; color:#aab6cc; text-align:right;}
+.topbar .who b{color:#fff;}
+
+/* Progress */
+.progress{margin:22px 0 6px;}
+.progress .meta{display:flex; justify-content:space-between; align-items:baseline; font-family:"JetBrains Mono",monospace; font-size:.74rem; color:var(--muted); margin-bottom:7px;}
+.progress .meta .qof{color:var(--ink-soft); font-weight:600;}
+.bar{height:7px; background:#e2e7f0; border-radius:99px; overflow:hidden;}
+.bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--gold)); border-radius:99px; transition:width .25s ease;}
+
+/* Cards / panels */
+.panel{background:var(--surface); border:1px solid var(--rule); border-radius:14px; padding:26px 26px 24px; box-shadow:0 1px 2px rgba(20,30,60,.04);}
+h2{font-family:"Spectral",serif; color:var(--ink); font-weight:600; margin:0 0 .4rem; line-height:1.2;}
+.lead{color:var(--muted); font-size:.95rem; margin:.2rem 0 1.2rem;}
+
+/* Identity form */
+.field{margin:14px 0;}
+.field label{display:block; font-size:.78rem; font-weight:600; color:var(--ink-soft); letter-spacing:.02em; margin-bottom:6px;}
+.field input{width:100%; font-family:"Inter",sans-serif; font-size:1rem; padding:11px 13px; border:1px solid var(--rule); border-radius:9px; background:#fbfcfe; color:var(--text);}
+.field input:focus{outline:2px solid var(--blue-soft); border-color:var(--blue);}
+.field .hint{font-size:.74rem; color:var(--muted); margin-top:5px;}
+
+/* Question */
+.qhead{display:flex; align-items:flex-start; gap:10px; margin-bottom:6px;}
+.qnum{font-family:"JetBrains Mono",monospace; font-size:.74rem; color:#fff; background:var(--ink); padding:3px 9px; border-radius:6px; flex-shrink:0; margin-top:3px;}
+.qtitle{font-family:"Spectral",serif; font-weight:600; font-size:1.1rem; line-height:1.4; color:var(--ink);}
+pre.code{display:none;background:var(--code-bg); color:var(--code-text); border-radius:10px; padding:16px 16px 14px;
+  overflow-x:auto; margin:14px 0 18px; position:relative; border:1px solid #0f1626;
+  font-family:"JetBrains Mono",monospace; font-size:.86rem; line-height:1.6; white-space:pre;}
+pre.code::before{content:"py"; position:absolute; top:0; right:0; font-family:"JetBrains Mono",monospace; font-size:.6rem;
+  letter-spacing:.12em; color:var(--ink); background:var(--gold); padding:2px 9px; border-radius:0 9px 0 9px; font-weight:600;}
+
+/* Options */
+.opts{list-style:none; padding:0; margin:0;}
+.opt{display:flex; align-items:flex-start; gap:12px; padding:13px 15px; margin:9px 0; border:1.5px solid var(--rule);
+  border-radius:10px; background:#fbfcfe; cursor:pointer; transition:border-color .12s, background .12s;}
+.opt:hover{border-color:#b9c6dd; background:#f5f8fc;}
+.opt.sel{border-color:var(--blue); background:var(--blue-soft);}
+.opt .let{font-family:"JetBrains Mono",monospace; font-weight:600; font-size:.86rem; color:var(--muted);
+  width:26px; height:26px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  border:1.5px solid var(--rule); border-radius:50%; background:#fff;}
+.opt.sel .let{color:#fff; background:var(--blue); border-color:var(--blue);}
+.opt .txt{font-size:.96rem;}
+.opt .txt.mono{font-family:"JetBrains Mono",monospace; font-size:.9rem;}
+
+/* Nav buttons */
+.actions{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:22px;}
+.btn{font-family:"Inter",sans-serif; font-size:.95rem; font-weight:600; padding:12px 24px; border-radius:10px;
+  border:1px solid transparent; cursor:pointer; transition:filter .12s, background .12s;}
+.btn:disabled{opacity:.45; cursor:not-allowed;}
+.btn-primary{background:var(--ink); color:#fff;}
+.btn-primary:hover:not(:disabled){filter:brightness(1.15);}
+.btn-gold{background:var(--gold); color:#1a1303;}
+.btn-gold:hover:not(:disabled){filter:brightness(1.06);}
+.btn-ghost{background:transparent; color:var(--muted); border-color:var(--rule);}
+.btn-ghost:hover:not(:disabled){color:var(--ink); border-color:#b9c6dd;}
+.note{font-family:"JetBrains Mono",monospace; font-size:.72rem; color:var(--muted);}
+
+/* Completion */
+.center{text-align:center;}
+.bigmark{width:64px; height:64px; border-radius:50%; background:var(--gold-soft); border:2px solid var(--gold);
+  color:var(--gold); display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin:6px auto 16px;}
+.summary{background:#f6f8fc; border:1px solid var(--rule); border-radius:10px; padding:14px 18px; margin:18px 0; text-align:left; font-size:.92rem;}
+.summary div{display:flex; justify-content:space-between; padding:4px 0; border-top:1px solid var(--rule);}
+.summary div:first-child{border-top:none;}
+.summary b{color:var(--ink-soft);}
+.statusmsg{font-size:.9rem; margin-top:14px; padding:11px 14px; border-radius:9px; display:none;}
+.statusmsg.show{display:block;}
+.statusmsg.good{background:#eaf6ef; color:#1f5b3a; border:1px solid #bfe3cd;}
+.statusmsg.bad{background:#fceaea; color:#8a2b2b; border:1px solid #e9c3c3;}
+.statusmsg.info{background:var(--blue-soft); color:#1c4f86; border:1px solid #c5dcf2;}
+
+.hide{display:none !important;}
+footer{max-width:760px; margin:0 auto; padding:18px 20px 30px; font-family:"JetBrains Mono",monospace;
+  font-size:.7rem; color:var(--muted); letter-spacing:.02em; text-align:center;}
+@media (max-width:600px){ .panel{padding:20px 18px;} .topbar .who{text-align:left;} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="inner">
+    <div>
+      <div class="kick">ADVANCED BUSINESS STATISTICS · REINFORCEMENT EXERCISE 1</div>
+      <h1>The One-Sample <i>t</i>-Test</h1>
+    </div>
+    <div class="who">Instructional designer<br><b>Dr. Ryan Manuel D. Guido</b></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Progress (hidden until test starts) -->
+  <div class="progress hide" id="progress">
+    <div class="meta"><span class="qof" id="qof">Question 1 of 30</span><span id="answeredCount">0 answered</span></div>
+    <div class="bar"><i id="barfill"></i></div>
+  </div>
+
+  <!-- ===== START SCREEN ===== -->
+  <section class="panel" id="startScreen">
+    <h2>Before you begin</h2>
+    <p class="lead">This is a 30-item multiple-choice test on the concepts behind the one-sample <i>t</i>-test: its purpose, logic, hypotheses, assumptions, interpretation, and limits. No calculator is needed — the items ask you to understand and judge, not to compute. Read each item, choose the <b>best</b> answer, and tap <b>Next</b>; the following item appears only after you answer. You will not see a score; your responses are submitted to your instructor for checking.</p>
+    <div class="field"><label for="fName">Full name</label><input id="fName" type="text" autocomplete="name" placeholder="e.g., Maria Santos"></div>
+    <div class="field"><label for="fId">Student number</label><input id="fId" type="text" placeholder="e.g., 2026-12345"></div>
+    <div class="field"><label for="fSection">Section</label><input id="fSection" type="text" placeholder="Your class section"></div>
+    <div class="field"><label for="fEmail">Your email <span style="font-weight:400;color:var(--muted)">(RTU email)</span></label><input id="fEmail" type="email" autocomplete="email" placeholder="you@rtu.edu.ph"></div>
+    <div class="actions" style="justify-content:flex-end;">
+      <button class="btn btn-primary" id="startBtn">Start test &rarr;</button>
+    </div>
+    <p class="note" style="margin-top:14px;">30 items · one at a time · you may go back before sending</p>
+    <p class="note" style="margin-top:6px;"><a href="index.html#reinforcement" style="color:var(--blue)">&larr; Course home</a> &nbsp;·&nbsp; <a href="Chapter01.2.html" style="color:var(--blue)">Review Lecture 1.2 first</a></p>
+  </section>
+
+  <!-- ===== QUESTION SCREEN ===== -->
+  <section class="panel hide" id="quizScreen">
+    <div class="qhead"><span class="qnum" id="qBadge">Q1</span><span class="qtitle" id="qPrompt"></span></div>
+    <ul class="opts" id="qOpts" style="margin-top:14px;"></ul>
+    <div class="actions">
+      <button class="btn btn-ghost" id="prevBtn">&larr; Back</button>
+      <button class="btn btn-primary" id="nextBtn" disabled>Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ===== COMPLETION SCREEN ===== -->
+  <section class="panel center hide" id="doneScreen">
+    <div class="bigmark">&#10003;</div>
+    <h2>You&rsquo;ve completed all 30 items</h2>
+    <p class="lead">Your answers are ready to submit. Your score is recorded but is not shown here — it will be sent to your instructor for checking.</p>
+    <div class="summary">
+      <div><span>Name</span><b id="sName">—</b></div>
+      <div><span>Student number</span><b id="sId">—</b></div>
+      <div><span>Section</span><b id="sSection">—</b></div>
+      <div><span>Items answered</span><b id="sAnswered">0 / 30</b></div>
+    </div>
+    <div class="actions" style="justify-content:center; gap:14px;">
+      <button class="btn btn-ghost" id="reviewBtn">&larr; Review answers</button>
+      <button class="btn btn-gold" id="sendBtn">Send to instructor</button>
+    </div>
+    <div class="statusmsg" id="statusMsg"></div>
+    <p class="note" id="destNote" style="margin-top:16px;">Results are sent to rmdguido@rtu.edu.ph</p>
+    <p class="note hide" id="homeLink" style="margin-top:8px;"><a href="index.html#reinforcement" style="color:var(--blue)">&larr; Back to the course home</a></p>
+  </section>
+
+</div>
+
+<footer>The One-Sample t-Test · 30-Item Conceptual Test · Instructional designer: Dr. Ryan Manuel D. Guido</footer>
+
+<script>
+/* ====================================================================
+   SUBMISSION CONFIG  —  check this ONCE before sharing the test.
+   --------------------------------------------------------------------
+   A standalone HTML page cannot send email by itself, so results are
+   POSTed to a form-to-email service (Formspree) that delivers them to
+   the instructor's inbox. The respondent never sees the score.
+
+   The endpoint below is the one used by the EBDA test. Every email's
+   subject line starts with the test name, so the two tests are easy to
+   tell apart. To keep this test in its own Formspree form instead:
+     1. Sign in at https://formspree.io (account: rmdguido@rtu.edu.ph)
+     2. Create a new form and copy its endpoint,
+        e.g. https://formspree.io/f/abcdwxyz
+     3. Paste it below in place of the current endpoint.
+   If the endpoint is set to REPLACE_WITH_FORMSPREE_ID, the Send button
+   shows a configuration notice instead of silently failing.
+   ==================================================================== */
+const CONFIG = {
+  endpoint: "https://formspree.io/f/xvzjkzeb",
+  instructorEmail: "rmdguido@rtu.edu.ph",
+  testName: "One-Sample t-Test — 30-Item Conceptual Test"
+};
+
+/* Items. The answer key is NOT stored here in readable form (see KEY below). */
+const QUESTIONS = [{"prompt": "What does a one-sample t-test compare?", "options": ["The means of two unrelated groups of cases.", "The same cases measured before and after an event.", "The mean of one sample against a fixed value set in advance.", "The observed counts in several categories against the counts expected."]}, {"prompt": "A call centre wants to know whether its average handling time differs from the 6-minute company standard, using one random sample of calls. Which analysis fits this question?", "options": ["One-sample t-test.", "Paired-samples t-test.", "Independent-samples t-test.", "Chi-square test of independence."]}, {"prompt": "Why is the t distribution used here instead of the standard normal (z) distribution?", "options": ["The t distribution is required whenever the data are not normally distributed in the sample.", "The population standard deviation is unknown and must be estimated from the sample.", "The z distribution can only be used when the sample has fewer than 30 cases.", "The sample mean is unknown and must be estimated from the population."]}, {"prompt": "An analyst looks at the sample mean first (25.8) and then decides to test against a benchmark of 25. What is the main problem?", "options": ["Nothing is wrong, as long as the benchmark is close to the sample mean.", "The benchmark must always be a whole number taken from an official government source.", "The benchmark must be fixed independently of the sample data.", "The test becomes a paired-samples test once the benchmark is changed."]}, {"prompt": "In plain language, what does the t statistic tell you?", "options": ["How many standard errors the sample mean lies away from the benchmark.", "The probability that the null hypothesis is true for this sample.", "How many standard deviations each observation lies from the sample mean.", "The percentage of cases in the sample that exceed the benchmark."]}, {"prompt": "Which statement correctly separates the standard deviation (SD) from the standard error (SE)?", "options": ["SD describes spread among individual cases; SE describes how much the sample mean would vary across samples.", "SD and SE are two names for the same quantity, reported in different software.", "SD applies only to populations, while SE applies only to samples of fewer than 30.", "SD describes how much the sample mean would vary across samples; SE describes spread among individual cases."]}, {"prompt": "With few degrees of freedom the t distribution has heavier tails than the normal curve. What is the practical consequence?", "options": ["The sample mean becomes a biased estimate of the population mean.", "The test can no longer be two-tailed and must be run as one-tailed.", "Weaker evidence (a smaller |t|) is enough to reject the null hypothesis.", "A larger |t| is needed before the null hypothesis can be rejected."]}, {"prompt": "Why does a one-sample t-test have n − 1 degrees of freedom rather than n?", "options": ["Estimating the mean uses up one piece of information, leaving n − 1 free deviations.", "Software rounds the sample size down to protect against Type I error.", "One observation is always treated as an outlier and is removed before the test is run.", "The benchmark value counts as an extra observation that must be subtracted."]}, {"prompt": "The gap between the sample mean and the benchmark stays the same, and so does the standard deviation, but the sample size increases. What happens?", "options": ["The standard error grows, so |t| becomes smaller and the p value larger.", "The effect size (Cohen's d) increases in proportion to the sample size.", "Nothing changes, because t depends only on the mean and the standard deviation.", "The standard error shrinks, so |t| becomes larger and the p value smaller."]}, {"prompt": "The null and alternative hypotheses of a one-sample t-test are statements about which quantity?", "options": ["The sample mean, x̄.", "The population mean, μ.", "The test statistic, t.", "The sample standard deviation, s."]}, {"prompt": "When is a two-tailed test the appropriate choice?", "options": ["When the researcher wants the smallest possible p value from the data.", "When a departure in either direction would matter to the decision.", "When the sample size is below 30 and the data are clearly skewed.", "When the sample mean turns out to be larger than the benchmark."]}, {"prompt": "A two-tailed test gives p = .08. The analyst then re-runs it as one-tailed “because an increase was expected anyway” and reports p = .04. What is wrong?", "options": ["The degrees of freedom change under a one-tailed test, so the p value is invalid.", "Nothing; one-tailed tests are always preferred because they are more powerful.", "Choosing the direction after seeing the data inflates the Type I error rate.", "One-tailed tests are only permitted when the sample size is larger than 100."]}, {"prompt": "What does setting α = .05 actually commit the researcher to?", "options": ["A 5% probability that the study will fail to detect a real difference.", "A guarantee that 95% of the sample values lie close to the benchmark.", "A 5% probability that the null hypothesis is true once the test has come out significant.", "A rule that rejects a true null hypothesis about 5% of the time in the long run."]}, {"prompt": "Which is the correct meaning of a p value?", "options": ["The probability that the result would appear again in a repeat study.", "The proportion of the observed difference that is caused by chance.", "The probability that the null hypothesis is true, given the data that were actually collected.", "The probability of a result at least this extreme if the null hypothesis is true."]}, {"prompt": "A test returns p = .30. Which conclusion is justified?", "options": ["The data prove that the population mean is equal to the benchmark.", "There is insufficient evidence that the mean differs from the benchmark.", "There is a 30% chance that the population mean equals the benchmark.", "The test was run incorrectly, because a properly run test gives p below .05."]}, {"prompt": "While screening the data you find one value far from all the others. What is the most defensible first step?", "options": ["Trace it to its source to see whether it is an error or a genuine extreme.", "Ignore it, because the t-test is unaffected by single extreme values.", "Replace it with the sample mean so that the original sample size is fully preserved.", "Delete it at once, because extreme values always invalidate a t-test."]}, {"prompt": "The normality assumption of the one-sample t-test matters most in which situation?", "options": ["Large samples, because more data make non-normality more harmful.", "Any sample in which the mean happens to be above the benchmark.", "Samples drawn at random, because random data are rarely normal.", "Small samples, especially with strong skew or extreme outliers."]}, {"prompt": "In the Shapiro–Wilk test, what does a result of p < .05 indicate?", "options": ["Evidence that the data follow a normal distribution.", "Evidence that the data depart from a normal distribution.", "Evidence that the observations are not independent.", "Evidence that the sample mean differs from the benchmark."]}, {"prompt": "With n = 400, the histogram is symmetric and there are no outliers, yet Shapiro–Wilk gives p = .03. What is the most sensible response?", "options": ["Switch to a chi-square test, which has no distributional assumptions.", "Remove observations one at a time until the normality test is no longer significant.", "Abandon the t-test, because any significant normality test forbids it.", "Proceed with the t-test; very large samples flag even trivial departures."]}, {"prompt": "On a normal Q–Q plot, which pattern supports approximate normality?", "options": ["The points form a clear S-shaped or strongly curved pattern.", "The points fall close to the straight reference line.", "The points are scattered with no pattern at all.", "Most points lie far above the line at both ends."]}, {"prompt": "A dataset holds 40 satisfaction ratings, but they come from 8 customers who each rated five visits. Which assumption is violated?", "options": ["Independence of observations.", "Quantitative measurement.", "A pre-specified benchmark.", "Approximate normality."]}, {"prompt": "The outcome variable is whether each delivery was late (yes or no), and the target is a 5% late rate. Why is a one-sample t-test unsuitable?", "options": ["Late deliveries are rare events, and t-tests need at least 50% in each category.", "The benchmark is a percentage, and t-tests cannot use benchmarks below 10.", "The outcome is categorical, so a one-sample proportion or binomial test is needed.", "There is only one group, and t-tests always require two groups to compare."]}, {"prompt": "A sample of 12 values is strongly skewed by one genuine extreme case. Which alternative is most appropriate alongside, or instead of, the t-test?", "options": ["The one-sample Wilcoxon signed-rank test.", "The chi-square goodness-of-fit test.", "The independent-samples t-test.", "Pearson's correlation coefficient."]}, {"prompt": "A 95% confidence interval for the population mean does not contain the benchmark μ₀. What follows?", "options": ["A two-tailed test at α = .05 would reject the null hypothesis.", "A two-tailed test at α = .05 would fail to reject the null hypothesis.", "The sample size must have been too small to draw any conclusion.", "Nothing follows, because confidence intervals and tests are unrelated."]}, {"prompt": "Which is the most accurate interpretation of a 95% confidence interval for μ?", "options": ["About 95% of the individual observations fall inside this interval.", "There is a 95% probability that the sample mean of this study lies inside the interval.", "About 95% of intervals built this way from repeated samples would capture the true mean.", "The null hypothesis has a 95% probability of being false."]}, {"prompt": "What does Cohen's d add to the results of a one-sample t-test?", "options": ["The probability that the difference is real, which grows as n gets larger.", "The size of the difference in standard-deviation units, whatever the sample size.", "A correction to the p value for samples that are not normally distributed.", "The number of standard errors that separate the sample mean from the benchmark value."]}, {"prompt": "With 8,000 customers, mean satisfaction is 0.03 standard deviations above the benchmark and p < .05. What is the best reading?", "options": ["An invalid result, because samples above 1,000 cannot be tested.", "A large and practically important effect, because the p value is below .05.", "Statistically significant but tiny; practical importance is a separate question.", "Proof that the benchmark was set too low by the company."]}, {"prompt": "A courier's true mean delivery time really is above its 24-hour promise, but the test is not significant. What has occurred?", "options": ["A Type I error — a false alarm was raised.", "A violation of the independence assumption.", "A Type II error — a real difference was missed.", "A correct decision to retain a true null hypothesis."]}, {"prompt": "Which change increases the statistical power of a one-sample t-test, other things being equal?", "options": ["Studying a smaller true difference.", "Using a stricter α such as .001.", "Choosing a two-tailed instead of a one-tailed test.", "Collecting a larger sample."]}, {"prompt": "A one-sample t-test shows that mean delivery time exceeds the 24-hour promise. Which conclusion goes beyond what the test can support?", "options": ["“The finding applies to the population from which the parcels were sampled.”", "“The data provide evidence that the promise is not being met on average.”", "“The new sorting hub is the cause of the delays.”", "“Mean delivery time in the sampled period was above 24 hours.”"]}];
+const LETTERS = ["A","B","C","D"];
+
+/* Answer key, lightly obfuscated (character shift + base64) so it cannot be
+   read at a glance in the page source. Decoded only at grading time. */
+const KEY = "SkhJSkhIS0hLSUlKS0tJSEtJS0lISkhISklKSktK";
+function keyLetters(){ return atob(KEY).split("").map(c => String.fromCharCode(c.charCodeAt(0)-7)); }
+
+const state = { i:0, answers:new Array(QUESTIONS.length).fill(null), submitted:false, profile:{} };
+
+const $ = id => document.getElementById(id);
+const startScreen=$("startScreen"), quizScreen=$("quizScreen"), doneScreen=$("doneScreen"), progress=$("progress");
+
+/* ---- Start ---- */
+$("startBtn").addEventListener("click", () => {
+  const name=$("fName").value.trim();
+  if(!name){ $("fName").focus(); $("fName").style.borderColor="var(--bad)"; return; }
+  state.profile = {
+    name,
+    studentId: $("fId").value.trim() || "(not given)",
+    section: $("fSection").value.trim() || "(not given)",
+    email: $("fEmail").value.trim() || "(not given)"
+  };
+  startScreen.classList.add("hide");
+  progress.classList.remove("hide");
+  quizScreen.classList.remove("hide");
+  render();
+});
+
+/* ---- Render current question ---- */
+function render(){
+  const q = QUESTIONS[state.i];
+  $("qBadge").textContent = "Q" + (state.i+1);
+  $("qPrompt").textContent = q.prompt;
+
+  const ul = $("qOpts"); ul.innerHTML="";
+  q.options.forEach((opt, idx) => {
+    const li=document.createElement("li");
+    li.className="opt" + (state.answers[state.i]===idx ? " sel":"");
+    li.setAttribute("role","button"); li.tabIndex=0;
+    li.innerHTML = '<span class="let">'+LETTERS[idx]+'</span><span class="txt"></span>';
+    li.querySelector(".txt").textContent = opt;
+    const choose = () => {
+      state.answers[state.i]=idx;
+      [...ul.children].forEach(c=>c.classList.remove("sel"));
+      li.classList.add("sel");
+      $("nextBtn").disabled=false;
+      updateProgress();
+    };
+    li.addEventListener("click", choose);
+    li.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); choose(); } });
+    ul.appendChild(li);
+  });
+
+  $("prevBtn").disabled = (state.i===0);
+  $("nextBtn").disabled = (state.answers[state.i]===null);
+  $("nextBtn").textContent = (state.i===QUESTIONS.length-1) ? "Finish \u2192" : "Next \u2192";
+  updateProgress();
+}
+
+function updateProgress(){
+  const total=QUESTIONS.length;
+  const answered=state.answers.filter(a=>a!==null).length;
+  $("qof").textContent = "Question " + (state.i+1) + " of " + total;
+  $("answeredCount").textContent = answered + " answered";
+  $("barfill").style.width = ((state.i+1)/total*100) + "%";
+}
+
+/* ---- Navigation ---- */
+$("nextBtn").addEventListener("click", () => {
+  if(state.answers[state.i]===null) return;          // item revealed only after answering
+  if(state.i < QUESTIONS.length-1){ state.i++; render(); window.scrollTo({top:0,behavior:"smooth"}); }
+  else { finish(); }
+});
+$("prevBtn").addEventListener("click", () => {
+  if(state.i>0){ state.i--; render(); window.scrollTo({top:0,behavior:"smooth"}); }
+});
+$("reviewBtn").addEventListener("click", () => {
+  if(state.submitted) return;
+  doneScreen.classList.add("hide");
+  progress.classList.remove("hide");
+  quizScreen.classList.remove("hide");
+  state.i=QUESTIONS.length-1; render();
+});
+
+/* ---- Finish -> completion screen (NO score shown) ---- */
+function finish(){
+  quizScreen.classList.add("hide");
+  progress.classList.add("hide");
+  doneScreen.classList.remove("hide");
+  $("sName").textContent=state.profile.name;
+  $("sId").textContent=state.profile.studentId;
+  $("sSection").textContent=state.profile.section;
+  $("sAnswered").textContent = state.answers.filter(a=>a!==null).length + " / " + QUESTIONS.length;
+  $("destNote").textContent = "Results are sent to " + CONFIG.instructorEmail;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ---- Silent grading (score never rendered) ---- */
+function grade(){
+  const key = keyLetters();
+  let correct=0; const detail=[];
+  QUESTIONS.forEach((q,idx) => {
+    const chosen=state.answers[idx];
+    const chosenLetter = (chosen===null ? "-" : LETTERS[chosen]);
+    const isCorrect = (chosenLetter===key[idx]);
+    if(isCorrect) correct++;
+    detail.push("Q"+(idx+1).toString().padStart(2," ")+": chose "+chosenLetter+" | correct "+key[idx]+" | "+(isCorrect ? "OK" : "X"));
+  });
+  const total=QUESTIONS.length;
+  const pct=Math.round(correct/total*1000)/10;
+  return { correct, total, pct, detail };
+}
+
+/* ---- Send ---- */
+function setStatus(kind,msg){
+  const s=$("statusMsg"); s.className="statusmsg show "+kind; s.textContent=msg;
+}
+
+$("sendBtn").addEventListener("click", async () => {
+  if(state.submitted) return;
+  const r = grade();
+  const stamp = new Date().toString();
+  const body = {
+    _subject: "["+CONFIG.testName+"] "+state.profile.name+" — "+r.correct+"/"+r.total,
+    to_instructor: CONFIG.instructorEmail,
+    test: CONFIG.testName,
+    submitted_at: stamp,
+    name: state.profile.name,
+    student_number: state.profile.studentId,
+    section: state.profile.section,
+    respondent_email: state.profile.email,
+    score: r.correct + " / " + r.total,
+    percentage: r.pct + "%",
+    answers_answered: state.answers.filter(a=>a!==null).length + " / " + r.total,
+    item_breakdown: r.detail.join("\n")
+  };
+
+  // Endpoint not configured yet
+  if(CONFIG.endpoint.indexOf("REPLACE_WITH_FORMSPREE_ID") !== -1){
+    setStatus("info","Submission endpoint not set up yet. Please notify your instructor — results were not sent. (Setup instructions are in the file's CONFIG comment.)");
+    return;
+  }
+
+  $("sendBtn").disabled=true; $("reviewBtn").disabled=true;
+  setStatus("info","Sending your test to your instructor…");
+  try{
+    const res = await fetch(CONFIG.endpoint, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+      body: JSON.stringify(body)
+    });
+    if(res.ok){
+      state.submitted=true;
+      setStatus("good","Your test has been submitted successfully. You may now close this page. Thank you!");
+      $("sendBtn").textContent="Submitted \u2713";
+      $("homeLink").classList.remove("hide");
+    } else {
+      $("sendBtn").disabled=false; $("reviewBtn").disabled=false;
+      setStatus("bad","Submission failed (server returned an error). Please check your internet connection and try again, or contact your instructor.");
+    }
+  }catch(err){
+    $("sendBtn").disabled=false; $("reviewBtn").disabled=false;
+    setStatus("bad","Could not send — network error. Please check your connection and try again, or contact your instructor.");
+  }
+});
+</script>
+</body>
+</html>
