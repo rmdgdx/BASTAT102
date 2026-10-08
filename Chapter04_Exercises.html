@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 4 — Exercises &amp; Essays</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   CHAPTER 11 · MULTIPLE REGRESSION
+   Interactive learning module · single standalone file · no libraries
+   ───────────────────────────────────────────────────────────────────
+   COLOUR SYSTEM — Rizal Technological University: GOLD-dominant with
+   Royal BLUE. Nine light surface tints, each paired with a darkened
+   "ink" variant used only for text, borders and icons so that every
+   text/background pair clears WCAG AA contrast. The gold family carries
+   most surfaces; blue, green and red are kept functional (concepts,
+   recaps, warnings). The five-colour chart series palette below is
+   gold-led and validated with the dataviz colour checker.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  /* --- nine light surface tints (GOLD-dominant + BLUE) --- */
+  --p1:#F6D8CF;  /* warm red   → mistakes, warnings, "don't do this"  */
+  --p2:#DCE7F6;  /* royal blue → core concepts, definitions           */
+  --p3:#D8EACF;  /* green      → recaps, correct answers, wins         */
+  --p4:#F0E1B0;  /* amber      → key terms, vocabulary                */
+  --p5:#FBEEC2;  /* gold cream → business cases, real-world (dominant)*/
+  --p6:#FCF6D2;  /* pale gold  → TL;DR, highlights                    */
+  --p7:#ECDFBB;  /* sand       → glossary, reference tables           */
+  --p8:#F7E1BE;  /* warm gold  → activities, "try it"                 */
+  --p9:#F3F0E6;  /* warm mist  → neutral surfaces                     */
+
+  /* --- matching ink (text/border) variants, all clear WCAG AA --- */
+  --i1:#A23A29; --i2:#1C4E86; --i3:#3B6E2E; --i4:#7A5A10; --i5:#86620A;
+  --i6:#7C6710; --i7:#6C5A2A; --i8:#8A5716; --i9:#55514A;
+
+  /* --- RTU brand accents --- */
+  --gold:#D9A82C;      /* brand gold — rings, rules, accents  */
+  --gold-ink:#856408;  /* dark gold for gold text on white    */
+  --blue:#1F5FA8;      /* brand blue — secondary              */
+  --blue-ink:#184E86;
+  --gold-grad:linear-gradient(135deg,#EAC24C,#D7A62C);
+
+  --ink:#232A33;      /* body text            */
+  --ink-soft:#5C5A50; /* secondary text       */
+  --line:#E7E0CC;     /* warm hairline rules  */
+  --bg:#FDFBF3;       /* warm cream page      */
+  --radius:16px;
+  --shadow:0 1px 2px rgba(60,50,20,.06), 0 8px 24px rgba(60,50,20,.07);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; scroll-padding-top:96px;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16.5px; line-height:1.68; -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;}
+
+/* ── PROGRESS BAR ────────────────────────────────────────────────── */
+#progress{
+  position:fixed; top:0; left:0; height:5px; width:0%; z-index:200;
+  background:linear-gradient(90deg,var(--gold),#E8C24E,var(--blue));
+  transition:width .12s linear;
+}
+
+/* ── STICKY NAV ──────────────────────────────────────────────────── */
+nav#topnav{
+  position:sticky; top:0; z-index:150; background:rgba(252,252,253,.92);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+}
+.navwrap{max-width:1080px; margin:0 auto; padding:9px 20px; display:flex; align-items:center; gap:14px;}
+.navbrand{font-weight:800; font-size:.86rem; letter-spacing:.4px; white-space:nowrap; color:var(--gold-ink);}
+.navlinks{display:flex; gap:5px; overflow-x:auto; scrollbar-width:none; flex:1;}
+.navlinks::-webkit-scrollbar{display:none;}
+.navlinks a{
+  font-size:.78rem; font-weight:600; text-decoration:none; color:var(--ink-soft);
+  padding:5px 11px; border-radius:999px; white-space:nowrap; transition:.15s;
+}
+.navlinks a:hover{background:var(--p9); color:var(--ink);}
+.navlinks a.on{background:var(--gold-grad); color:#3A2D06;}
+
+/* ── LAYOUT ──────────────────────────────────────────────────────── */
+.wrap{max-width:1080px; margin:0 auto; padding:0 20px 100px;}
+section{scroll-margin-top:96px;}
+
+/* ── HERO ────────────────────────────────────────────────────────── */
+.hero{
+  margin:26px 0 34px; padding:38px 34px; border-radius:26px; position:relative; overflow:hidden;
+  background:
+    radial-gradient(circle at 90% 6%,#F7E9A6 0,transparent 44%),
+    radial-gradient(circle at 4% 96%,#CBDDF4 0,transparent 46%),
+    radial-gradient(circle at 62% 104%,#FBEFC0 0,transparent 42%),
+    linear-gradient(135deg,#F6E6A0 0%,#EBCB5E 52%,#DCE6F6 100%);
+}
+.hero .eyebrow{
+  display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.72);
+  padding:5px 15px; border-radius:999px; font-size:.74rem; font-weight:800;
+  letter-spacing:1.3px; text-transform:uppercase; color:var(--gold-ink);
+}
+.hero h1{
+  font-size:clamp(1.9rem,4.6vw,3.05rem); line-height:1.12; margin:16px 0 10px;
+  font-weight:850; letter-spacing:-.9px; color:#22303B;
+}
+.hero .sub{font-size:1.04rem; max-width:62ch; color:#2E3945; margin:0 0 20px;}
+.chips{display:flex; flex-wrap:wrap; gap:9px;}
+.chip{
+  background:rgba(255,255,255,.82); border-radius:999px; padding:7px 15px;
+  font-size:.79rem; font-weight:700; color:#2E3945; display:inline-flex; align-items:center; gap:7px;
+}
+
+/* ── HEADINGS ────────────────────────────────────────────────────── */
+h2.sec{
+  font-size:1.62rem; font-weight:840; letter-spacing:-.5px; margin:52px 0 6px;
+  display:flex; align-items:center; gap:13px; line-height:1.25;
+}
+h2.sec .n{
+  flex:none; width:46px; height:46px; border-radius:14px; display:grid; place-items:center;
+  font-size:1.02rem; font-weight:850; background:var(--gold-grad); color:#3A2D06;
+}
+h3.sub{font-size:1.13rem; font-weight:800; margin:30px 0 8px; color:var(--i2); letter-spacing:-.2px;}
+h4.mini{font-size:.79rem; font-weight:850; letter-spacing:1.2px; text-transform:uppercase; color:var(--ink-soft); margin:22px 0 7px;}
+p{margin:0 0 14px;}
+.lead{font-size:1.08rem; color:#37414D;}
+
+/* ── CARDS / CALLOUTS ────────────────────────────────────────────── */
+.card{border-radius:var(--radius); padding:19px 22px; margin:18px 0; border:1px solid rgba(0,0,0,.05);}
+.card .hd{display:flex; align-items:center; gap:9px; font-weight:840; font-size:.87rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:9px;}
+.card p:last-child,.card ul:last-child,.card ol:last-child{margin-bottom:0;}
+.c-tldr{background:var(--p6);} .c-tldr .hd{color:var(--i6);}
+.c-concept{background:var(--p2);} .c-concept .hd{color:var(--i2);}
+.c-recap{background:var(--p3);} .c-recap .hd{color:var(--i3);}
+.c-term{background:var(--p4);} .c-term .hd{color:var(--i4);}
+.c-biz{background:var(--p5);} .c-biz .hd{color:var(--i5);}
+.c-warn{background:var(--p1);} .c-warn .hd{color:var(--i1);}
+.c-try{background:var(--p8);} .c-try .hd{color:var(--i8);}
+.c-ref{background:var(--p7);} .c-ref .hd{color:var(--i7);}
+.c-neutral{background:var(--p9);} .c-neutral .hd{color:var(--i9);}
+
+/* ── INLINE BITS ─────────────────────────────────────────────────── */
+.kt{background:var(--p4); color:var(--i4); font-weight:750; padding:1px 7px; border-radius:6px; white-space:nowrap;}
+.hl{background:var(--p6); padding:1px 5px; border-radius:5px; font-weight:650;}
+.no{color:var(--i1); font-weight:750;}
+.yes{color:var(--i3); font-weight:750;}
+code,.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.9em; background:var(--p9); padding:2px 6px; border-radius:5px;}
+.formula{
+  background:#fff; border:2px dashed var(--gold); border-radius:12px; padding:13px 18px;
+  margin:14px 0; text-align:center; font-family:"Cambria Math",Georgia,serif; font-size:1.06rem;
+}
+
+/* ── TABLES ──────────────────────────────────────────────────────── */
+.tbl-scroll{overflow-x:auto; margin:16px 0; border-radius:14px; border:1px solid var(--line);}
+table{width:100%; border-collapse:collapse; font-size:.92rem; background:#fff; min-width:560px;}
+th{background:var(--p4); color:var(--i4); text-align:left; padding:11px 14px; font-weight:820; font-size:.78rem; letter-spacing:.7px; text-transform:uppercase;}
+td{padding:11px 14px; border-top:1px solid var(--line); vertical-align:top;}
+tbody tr:nth-child(even) td{background:#FAFBFC;}
+td.ctr,th.ctr{text-align:center;}
+
+/* ── ACCORDION ───────────────────────────────────────────────────── */
+details.acc{background:#fff; border:1px solid var(--line); border-radius:14px; margin:11px 0; overflow:hidden;}
+details.acc>summary{
+  cursor:pointer; padding:14px 18px; font-weight:750; list-style:none;
+  display:flex; align-items:center; gap:11px; transition:.15s;
+}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:"＋"; margin-left:auto; font-weight:800; color:var(--ink-soft); font-size:1.1rem;}
+details.acc[open]>summary::after{content:"−";}
+details.acc>summary:hover{background:var(--p9);}
+details.acc[open]>summary{background:var(--p9); border-bottom:1px solid var(--line);}
+.acc-body{padding:16px 18px 18px;}
+.acc-body p:last-child,.acc-body ul:last-child{margin-bottom:0;}
+
+/* ── GRID ────────────────────────────────────────────────────────── */
+.grid{display:grid; gap:14px; margin:18px 0;}
+.g2{grid-template-columns:repeat(auto-fit,minmax(255px,1fr));}
+.g3{grid-template-columns:repeat(auto-fit,minmax(195px,1fr));}
+.g4{grid-template-columns:repeat(auto-fit,minmax(158px,1fr));}
+.tile{border-radius:14px; padding:16px 17px; border:1px solid rgba(0,0,0,.05);}
+.tile .ic{font-size:1.5rem; line-height:1; display:block; margin-bottom:8px;}
+.tile b{display:block; font-size:.98rem; margin-bottom:4px;}
+.tile span.d{font-size:.85rem; color:#4A5461; line-height:1.55;}
+
+/* ── STEPS ───────────────────────────────────────────────────────── */
+.steps{counter-reset:s; padding:0; margin:16px 0; list-style:none;}
+.steps li{counter-increment:s; position:relative; padding-left:48px; margin-bottom:15px;}
+.steps li::before{
+  content:counter(s); position:absolute; left:0; top:-1px; width:33px; height:33px;
+  border-radius:11px; background:var(--p5); color:var(--i5);
+  display:grid; place-items:center; font-weight:850; font-size:.94rem;
+}
+
+/* ── QUIZ ────────────────────────────────────────────────────────── */
+.quizbar{
+  position:sticky; top:52px; z-index:90; background:#fff; border:1px solid var(--line);
+  border-radius:14px; padding:12px 17px; margin:18px 0; display:flex; flex-wrap:wrap;
+  align-items:center; gap:12px; box-shadow:var(--shadow);
+}
+.quizbar .score{font-weight:850; font-size:1rem;}
+.quizbar .meter{flex:1; min-width:130px; height:9px; background:var(--p9); border-radius:99px; overflow:hidden;}
+.quizbar .meter i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--gold),var(--blue)); transition:width .3s;}
+.btn{
+  border:none; border-radius:999px; padding:8px 17px; font-size:.83rem; font-weight:750;
+  cursor:pointer; font-family:inherit; transition:.15s; background:var(--p9); color:var(--ink);
+}
+.btn:hover{filter:brightness(.96);}
+.btn.primary{background:var(--gold-grad); color:#3A2D06;}
+.btn.ghost{background:transparent; border:1px solid var(--line); color:var(--ink-soft);}
+
+.q{background:#fff; border:1px solid var(--line); border-radius:16px; padding:19px 21px; margin:14px 0;}
+.q .qhead{display:flex; gap:12px; align-items:flex-start; margin-bottom:13px;}
+.q .qnum{
+  flex:none; width:32px; height:32px; border-radius:10px; background:var(--p4); color:var(--i4);
+  display:grid; place-items:center; font-weight:850; font-size:.86rem;
+}
+.q .qtext{font-weight:620; line-height:1.6;}
+.q .qtext .scen{display:block; color:var(--ink-soft); font-weight:450; font-size:.93rem; margin-bottom:6px;}
+.q .bloom{
+  display:inline-block; font-size:.66rem; font-weight:850; letter-spacing:1px; text-transform:uppercase;
+  background:var(--p7); color:var(--i7); padding:3px 9px; border-radius:999px; margin-bottom:8px;
+}
+.opts{display:grid; gap:8px;}
+.opt{
+  display:flex; gap:11px; align-items:flex-start; padding:11px 14px; border-radius:11px;
+  border:1.5px solid var(--line); background:#fff; cursor:pointer; transition:.14s;
+  font-size:.94rem; line-height:1.5; text-align:left; font-family:inherit; color:var(--ink); width:100%;
+}
+.opt:hover:not(.locked){background:var(--p9); border-color:#CDD5DE;}
+.opt .ltr{
+  flex:none; width:24px; height:24px; border-radius:7px; background:var(--p9); color:var(--ink-soft);
+  display:grid; place-items:center; font-weight:850; font-size:.78rem;
+}
+.opt.correct{background:var(--p3); border-color:var(--i3);}
+.opt.correct .ltr{background:var(--i3); color:#fff;}
+.opt.wrong{background:var(--p1); border-color:var(--i1);}
+.opt.wrong .ltr{background:var(--i1); color:#fff;}
+.opt.locked{cursor:default;}
+.expl{margin-top:13px; border-radius:12px; padding:15px 17px; background:var(--p9); display:none;}
+.expl.show{display:block;}
+.expl .vt{font-weight:850; font-size:.85rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:7px; display:flex; align-items:center; gap:7px;}
+.expl .vt.ok{color:var(--i3);} .expl .vt.no{color:var(--i1);}
+.expl p{font-size:.93rem; margin:0 0 9px;}
+.expl .dis{margin-top:10px; padding-top:10px; border-top:1px dashed #CFD6DE;}
+.expl .dis div{font-size:.885rem; margin-bottom:5px; color:#404A56;}
+.expl .dis b{color:var(--i1);}
+
+/* ── ESSAY ───────────────────────────────────────────────────────── */
+.essay{background:#fff; border:1px solid var(--line); border-left:6px solid var(--p5); border-radius:16px; padding:21px 23px; margin:18px 0;}
+.essay .etag{font-size:.72rem; font-weight:850; letter-spacing:1.2px; text-transform:uppercase; color:var(--i5); margin-bottom:7px;}
+.essay .eq{font-size:1.04rem; font-weight:750; margin-bottom:11px; line-height:1.5;}
+.rubric{font-size:.88rem;}
+.rubric td,.rubric th{padding:8px 12px;}
+
+/* ── GLOSSARY ────────────────────────────────────────────────────── */
+.gloss{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(268px,1fr)); margin:16px 0;}
+.gitem{background:var(--p7); border-radius:12px; padding:13px 15px;}
+.gitem b{display:block; color:var(--i7); font-size:.95rem; margin-bottom:3px;}
+.gitem span{font-size:.87rem; color:#3E4854; line-height:1.55;}
+
+/* ── MISC ────────────────────────────────────────────────────────── */
+.palette{display:flex; gap:5px; margin:12px 0 0; flex-wrap:wrap;}
+.sw{width:38px; height:38px; border-radius:9px; border:1px solid rgba(0,0,0,.07);}
+hr.div{border:none; border-top:1px solid var(--line); margin:44px 0;}
+footer.end{margin-top:56px; padding:30px 0 0; border-top:1px solid var(--line); font-size:.86rem; color:var(--ink-soft);}
+.backtop{position:fixed; right:18px; bottom:18px; z-index:120; width:46px; height:46px; border-radius:50%;
+  background:var(--gold-grad); color:#3A2D06; border:none; font-size:1.15rem; cursor:pointer; box-shadow:var(--shadow); display:none;}
+.backtop.on{display:block;}
+
+@media(max-width:640px){
+  body{font-size:16px;}
+  .hero{padding:28px 22px; border-radius:20px;}
+  h2.sec{font-size:1.36rem;}
+  h2.sec .n{width:38px; height:38px; font-size:.9rem;}
+  .card{padding:16px 17px;}
+  .q{padding:16px 15px;}
+  .quizbar{top:50px;}
+}
+/* ── PRINT / PDF ─────────────────────────────────────────────────
+   Turns the interactive module into a static answer-key workbook:
+   every explanation, model answer and rubric is forced open, all
+   chrome is stripped, and nothing that must be read together is
+   allowed to break across a page.                                  */
+@page{ size:Letter; margin:14mm 12mm 15mm; }
+
+@media print{
+  /* strip interactive chrome */
+  nav#topnav,#progress,.backtop,.quizbar{ display:none !important; }
+
+  /* force every hidden layer open */
+  .expl{ display:block !important; }
+  details.acc{ page-break-inside:avoid; }
+  details.acc>summary::after{ content:"" !important; }
+  details.acc>summary{ background:var(--p9) !important; border-bottom:1px solid var(--line); }
+  details.acc:not([open])>.acc-body{ display:block !important; }
+
+  /* keep tint fills — they carry the semantic colour coding */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+
+  body{ font-size:10pt; line-height:1.5; background:#fff; }
+  .wrap{ max-width:none; padding:0 0 8pt; }
+  html{ scroll-behavior:auto; }
+
+  /* never split a unit of meaning across pages */
+  .card,.essay,.tile,.gitem,.formula,.acc-body,
+  .hero,.opts,.expl,.steps li{ page-break-inside:avoid; break-inside:avoid; }
+  /* Long reference tables must be allowed to flow. This chapter has several that
+     exceed a full page (the formula card, the case model answers); forcing them
+     whole strands the page before each one. Rows stay intact and the header
+     repeats on every page the table spans. */
+  .tbl-scroll{ break-inside:auto; page-break-inside:auto; }
+  /* An item may split, but only at the seam between its options and its
+     explanation — the stem+options block and the explanation each stay whole. */
+  .q{ break-inside:auto; }
+  .q .qhead{ break-after:avoid; }
+  /* Essay model answers and rubrics run close to a full page; keeping them
+     atomic would strand half a page before each. Let them flow, but keep
+     their internal tables and paragraphs whole. */
+  .essay details.acc, .essay .acc-body{ break-inside:auto; page-break-inside:auto; }
+  .essay details.acc>summary{ break-after:avoid; }
+  .essay .acc-body p, .essay .acc-body li{ break-inside:avoid; }
+  h2.sec,h3.sub,h4.mini{ page-break-after:avoid; break-after:avoid; }
+  tr,thead{ page-break-inside:avoid; }
+  thead{ display:table-header-group; }
+
+  /* major sections start a fresh page */
+  #cheat,#hots,#drill,#case{ page-break-before:always; }
+  hr.div{ display:none; }
+
+  /* tighten spacing that only exists for on-screen scrolling */
+  h2.sec{ margin:20pt 0 4pt; font-size:15pt; }
+  h3.sub{ margin:14pt 0 4pt; }
+  .card,.q,.essay{ margin:8pt 0; }
+  section{ scroll-margin-top:0; }
+  table{ min-width:0; font-size:8.6pt; }
+  .tbl-scroll{ overflow:visible; }
+  .grid{ gap:8pt; }
+
+  /* Quiz items are the bulk of the page count. Because each item is kept
+     whole (page-break-inside:avoid), an item taller than half a page wastes
+     the remainder. These densities are tuned so two reinforcement items fit
+     per page while the item stays comfortably readable. */
+  .q{ padding:11px 13px; margin:6pt 0; }
+  .q .qhead{ margin-bottom:8px; }
+  .q .qnum{ width:26px; height:26px; font-size:.78rem; }
+  .q .qtext{ font-size:9.5pt; line-height:1.45; }
+  .q .qtext .scen{ font-size:9pt; margin-bottom:4px; }
+  .q .bloom{ font-size:.62rem; padding:2px 7px; margin-bottom:5px; }
+  .opts{ gap:5px; }
+  .expl{ margin-top:9px; padding:10px 12px; }
+  .expl .vt{ font-size:.78rem; margin-bottom:5px; }
+  .expl p{ font-size:8.9pt; line-height:1.45; margin-bottom:6px; }
+  .expl .dis{ margin-top:7px; padding-top:7px; }
+  .expl .dis div{ font-size:8.5pt; line-height:1.42; margin-bottom:4px; }
+
+
+  figure.fig, .figcard, .figpair, .calc, pre.term{ page-break-inside:avoid; break-inside:avoid; }
+  .figpair.side{ grid-template-columns:1fr 1fr; }
+  figure.fig svg, .figcard svg{ max-height:none; }
+
+  /* answer key styling: correct option stays clearly marked */
+  .opt{ border-width:1px; padding:5px 10px; font-size:8.9pt; line-height:1.4; }
+  .opt .ltr{ width:20px; height:20px; font-size:.7rem; }
+  .opt.correct{ background:var(--p3) !important; border-color:var(--i3) !important; }
+  .opt.correct .ltr{ background:var(--i3) !important; color:#fff !important; }
+}
+
+/* ── CHART SERIES PALETTE ────────────────────────────────────────
+   The nine Pastel1 fills above are SURFACE colours: too light and too
+   low-chroma to encode data (measured — see §2.9). These five series
+   colours are GOLD-led and pushed into the accessible lightness/chroma
+   band. Verified with the dataviz validator: ALL CHECKS PASS on the
+   light surface (worst adjacent pair clears the floor with the legend
+   + direct labels every figure already carries).
+      gold → --s1   blue → --s2   green → --s3
+      plum → --s4   brick → --s5                                 */
+:root{
+  --s1:#A6790C; --s2:#1F5FA8; --s3:#3F8A3F; --s4:#8B4E9C; --s5:#B4523E;
+}
+
+/* ── FIGURES ─────────────────────────────────────────────────────── */
+figure.fig{ margin:18px 0; }
+figure.fig svg{ border:1px solid var(--line); border-radius:14px; background:#fff; }
+figcaption{ font-size:.85rem; color:var(--ink-soft); margin-top:7px; line-height:1.55; }
+figcaption b{ color:var(--ink); }
+.figpair{ display:grid; gap:14px; grid-template-columns:1fr; margin:18px 0; }
+@media(min-width:900px){ .figpair.side{ grid-template-columns:1fr 1fr; } }
+.figcard{ border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; }
+.figcard>.tag{
+  font-size:.74rem; font-weight:850; letter-spacing:1.1px; text-transform:uppercase;
+  padding:7px 13px; display:flex; align-items:center; gap:7px;
+}
+.figcard.bad>.tag{ background:var(--p1); color:var(--i1); }
+.figcard.good>.tag{ background:var(--p3); color:var(--i3); }
+.figcard svg{ border:none; border-radius:0; }
+.figcard>.note{ font-size:.83rem; color:#404A56; padding:10px 13px 12px; line-height:1.55; border-top:1px solid var(--line); }
+.figcard>.note b{ color:var(--ink); }
+.swatchrow{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin:10px 0; }
+.swatchrow .s{ width:30px; height:30px; border-radius:8px; border:1px solid rgba(0,0,0,.08); }
+.swatchrow .arrow{ color:var(--ink-soft); font-weight:800; }
+pre.term{
+  background:#1D2530; color:#D8DEE6; border-radius:12px; padding:13px 15px; margin:12px 0;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.74rem;
+  line-height:1.65; overflow-x:auto; white-space:pre;
+}
+pre.term .pass{ color:#8FD68F; } pre.term .fail{ color:#FF9A94; } pre.term .warn{ color:#F3D07A; }
+.calc{
+  background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold);
+  border-radius:12px; padding:14px 17px; margin:14px 0;
+  font-family:"Cambria Math",Georgia,serif; font-size:.97rem; line-height:1.85;
+}
+.calc .step{ display:block; }
+.calc .res{ font-weight:800; color:var(--i2); font-family:inherit; }
+.calc .lbl{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-size:.74rem; font-weight:850; letter-spacing:.9px; text-transform:uppercase;
+  color:var(--ink-soft); display:block; margin-bottom:4px; }
+
+/* ── Z-TABLE ─────────────────────────────────────────────────────── */
+table.ztab{ font-size:.68rem; min-width:640px; font-variant-numeric:tabular-nums; }
+table.ztab th{ font-size:.62rem; padding:5px 3px; text-align:center; letter-spacing:0; }
+table.ztab td{ padding:3.5px 3px; text-align:center; border-color:#EDF0F4; }
+table.ztab td.zh{ background:var(--p4); color:var(--i4); font-weight:850; }
+table.ztab td.hi{ background:var(--p6); font-weight:800; }
+table.ztab tbody tr:nth-child(even) td{ background:#FAFBFC; }
+table.ztab tbody tr:nth-child(even) td.zh{ background:var(--p4); }
+table.ztab tbody tr:nth-child(even) td.hi{ background:var(--p6); }
+
+/* ── DESIGN / CONCEPT CARDS ──────────────────────────────────────── */
+.dist{ border:1px solid var(--line); border-radius:16px; overflow:hidden; margin:14px 0; background:#fff; }
+.dist>.dh{ padding:9px 14px; font-weight:850; font-size:.92rem; display:flex; align-items:center; gap:9px; }
+.dist>.db{ padding:13px 15px; }
+.dist>.db p:last-child{ margin-bottom:0; }
+.dist.binom>.dh{ background:var(--p2); color:var(--i2); }
+.dist.pois>.dh{ background:var(--p3); color:var(--i3); }
+.dist.norm>.dh{ background:var(--p4); color:var(--i4); }
+.dist.warn>.dh{ background:var(--p1); color:var(--i1); }
+
+/* ── THE THREE-DISTRIBUTION DISAMBIGUATION STRIP ─────────────────── */
+.three{ display:grid; gap:0; grid-template-columns:1fr; border:1px solid var(--line);
+  border-radius:16px; overflow:hidden; margin:16px 0; background:#fff; }
+@media(min-width:760px){ .three{ grid-template-columns:repeat(3,1fr); } }
+.three>div{ padding:14px 16px; border-top:1px solid var(--line); }
+@media(min-width:760px){ .three>div{ border-top:none; border-left:1px solid var(--line); }
+  .three>div:first-child{ border-left:none; } }
+.three .tt{ font-weight:850; font-size:.9rem; margin-bottom:6px; display:flex; align-items:center; gap:7px; }
+.three .tf{ font-family:"Cambria Math",Georgia,serif; background:var(--p9); border-radius:8px;
+  padding:6px 9px; margin:8px 0; font-size:.92rem; text-align:center; }
+.three p{ font-size:.87rem; margin:0; color:#414B57; line-height:1.55; }
+
+/* ── TWO-VIEW TAB BAR (Lecture / Exercises) ─────────────────────── */
+.navtabs{ display:flex; gap:7px; margin-left:auto; flex:none; }
+.navtabs a{
+  display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+  font-size:.8rem; font-weight:800; letter-spacing:.2px; padding:7px 15px;
+  border-radius:999px; color:var(--blue-ink); background:var(--p2);
+  border:1px solid transparent; white-space:nowrap; transition:.15s;
+}
+.navtabs a:hover{ filter:brightness(.97); }
+.navtabs a.active{ background:var(--gold-grad); color:#3A2D06; box-shadow:0 1px 4px rgba(120,90,10,.3); }
+@media(max-width:720px){ .navtabs a .lbl2{ display:none; } }
+@media(max-width:640px){ .navtabs a{ padding:6px 11px; font-size:.74rem; } }
+
+/* ── PER-TOPIC VIDEO CARD ───────────────────────────────────────── */
+.vidbox{
+  display:flex; gap:14px; align-items:center; text-decoration:none; color:inherit;
+  background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold);
+  border-radius:13px; padding:12px 16px; margin:16px 0; transition:.15s;
+}
+.vidbox:hover{ background:var(--p6); box-shadow:var(--shadow); }
+.vidbox .play{
+  flex:none; width:46px; height:46px; border-radius:12px; background:#E12D2D;
+  display:grid; place-items:center; color:#fff; font-size:1.15rem;
+}
+.vidbox .vmeta{ min-width:0; }
+.vidbox .vk{ font-size:.68rem; font-weight:850; letter-spacing:1.1px; text-transform:uppercase; color:var(--gold-ink); display:block; margin-bottom:2px; }
+.vidbox .vt{ font-weight:750; font-size:.97rem; line-height:1.35; display:block; color:var(--ink); }
+.vidbox .vch{ font-size:.83rem; color:var(--ink-soft); }
+.vidbox .go{ margin-left:auto; flex:none; color:var(--ink-soft); font-weight:800; font-size:1.1rem; }
+@media(max-width:640px){ .vidbox .go{ display:none; } }
+@media print{ .vidbox,.navtabs{ display:none !important; } }
+
+/* ── static MCQ options + answer dropdowns (exercises pages) ─────── */
+.optrow{display:flex;gap:11px;align-items:flex-start;padding:9px 13px;border:1.5px solid var(--line);
+  border-radius:11px;margin:7px 0;background:#fff;font-size:.95rem;line-height:1.5;}
+.optrow .ltr{flex:none;width:24px;height:24px;border-radius:7px;background:var(--p9);color:var(--ink-soft);
+  display:grid;place-items:center;font-weight:850;font-size:.78rem;}
+.q .opts{display:block;margin-top:4px;}
+details.acc.ans{margin:12px 0 2px;}
+details.acc.ans>summary{color:var(--blue-ink);font-weight:800;}
+.ansbody .key,.acc-body .key{font-weight:850;color:var(--i3);}
+.exbar{position:sticky;top:52px;z-index:90;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:11px 16px;margin:16px 0;display:flex;flex-wrap:wrap;gap:10px;align-items:center;box-shadow:var(--shadow);}
+.exbar .lbl{font-weight:850;}
+@media print{.exbar{display:none!important;} details.acc.ans>.acc-body{display:block!important;}}
+
+</style>
+</head>
+<body data-palette="#A6790C,#1F5FA8,#3F8A3F,#8B4E9C,#B4523E">
+<div class="rtu-instructor-banner" style="background:linear-gradient(135deg,#12213f 0%,#1a2f5a 60%,#24457e 100%);color:#eaf0fb;border-bottom:3px solid #c9a227;font-family:-apple-system,'Segoe UI',Arial,sans-serif;text-align:center;padding:9px 16px;font-size:.82rem;line-height:1.45;letter-spacing:.02em;"><span style="font-weight:800;color:#fff;">🎓 Advanced Business Statistics</span>&nbsp;—&nbsp; a class of <b style="color:#f2d98b;">Dr.&nbsp;Ryan&nbsp;Manuel&nbsp;D.&nbsp;Guido</b><span style="opacity:.85;">&nbsp;·&nbsp; Rizal Technological University · CBEA</span></div>
+<nav id="topnav"><div class="navwrap"><span class="navbrand">✍️ CH 4 · EXERCISES &amp; ESSAYS</span><div class="navlinks"><a href="#exstart" class="on">Overview</a><a href="#reinf">⚡ Reinforcement</a><a href="#case">✍️ Case &amp; Essays</a></div><div class="navtabs"><a href="Chapter04.html">📖 <span class="lbl2">Lecture &amp; </span>Notes</a><a href="Chapter04_Exercises.html" class="active">✍️ <span class="lbl2">Exercises &amp; </span>Essays</a></div></div></nav>
+<div class="wrap">
+<section id="exstart"><div class="hero"><span class="eyebrow">✍️ Chapter 4 · Practice &amp; Assessment</span><h1>Sampling &amp; the CLT<br>Exercises &amp; Essays</h1><p class="sub">Twenty higher-order multiple-choice items to test your reasoning, followed by a business-case essay test. For each question, decide on your answer first, then open the dropdown to check it and read a brief explanation. The full teaching material is on the <a href="Chapter04.html"><b>Lecture &amp; Notes</b></a> tab.</p><div class="chips"><span class="chip">⚡ 20 higher-order items</span><span class="chip">🧮 1 business case</span><span class="chip">✍️ 3 essays</span></div></div></section>
+<section id="reinf"><hr class="div"><h2 class="sec"><span class="n" style="background:var(--gold-grad); color:#3A2D06;">⚡</span>Part I · Reinforcement Exercises — Higher-Order Thinking</h2><p class="lead">Twenty multiple-choice items. Most turn on a judgement, not a formula. Choose your answer, then use the dropdown to check it and read why.</p><div class="exbar"><span class="lbl">20 items</span><button class="btn primary" onclick="exAll(true)">Reveal all answers</button><button class="btn ghost" onclick="exAll(false)">Hide all</button></div><div class="q"><div class="qhead"><div class="qnum">1</div><div class="qtext"><span class="scen">A mall analyst reports: “Average shopper spend is <b>₱3,850</b> with a standard deviation of <b>₱2,900</b>, from <b>480</b> shoppers. So the true average could plausibly be anywhere from about <b>−₱1,834 to ₱9,534</b>.”</span>What is the fundamental error in this statement?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The analyst used the standard deviation of individual shoppers where the standard error of the mean belonged. The correct SE is 2900/√480 = ₱132.37, giving [₱3,590.56, ₱4,109.44].</span></div><div class="optrow"><span class="ltr">B</span><span>The interval is correctly built but uses the wrong multiplier; 2.58 should replace 1.96.</span></div><div class="optrow"><span class="ltr">C</span><span>A sample of 480 is far too small to support any interval; at least 1,000 respondents are required before an interval may be quoted.</span></div><div class="optrow"><span class="ltr">D</span><span>The analyst should have reported the median instead, because shopper spending is right-skewed.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> The analyst used the standard deviation of individual shoppers where the standard error of the mean belonged. The correct SE is 2900/√480 = ₱132.37, giving [₱3,590.56, ₱4,109.44].</p><p style="margin:0">The standard deviation <b>s = ₱2,900</b> describes how much <em>individual shoppers</em> differ from one another. The interval, however, is a statement about the <em>mean</em>, and the mean varies far less than an individual does. The right quantity is the standard error: 2900/√480 = 2900/21.909 = <b>₱132.37</b>. The analyst overstated the uncertainty by a factor of √480 ≈ <b>21.9</b>. The give-away is the negative lower bound: no shopper can spend less than nothing, so an interval that runs below zero cannot be describing a plausible average.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">2</div><div class="qtext"><span class="scen">Delivery times for a logistics firm have <b>μ = 42</b> minutes and <b>σ = 6</b> minutes. An auditor takes a random sample of <b>36</b> deliveries.</span>What is the probability that the <b>mean</b> of those 36 deliveries exceeds 44 minutes?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>0.9772</span></div><div class="optrow"><span class="ltr">B</span><span>0.0228</span></div><div class="optrow"><span class="ltr">C</span><span>0.3694</span></div><div class="optrow"><span class="ltr">D</span><span>Essentially zero — below 0.0001</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> 0.0228</p><p style="margin:0">The question is about a <b>mean</b>, so the relevant spread is the standard error: SE = 6/√36 = 6/6 = <b>1.00</b>. Then z = (44 − 42)/1.00 = <b>2.00</b>, and the area beyond z = 2.00 is <b>0.0228</b>. Compare this with the probability that a <em>single</em> delivery exceeds 44 minutes, which is 0.3694 — the mean of 36 is about 16 times less likely to stray that far, and that gap is the whole practical value of the CLT.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">3</div><div class="qtext"><span class="scen">An analyst has 350 consecutive daily sales records for a café, listed in chronological order. Wanting a sample of 50, she computes k = 350/50 = 7, picks a random start of 3, and takes every 7th record thereafter.</span>What is the specific danger in this design?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The interval k should have been computed as n/N rather than N/n.</span></div><div class="optrow"><span class="ltr">B</span><span>The random start makes the design equivalent to convenience sampling.</span></div><div class="optrow"><span class="ltr">C</span><span>The list has a weekly cycle and k = 7 matches it exactly, so every selected record falls on the same day of the week — the sample is systematically unrepresentative.</span></div><div class="optrow"><span class="ltr">D</span><span>Systematic sampling is a non-probability method and cannot support inference at all.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> The list has a weekly cycle and k = 7 matches it exactly, so every selected record falls on the same day of the week — the sample is systematically unrepresentative.</p><p style="margin:0">Systematic sampling is normally an excellent, cheap approximation to an SRS. Its one failure mode is <b>periodicity</b>: if k is a multiple of a cycle length in the frame, every selected unit occupies the same position in that cycle. Daily sales records have a strong weekly cycle, and k = 7 locks the sample onto a single weekday. The resulting mean estimates that weekday's average, not the week's. The fix is either to reorder the frame, or to choose a k that shares no common factor greater than 1 with the cycle length — that is, a k relatively prime to it. Against a 7-day cycle, k = 9 (n ≈ 39) is safe, while k = 14 would be the worst possible choice, since 14 is itself a multiple of 7.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">4</div><div class="qtext"><span class="scen">A tenant renewal-intention survey contacted <b>1,320</b> eligible businesses and received <b>480</b> completed responses. The research manager writes: “480 respondents is a large sample, so our results are reliable. Next round we will contact three times as many businesses to be even safer.”</span>What is the most serious problem with this reasoning?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The low response rate inflates the standard error, so applying the finite population correction would resolve it.</span></div><div class="optrow"><span class="ltr">B</span><span>The manager should report the margin of error alongside the sample size, after which the design would be sound.</span></div><div class="optrow"><span class="ltr">C</span><span>480 is not a large sample by survey standards, so the manager's premise is simply false.</span></div><div class="optrow"><span class="ltr">D</span><span>The response rate is 36.4%, so nearly two-thirds of the intended sample is missing. The risk is non-response bias, which does not shrink as n grows — contacting 3,000 at the same rate multiplies respondents without touching the bias.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> The response rate is 36.4%, so nearly two-thirds of the intended sample is missing. The risk is non-response bias, which does not shrink as n grows — contacting 3,000 at the same rate multiplies respondents without touching the bias.</p><p style="margin:0">A response rate of 480/1320 = <b>36.4%</b> means the sample that exists is the self-selecting third who chose to reply. If satisfied tenants and dissatisfied tenants reply at different rates — and they almost always do — the sample mean is centred on the wrong number. Raising n improves precision, which is measured by σ/√n, but bias is a shift in the centre of the sampling distribution and appears in no formula in this chapter. A bigger biased sample produces a tighter interval around a wrong value: worse, not better, because it looks more authoritative.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">5</div><div class="qtext"><span class="scen">A property group's 2,400 tenants divide into <b>1,450</b> retail, <b>560</b> food-and-beverage and <b>390</b> services businesses. A proportionally allocated stratified sample of <b>n = 200</b> is required.</span>How many tenants should be drawn from each stratum?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Retail 145, F&amp;B 56, Services 39</span></div><div class="optrow"><span class="ltr">B</span><span>Retail 121, F&amp;B 47, Services 32</span></div><div class="optrow"><span class="ltr">C</span><span>Retail 67, F&amp;B 67, Services 66</span></div><div class="optrow"><span class="ltr">D</span><span>Retail 100, F&amp;B 60, Services 40</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> Retail 121, F&amp;B 47, Services 32</p><p style="margin:0">Proportional allocation sets n<sub>h</sub> = n × (N<sub>h</sub>/N). Retail: 200 × 1450/2400 = 120.83 → <b>121</b>. Food-and-beverage: 200 × 560/2400 = 46.67 → <b>47</b>. Services: 200 × 390/2400 = 32.5 → <b>32</b>. The rounded parts sum to 200, which is the check you should always perform. Note that 32.5 sits exactly on the rounding boundary and is rounded <em>down</em> so the total lands on 200; when the parts do not sum to n, adjust whichever stratum's rounding was closest to the .5 boundary, and say which one you adjusted.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">6</div><div class="qtext"><span class="scen">From a survey of 480 shoppers, an analyst isolates the <b>12</b> who described themselves as luxury buyers. Their spending is heavily right-skewed. She reports: “Mean luxury spend is ₱18,400, standard error 2900/√12 = ₱837, so we are 95% confident the true figure lies between ₱16,759 and ₱20,041.”</span>Which criticism is the most damaging?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The interval should have used the t-distribution rather than 1.96.</span></div><div class="optrow"><span class="ltr">B</span><span>Luxury buyers are not a stratum, so no separate estimate may ever be reported for them.</span></div><div class="optrow"><span class="ltr">C</span><span>With n = 12 drawn from a heavily skewed population, the CLT has not taken effect, so the sampling distribution of x̄ is not approximately normal and no z-based interval is defensible.</span></div><div class="optrow"><span class="ltr">D</span><span>The standard deviation of the luxury subgroup will differ from ₱2,900, so the arithmetic uses the wrong σ.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> With n = 12 drawn from a heavily skewed population, the CLT has not taken effect, so the sampling distribution of x̄ is not approximately normal and no z-based interval is defensible.</p><p style="margin:0">The CLT delivers approximate normality for x̄ only when n is large enough <em>relative to how skewed the population is</em>. The n ≥ 30 guideline already assumes moderate skew; with heavy skew, 30 is not enough, and 12 is far from it. The sampling distribution here retains the population's right tail, so a symmetric interval around x̄ misstates both endpoints. The honest report is descriptive — “12 self-identified luxury buyers spent between X and Y, median Z” — with an explicit statement that the subgroup is too small for inference.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">7</div><div class="qtext"><span class="scen">A tenant survey draws <b>n = 400</b> from a population of <b>N = 1,240</b> tenants. The sample proportion satisfied is <b>p̂ = 0.68</b>.</span>What is the correctly computed standard error of the proportion?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>0.00117, because the SE must be divided by n.</span></div><div class="optrow"><span class="ltr">B</span><span>0.02833, after applying the correction factor.</span></div><div class="optrow"><span class="ltr">C</span><span>0.02332 — the finite population correction does not apply to proportions.</span></div><div class="optrow"><span class="ltr">D</span><span>0.01920, after applying the finite population correction.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> 0.01920, after applying the finite population correction.</p><p style="margin:0">First the uncorrected SE: √[0.68 × 0.32 / 400] = √0.000544 = <b>0.023324</b>. Then check the sampling fraction: n/N = 400/1240 = <b>32.3%</b>, comfortably above the 5% threshold, so the fpc applies. fpc = √[(1240 − 400)/(1240 − 1)] = √(840/1239) = <b>0.82339</b>. The corrected SE is 0.023324 × 0.82339 = <b>0.019205</b>. Skipping the correction would overstate the standard error by 21.4% and the margin of error would be ±4.57 percentage points instead of the correct <b>±3.76</b>.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">8</div><div class="qtext"><span class="scen">With σ ≈ ₱2,900 and n = 480, a survey's 95% margin of error on mean spend is <b>±₱259.44</b>. The board asks for a margin of roughly <b>±₱130</b> next year and assumes the sample must roughly double.</span>What sample size is actually required, and what does that reveal?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>About 1,920 — the SE falls with √n, so halving the margin requires quadrupling the sample. Precision is quadratically expensive.</span></div><div class="optrow"><span class="ltr">B</span><span>About 3,840 — halving the margin requires eight times the sample.</span></div><div class="optrow"><span class="ltr">C</span><span>About 960 — the margin is inversely proportional to n, so halving the margin doubles the sample.</span></div><div class="optrow"><span class="ltr">D</span><span>About 640 — the relationship is roughly linear over this range.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> About 1,920 — the SE falls with √n, so halving the margin requires quadrupling the sample. Precision is quadratically expensive.</p><p style="margin:0">The margin is 1.96σ/√n, so it is inversely proportional to <b>√n</b>, not to n. To halve it you must quadruple n: 480 × 4 = <b>1,920</b>. Checking directly, 1.96 × 2900/√1920 = <b>₱129.72</b>. This is the economic heart of the chapter — each additional unit of precision costs disproportionately more than the last, which is why national polls settle near n = 1,000 and why the right question is usually “is ±₱260 good enough for this decision?” rather than “how do we get to ±₱130?”</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">9</div><div class="qtext"><span class="scen">A retail group operates across four regions and must publish a national average visit-spend figure <b>and</b> a separate reliable figure for each region. Regional visit volumes are NCR 47.9%, Luzon outside NCR 28.7%, Visayas 14.2%, Mindanao 9.2%. Budget allows n = 1,200.</span>Which design best meets both requirements?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>A cluster sample of 12 randomly chosen malls with 100 visits each, since it is the cheapest to field.</span></div><div class="optrow"><span class="ltr">B</span><span>A convenience sample of 300 per region, since equal counts make the regions comparable.</span></div><div class="optrow"><span class="ltr">C</span><span>A stratified sample with region as the stratifying variable, allocated proportionally to 575 / 345 / 170 / 110, with the Mindanao stratum topped up if its own margin proves too wide.</span></div><div class="optrow"><span class="ltr">D</span><span>A simple random sample of 1,200 visits drawn nationally, since an SRS is the statistical benchmark.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> A stratified sample with region as the stratifying variable, allocated proportionally to 575 / 345 / 170 / 110, with the Mindanao stratum topped up if its own margin proves too wide.</p><p style="margin:0">Two requirements point to stratification. First, <b>guaranteed subgroup coverage</b>: proportional allocation gives NCR 1200 × 0.479 ≈ <b>575</b>, Luzon 344.4 → <b>345</b> after nudging the rounding so the four parts sum to 1,200, Visayas <b>170</b>, Mindanao <b>110</b>, so no region can come up empty by chance. Second, <b>precision</b>: because spending patterns differ between regions but are relatively homogeneous within them, stratifying removes the between-region variability from the sampling error, so the national estimate is more precise than an SRS of the same size. The note about topping up Mindanao is the practically important refinement — proportional allocation is the standard choice for the national estimate, but n = 110 may give that region a margin too wide to act on, and disproportionate allocation with weights applied afterwards is the standard remedy. (Neyman's <em>optimal</em> allocation is a different thing again — it sets n<sub>h</sub> ∝ N<sub>h</sub>σ<sub>h</sub> to minimise the variance of the national estimate.)</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">10</div><div class="qtext"><span class="scen">An intern reports a 95% interval for mean monthly spend of <b>[−₱1,834, ₱9,534]</b> and asks whether the negative lower bound is “just how confidence intervals work.”</span>What does the negative bound actually tell you?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>It is normal and should be reported as-is; intervals frequently extend beyond the range of the variable.</span></div><div class="optrow"><span class="ltr">B</span><span>It means the distribution of spend is left-skewed and the mean is unreliable.</span></div><div class="optrow"><span class="ltr">C</span><span>It indicates that the confidence level should be lowered from 95% to 90% until the bound becomes positive.</span></div><div class="optrow"><span class="ltr">D</span><span>It is a symptom of a computational error — spend cannot be negative, so an interval for its mean that extends below zero must have been built on the wrong measure of spread.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> It is a symptom of a computational error — spend cannot be negative, so an interval for its mean that extends below zero must have been built on the wrong measure of spread.</p><p style="margin:0">An interval for a mean should sit comfortably inside the plausible range of the variable, and comfortably <em>narrower</em> than the range of individual values, because means vary less than individuals do. A lower bound below zero on a strictly non-negative quantity is a red flag that points at exactly one thing here: the standard deviation of individuals was used where the standard error of the mean belonged. Recomputing with SE = 2900/√480 = ₱132.37 gives <b>[₱3,590.56, ₱4,109.44]</b>, which is both plausible and useful. Treat impossible endpoints as a diagnostic, not a curiosity.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">11</div><div class="qtext"><span class="scen">Historically <b>15%</b> of a bank's loan applications are declined. A branch audit samples <b>200</b> applications at random.</span>What is the probability that more than <b>20%</b> of the sampled applications were declined?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>0.0238</span></div><div class="optrow"><span class="ltr">B</span><span>0.9762</span></div><div class="optrow"><span class="ltr">C</span><span>0.4443</span></div><div class="optrow"><span class="ltr">D</span><span>0.0385</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> 0.0238</p><p style="margin:0">Check the condition first: np = 200(0.15) = 30 and n(1−p) = 200(0.85) = 170, both far above 5, so the sampling distribution of p̂ is approximately normal. Its standard error is √[0.15 × 0.85 / 200] = √0.00063750 = <b>0.025249</b>. Then z = (0.20 − 0.15)/0.025249 = <b>1.98</b>, and the area beyond is <b>0.0238</b>. Practical reading: if this branch really is declining 20% of applications, that is a roughly 1-in-42 event under the historical rate — unusual enough to justify a closer look, though not by itself proof of a policy change.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">12</div><div class="qtext"><span class="scen">A trading desk manager argues: “Our strategy has lost money nine days running. By the Law of Large Numbers, a run of gains is now overdue, so we should increase position size.”</span>How should this argument be assessed?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>It is sound if the daily returns are independent, since independence is what the Law requires.</span></div><div class="optrow"><span class="ltr">B</span><span>It misuses the Law. The Law says the running average converges to the population mean as n grows, by diluting early results under new ones — it never predicts that individual future outcomes will compensate for past ones. This is the gambler's fallacy.</span></div><div class="optrow"><span class="ltr">C</span><span>It is sound only if the nine losses were themselves a random sample.</span></div><div class="optrow"><span class="ltr">D</span><span>It is unsound because the Law applies to proportions, not to monetary returns.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> It misuses the Law. The Law says the running average converges to the population mean as n grows, by diluting early results under new ones — it never predicts that individual future outcomes will compensate for past ones. This is the gambler's fallacy.</p><p style="margin:0">The Law of Large Numbers guarantees that x̄ → μ as n → ∞. It achieves this by <em>swamping</em>: after ten thousand more days, nine unusual days carry almost no weight in the average. Nothing in the Law makes any individual future day more likely to be a gain. Believing otherwise is the <span class="kt">gambler's fallacy</span>, and increasing position size on the strength of it converts a statistical misunderstanding into a leveraged loss. Worse, in a trading context the nine losses may be evidence that μ itself is negative — the very parameter the Law says the average will converge to.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">13</div><div class="qtext"><span class="scen">A brand posts a poll to its Instagram story. 8,400 followers respond. The report states: “84% of customers prefer the new packaging (margin of error ±1.1 percentage points).”</span>Which single objection most undermines the report?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The sample of 8,400 is too small relative to the customer base to justify a margin that narrow.</span></div><div class="optrow"><span class="ltr">B</span><span>The margin of error should have been computed at 99% confidence for a claim this strong.</span></div><div class="optrow"><span class="ltr">C</span><span>The finite population correction was omitted, so the true margin is wider than ±1.1.</span></div><div class="optrow"><span class="ltr">D</span><span>The margin of error presupposes a probability sample. Respondents here self-selected from followers who happened to see the story, so no selection probability exists and the ±1.1 figure has no meaning, however large n is.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> The margin of error presupposes a probability sample. Respondents here self-selected from followers who happened to see the story, so no selection probability exists and the ±1.1 figure has no meaning, however large n is.</p><p style="margin:0">Every formula in this chapter carries the same standing precondition: a <b>probability sample</b>, in which each unit has a known non-zero chance of selection. An Instagram story poll satisfies none of it — reach is determined by an algorithm, followers are not customers, and responding is voluntary. What the poll measures is the preference of engaged followers who saw the story and chose to tap, a group with an obvious enthusiasm bias. The ±1.1 is arithmetically computable and substantively empty; quoting it lends a biased result the authority of precision.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">14</div><div class="qtext"><span class="scen">Planning a follow-up survey with σ estimated at <b>₱2,900</b>, a research manager wants a 95% margin of error of <b>±₱200</b> on mean spend.</span>What is the required sample size?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>808</span></div><div class="optrow"><span class="ltr">B</span><span>569</span></div><div class="optrow"><span class="ltr">C</span><span>404</span></div><div class="optrow"><span class="ltr">D</span><span>28</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> 808</p><p style="margin:0">Set the margin equal to the target and solve: E = 1.96σ/√n, so n = (1.96σ/E)² = (1.96 × 2900 / 200)² = (28.42)² = 807.7 → round <b>up</b> to <b>808</b>. Always round up: rounding down leaves the margin slightly wider than the target, which is the one direction you promised not to go. Verify: 1.96 × 2900/√808 = ₱199.96 ✓.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">15</div><div class="qtext"><span class="scen">Three distributions are in play whenever you sample: the population, one particular sample, and the sampling distribution of x̄.</span>Which statement correctly distinguishes them?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The population and the sampling distribution share a shape; only the sample differs, because it is finite.</span></div><div class="optrow"><span class="ltr">B</span><span>The population has spread σ and an arbitrary shape; a single sample has spread s ≈ σ and mirrors the population's shape; the sampling distribution of x̄ has spread σ/√n and is approximately normal for large n.</span></div><div class="optrow"><span class="ltr">C</span><span>Only the sampling distribution has a mean equal to μ; the population mean is estimated by x̄.</span></div><div class="optrow"><span class="ltr">D</span><span>All three have the same standard deviation σ; only their means differ.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> The population has spread σ and an arbitrary shape; a single sample has spread s ≈ σ and mirrors the population's shape; the sampling distribution of x̄ has spread σ/√n and is approximately normal for large n.</p><p style="margin:0">This three-way distinction is the conceptual spine of the chapter. A <b>population</b> of delivery times may be right-skewed with σ = 6. A <b>single sample</b> of 36 of them will also look right-skewed, with s near 6 — collecting more data does not make one sample's histogram narrower, only better resolved. The <b>sampling distribution of x̄</b> is a different object entirely: it describes how the sample mean would vary across all possible samples of size 36, it is centred on μ, its spread is 6/√36 = 1, and the CLT makes it approximately normal <em>even though the population is not</em>. Only this third distribution narrows as n grows, and only this third one is guaranteed a shape.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">16</div><div class="qtext"><span class="scen">Monthly electricity cost per branch has <b>μ = ₱250,000</b> and <b>σ = ₱40,000</b>. A random sample of <b>100</b> branches is audited.</span>What is the probability that the sample mean falls below ₱244,000?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>0.0013</span></div><div class="optrow"><span class="ltr">B</span><span>0.4404</span></div><div class="optrow"><span class="ltr">C</span><span>0.0668</span></div><div class="optrow"><span class="ltr">D</span><span>0.1587</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> 0.0668</p><p style="margin:0">SE = 40,000/√100 = 40,000/10 = <b>₱4,000</b>. Then z = (244,000 − 250,000)/4,000 = <b>−1.50</b>, and the area below z = −1.50 is <b>0.0668</b>. Reading it back to management: if the true average really is ₱250,000, an audit of 100 branches would show a mean this low about seven times in a hundred — noticeable but not yet remarkable.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">17</div><div class="qtext"><span class="scen">A property group wants to survey all 1,240 of its tenant businesses. The only complete contact list available is the e-mail directory, which covers 1,015 tenants; the remaining 225 — mostly small stall operators — have no e-mail on file. The team proposes an online-only survey of the 1,015.</span>How should the design be corrected, and why?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Extend the frame to cover the missing 225 through a second contact mode — phone or in-person intercept at the stalls — because the gap between frame and population is coverage error, and the excluded group differs systematically from those on the list.</span></div><div class="optrow"><span class="ltr">B</span><span>Proceed as proposed but increase the sample size, since a larger sample compensates for the missing tenants.</span></div><div class="optrow"><span class="ltr">C</span><span>Proceed as proposed and note the limitation in a footnote; a 82% frame coverage is acceptable by industry convention.</span></div><div class="optrow"><span class="ltr">D</span><span>Abandon the survey, since no valid inference is possible when the frame is incomplete.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> Extend the frame to cover the missing 225 through a second contact mode — phone or in-person intercept at the stalls — because the gap between frame and population is coverage error, and the excluded group differs systematically from those on the list.</p><p style="margin:0">The 225 missing tenants are not a random subset: they are disproportionately small stall operators, whose costs, satisfaction and needs differ from those of larger e-mail-registered tenants. Excluding them creates <span class="kt">coverage error</span> — a mismatch between the sampling frame and the population — which biases every estimate toward the larger-tenant experience. The remedy is to repair the frame, typically by adding a second contact mode for the uncovered group. Where that is impossible, the honest alternative is to redefine the population as “tenants with e-mail on file” and to report it that way, rather than to claim a result about all tenants.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">18</div><div class="qtext"><span class="scen">A consultant defends a study built on a mall-intercept convenience sample: “We collected 50,000 responses. At that size the Central Limit Theorem guarantees our estimate is accurate.”</span>What is wrong with the appeal to the CLT?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The CLT applies only to normally distributed populations, and spending is skewed.</span></div><div class="optrow"><span class="ltr">B</span><span>The CLT is valid here, but the consultant should also report the standard deviation.</span></div><div class="optrow"><span class="ltr">C</span><span>The CLT describes the behaviour of x̄ around the mean of the population actually being sampled, under a probability design. It addresses sampling error only; a convenience sample's bias shifts the centre of the sampling distribution, and no sample size corrects that.</span></div><div class="optrow"><span class="ltr">D</span><span>The CLT requires n below 5% of the population, and 50,000 will exceed that threshold.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> The CLT describes the behaviour of x̄ around the mean of the population actually being sampled, under a probability design. It addresses sampling error only; a convenience sample's bias shifts the centre of the sampling distribution, and no sample size corrects that.</p><p style="margin:0">The CLT is a theorem about <b>sampling variability</b>. Its conclusion — that x̄ is approximately normal with mean μ and spread σ/√n — presupposes that the observations are a probability sample from the population of interest. A mall intercept over-represents people who visit malls, visit at that hour, and agree to stop. The sampling distribution of x̄ is then centred not on the population mean but on the mean of that self-selecting group. At n = 50,000 the standard error is minuscule, so the estimate is <em>precise</em> and <em>wrong</em> simultaneously — the most dangerous combination in applied statistics, because narrow intervals read as authority.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">19</div><div class="qtext"><span class="scen">A researcher divides 60 branches into 6 geographic regions, randomly selects 2 whole regions, and surveys every branch in them. She describes the design as “stratified sampling with 2 strata selected.”</span>What is the correct classification and its consequence?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>It is stratified sampling, and the estimate will be more precise than an SRS of the same size.</span></div><div class="optrow"><span class="ltr">B</span><span>It is cluster sampling. Stratified sampling draws from <em>every</em> stratum; cluster sampling selects whole groups and surveys within them. The consequence is that branches within a region resemble one another, so the effective information is less than the raw n suggests and the true standard error is larger than the SRS formula gives.</span></div><div class="optrow"><span class="ltr">C</span><span>It is systematic sampling with k = 3, and the estimate is unbiased.</span></div><div class="optrow"><span class="ltr">D</span><span>It is multistage sampling, and no standard error can be computed for it.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> It is cluster sampling. Stratified sampling draws from <em>every</em> stratum; cluster sampling selects whole groups and surveys within them. The consequence is that branches within a region resemble one another, so the effective information is less than the raw n suggests and the true standard error is larger than the SRS formula gives.</p><p style="margin:0">The distinguishing question is simple: <b>do you sample from every group, or do you sample the groups themselves?</b> Stratified sampling draws units from all strata, deliberately making the sample look like the population on the stratifying variable — which reduces the standard error. Cluster sampling picks whole groups and accepts whatever is inside them. Here four of six regions are entirely absent, so this is cluster sampling. Because branches in one region share local economic conditions, the responses are correlated, and treating the 20 branches as 20 independent observations understates the true standard error. Cluster designs remain unbiased and are often the only affordable option, but their precision per respondent is lower, and the analysis must account for it.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">20</div><div class="qtext"><span class="scen">A quality team currently samples <b>100</b> units per batch and reports a standard error of <b>0.80 g</b> on mean fill weight. The plant manager asks what happens if the sample rises to <b>400</b> units.</span>What is the new standard error, and what does the answer illustrate?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>0.80 g — the standard error does not change, since σ is a property of the population.</span></div><div class="optrow"><span class="ltr">B</span><span>0.20 g — the standard error is inversely proportional to n.</span></div><div class="optrow"><span class="ltr">C</span><span>0.64 g — the new standard error is the square of the old one.</span></div><div class="optrow"><span class="ltr">D</span><span>0.40 g — quadrupling n halves the SE, because the SE falls with √n.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> 0.40 g — quadrupling n halves the SE, because the SE falls with √n.</p><p style="margin:0">SE = σ/√n, so multiplying n by 4 divides the SE by √4 = 2: 0.80/2 = <b>0.40 g</b>. Equivalently, σ = 0.80 × √100 = 8 g, so at n = 400 the SE is 8/√400 = 8/20 = 0.40 g. The lesson is the shape of the curve: the first hundred units bought a large reduction in uncertainty, the next three hundred buy the same reduction again, and the following twelve hundred would be needed to buy it a third time. Precision has sharply diminishing returns, and there is always a point where tightening the estimate costs more than the decision it informs is worth.</p></div></details></div></section>
+<section id="case"><hr class="div"><h2 class="sec"><span class="n" style="background:var(--p2); color:var(--i2);">✍️</span>Part II · Business Case &amp; Essay Test</h2><p class="lead">Read the case, then answer the three essay questions. Write your response first; the dropdown under each item reveals a brief answer key — what a strong response must establish.</p><p class="lead">One research report, six sampling errors, and a ₱1.8 billion expansion decision resting on them. Read the case, then answer three essay questions. Model answers with full arithmetic and point-allocated rubrics follow — write yours <b>before</b> you open them.</p><div class="card c-biz">
+  <div class="hd">🏬 Case: Habitat Malls Group — the expansion research report</div>
+
+  <p><b>Background.</b> Habitat Malls Group operates 14 shopping centres across the Philippines, recording roughly <b>2.4 million</b> customer visits per year and leasing to <b>1,320</b> tenant businesses, of which <b>1,240</b> are retail and food-and-beverage operators — the tenants for whom mall foot traffic is the relevant commercial driver. The board is deciding whether to commit ₱1.8 billion to a fifteenth mall. A newly formed research unit has produced the report below. <em>All the raw figures are accurate as collected; what you are auditing is how they were gathered and how they were used.</em></p>
+
+  <div class="tbl-scroll" style="margin:14px 0;">
+  <table>
+    <thead><tr><th style="width:5%">#</th><th style="width:24%">Study</th><th style="width:36%">How the data were collected</th><th>What was found</th></tr></thead>
+    <tbody>
+      <tr><td class="ctr"><b>A</b></td><td><b>Shopper spend survey</b></td><td>Interviewers stationed at the main atrium of the three largest NCR malls, Saturdays 1–5 p.m., approaching shoppers who appeared willing. 480 completed.</td><td>x̄ = <b>₱3,850</b> per visit, s = <b>₱2,900</b></td></tr>
+      <tr><td class="ctr"><b>B</b></td><td><b>Tenant satisfaction survey</b></td><td>Simple random sample of <b>400</b> drawn from the complete list of the <b>1,240</b> retail and F&amp;B tenants; 400 responded.</td><td>p̂ = <b>0.68</b> satisfied with foot traffic</td></tr>
+      <tr><td class="ctr"><b>C</b></td><td><b>Tenant renewal intention</b></td><td>E-mail invitation across two rounds to all <b>1,320</b> current tenant businesses. <b>480</b> completed questionnaires.</td><td><b>71%</b> intend to renew</td></tr>
+      <tr><td class="ctr"><b>D</b></td><td><b>Luxury segment sub-analysis</b></td><td>The <b>12</b> respondents in study A who self-identified as luxury buyers. Their spending is heavily right-skewed.</td><td>x̄ = <b>₱18,400</b> per visit</td></tr>
+      <tr><td class="ctr"><b>E</b></td><td><b>Precision plan for round two</b></td><td>Board has asked for a margin of error on mean spend of <b>±₱100</b>.</td><td>Unit proposes n = <b>960</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p><b>The research unit's report, verbatim:</b></p>
+  <div style="background:#fff; border-radius:12px; padding:15px 18px; margin:12px 0; border-left:4px solid var(--i5); font-style:italic;">
+    <p style="margin:0 0 9px"><b>A.</b> Average spend per visit is <b>₱3,850</b>. With a standard error of <b>₱2,900</b>, we are 95% confident the national average lies between <b>−₱1,834 and ₱9,534</b>. Applied to 2.4 million visits, annual shopper spend is therefore <b>₱9.24 billion</b>.</p>
+    <p style="margin:0 0 9px"><b>B.</b> 68% of tenants are satisfied with foot traffic. The standard error is √(0.68 × 0.32 / 400) = <b>0.02332</b>, so the margin of error is <b>±4.57 percentage points</b>.</p>
+    <p style="margin:0 0 9px"><b>C.</b> 480 tenants responded and <b>71%</b> intend to renew. This is a large sample, so the finding is reliable. To be even more certain next year we will widen the invitation list to 3,000 by adding every business that has ever enquired about leasing with us.</p>
+    <p style="margin:0 0 9px"><b>D.</b> Luxury buyers spend <b>₱18,400</b> per visit on average, with a 95% interval of <b>₱16,759 to ₱20,041</b>. We recommend allocating 30% of the new mall's gross leasable area to luxury tenants.</p>
+    <p style="margin:0 0 9px"><b>E.</b> The current margin of error on mean spend is about ±₱259. To reach ±₱100 we will double the sample to <b>960</b>.</p>
+    <p style="margin:0"><b>F.</b> Because the atrium locations were chosen without any preference for particular shoppers, and because interviewers approached people at random intervals, study A constitutes a random sample of Habitat shoppers nationally.</p>
+  </div>
+
+  <p style="margin:0">Of the three studies that actually collected data from a sample — A, B and C — <b>only one rests on a sound sampling design</b>. And <b>not one of the six numbered conclusions in the memo is correct</b>. Your job is to identify the sound design and to find the fault in each of the six conclusions. Be careful with the sound study: its fault is an omission that makes it look <em>weaker</em> than it is, which is easy to read past.</p>
+</div><div class="essay"><div class="etag">Essay 1 · 20 points · Analyse & Evaluate</div><div class="eq">Audit the <b>design</b> of studies A, B and C, and evaluate claim F. For each, name the sampling method actually used, classify it as probability or non-probability, identify the specific error family involved, and state the direction in which the resulting estimate is likely to be wrong. Then explain why increasing the sample size would or would not help in each case.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>A named design for each study, with the feature of the description that identifies it.</li>
+        <li>The distinction between <b>sampling error</b> (shrinks with n) and <b>non-sampling error</b> (does not) applied study by study.</li>
+        <li>A stated <em>direction</em> of bias, not merely the observation that bias exists.</li>
+        <li>Recognition that <b>one</b> of the three designs is sound.</li>
+        <li>A direct refutation of claim F that distinguishes "no interviewer preference" from "known selection probability".</li>
+      </ul>
+    </div></details></div>
+<div class="essay"><div class="etag">Essay 2 · 25 points · Apply & Evaluate</div><div class="eq">Recompute the statistical claims in items A, B, D and E. For each, identify the specific formula error, produce the correct figure with your arithmetic shown, and quantify the size of the error. Then state, for each, what practical consequence the uncorrected figure would have had on the board's decision.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>The distinction between <b>s</b> and <b>s/√n</b> applied explicitly to item A, with the factor of √n named.</li>
+        <li>The finite population correction identified as <em>missing</em> in item B, with n/N computed first.</li>
+        <li>A refusal to compute a z-interval at all in item D, with the reason given.</li>
+        <li>The correct n for item E, with the √n relationship made explicit.</li>
+        <li>A practical consequence for each, not just a corrected number.</li>
+      </ul>
+    </div></details></div>
+<div class="essay"><div class="etag">Essay 3 · 25 points · Create & Evaluate</div><div class="eq">You have been appointed to redesign the shopper spend study. Specify a defensible sampling plan for the 2.4 million annual visits — stating the frame, the design, the allocation and the sample size, with your arithmetic — and justify each choice against the failures identified in Essays 1 and 2. Then write the three-sentence caveat that should accompany <em>any</em> figure the board receives, and state what the board should do about the ₱1.8 billion decision in the meantime.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>An explicitly named <b>frame</b>, with an acknowledgement of what it still misses.</li>
+        <li>A probability design chosen for a stated reason, not merely named.</li>
+        <li>Stratification on <em>more than one</em> dimension, since study A failed on geography <b>and</b> time <b>and</b> self-selection.</li>
+        <li>Numerical allocation that sums to the stated n.</li>
+        <li>A sample size derived from a target margin, not asserted.</li>
+        <li>A defensible recommendation on the ₱1.8 billion decision — neither "proceed" nor "abandon" without conditions.</li>
+      </ul>
+    </div></details></div></section>
+<footer class="end"><p><b>Advanced Business Statistics</b> · Chapter 4 — Sampling &amp; the CLT · Exercises &amp; Essays. Bachelor of Science in Business Administration, College of Business, Entrepreneurship and Accountancy, Rizal Technological University.</p></footer>
+</div>
+<script>
+(function(){
+  function s(e){var h=this.getAttribute("href");if(!h||h[0]!=="#")return;var el=document.getElementById(h.slice(1));
+    if(el){e.preventDefault();el.scrollIntoView({behavior:"smooth",block:"start"});}}
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener("click",s);});
+  window.exAll=function(open){document.querySelectorAll("details.ans").forEach(function(d){d.open=open;});};
+})();
+</script>
+</body>
+</html>
