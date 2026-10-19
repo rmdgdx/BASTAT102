@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 6 — Exercises &amp; Essays</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   CHAPTER 11 · MULTIPLE REGRESSION
+   Interactive learning module · single standalone file · no libraries
+   ───────────────────────────────────────────────────────────────────
+   COLOUR SYSTEM — Rizal Technological University: GOLD-dominant with
+   Royal BLUE. Nine light surface tints, each paired with a darkened
+   "ink" variant used only for text, borders and icons so that every
+   text/background pair clears WCAG AA contrast. The gold family carries
+   most surfaces; blue, green and red are kept functional (concepts,
+   recaps, warnings). The five-colour chart series palette below is
+   gold-led and validated with the dataviz colour checker.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  /* --- nine light surface tints (GOLD-dominant + BLUE) --- */
+  --p1:#F6D8CF;  /* warm red   → mistakes, warnings, "don't do this"  */
+  --p2:#DCE7F6;  /* royal blue → core concepts, definitions           */
+  --p3:#D8EACF;  /* green      → recaps, correct answers, wins         */
+  --p4:#F0E1B0;  /* amber      → key terms, vocabulary                */
+  --p5:#FBEEC2;  /* gold cream → business cases, real-world (dominant)*/
+  --p6:#FCF6D2;  /* pale gold  → TL;DR, highlights                    */
+  --p7:#ECDFBB;  /* sand       → glossary, reference tables           */
+  --p8:#F7E1BE;  /* warm gold  → activities, "try it"                 */
+  --p9:#F3F0E6;  /* warm mist  → neutral surfaces                     */
+
+  /* --- matching ink (text/border) variants, all clear WCAG AA --- */
+  --i1:#A23A29; --i2:#1C4E86; --i3:#3B6E2E; --i4:#7A5A10; --i5:#86620A;
+  --i6:#7C6710; --i7:#6C5A2A; --i8:#8A5716; --i9:#55514A;
+
+  /* --- RTU brand accents --- */
+  --gold:#D9A82C;      /* brand gold — rings, rules, accents  */
+  --gold-ink:#856408;  /* dark gold for gold text on white    */
+  --blue:#1F5FA8;      /* brand blue — secondary              */
+  --blue-ink:#184E86;
+  --gold-grad:linear-gradient(135deg,#EAC24C,#D7A62C);
+
+  --ink:#232A33;      /* body text            */
+  --ink-soft:#5C5A50; /* secondary text       */
+  --line:#E7E0CC;     /* warm hairline rules  */
+  --bg:#FDFBF3;       /* warm cream page      */
+  --radius:16px;
+  --shadow:0 1px 2px rgba(60,50,20,.06), 0 8px 24px rgba(60,50,20,.07);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; scroll-padding-top:96px;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16.5px; line-height:1.68; -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;}
+
+/* ── PROGRESS BAR ────────────────────────────────────────────────── */
+#progress{
+  position:fixed; top:0; left:0; height:5px; width:0%; z-index:200;
+  background:linear-gradient(90deg,var(--gold),#E8C24E,var(--blue));
+  transition:width .12s linear;
+}
+
+/* ── STICKY NAV ──────────────────────────────────────────────────── */
+nav#topnav{
+  position:sticky; top:0; z-index:150; background:rgba(252,252,253,.92);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+}
+.navwrap{max-width:1080px; margin:0 auto; padding:9px 20px; display:flex; align-items:center; gap:14px;}
+.navbrand{font-weight:800; font-size:.86rem; letter-spacing:.4px; white-space:nowrap; color:var(--gold-ink);}
+.navlinks{display:flex; gap:5px; overflow-x:auto; scrollbar-width:none; flex:1;}
+.navlinks::-webkit-scrollbar{display:none;}
+.navlinks a{
+  font-size:.78rem; font-weight:600; text-decoration:none; color:var(--ink-soft);
+  padding:5px 11px; border-radius:999px; white-space:nowrap; transition:.15s;
+}
+.navlinks a:hover{background:var(--p9); color:var(--ink);}
+.navlinks a.on{background:var(--gold-grad); color:#3A2D06;}
+
+/* ── LAYOUT ──────────────────────────────────────────────────────── */
+.wrap{max-width:1080px; margin:0 auto; padding:0 20px 100px;}
+section{scroll-margin-top:96px;}
+
+/* ── HERO ────────────────────────────────────────────────────────── */
+.hero{
+  margin:26px 0 34px; padding:38px 34px; border-radius:26px; position:relative; overflow:hidden;
+  background:
+    radial-gradient(circle at 90% 6%,#F7E9A6 0,transparent 44%),
+    radial-gradient(circle at 4% 96%,#CBDDF4 0,transparent 46%),
+    radial-gradient(circle at 62% 104%,#FBEFC0 0,transparent 42%),
+    linear-gradient(135deg,#F6E6A0 0%,#EBCB5E 52%,#DCE6F6 100%);
+}
+.hero .eyebrow{
+  display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.72);
+  padding:5px 15px; border-radius:999px; font-size:.74rem; font-weight:800;
+  letter-spacing:1.3px; text-transform:uppercase; color:var(--gold-ink);
+}
+.hero h1{
+  font-size:clamp(1.9rem,4.6vw,3.05rem); line-height:1.12; margin:16px 0 10px;
+  font-weight:850; letter-spacing:-.9px; color:#22303B;
+}
+.hero .sub{font-size:1.04rem; max-width:62ch; color:#2E3945; margin:0 0 20px;}
+.chips{display:flex; flex-wrap:wrap; gap:9px;}
+.chip{
+  background:rgba(255,255,255,.82); border-radius:999px; padding:7px 15px;
+  font-size:.79rem; font-weight:700; color:#2E3945; display:inline-flex; align-items:center; gap:7px;
+}
+
+/* ── HEADINGS ────────────────────────────────────────────────────── */
+h2.sec{
+  font-size:1.62rem; font-weight:840; letter-spacing:-.5px; margin:52px 0 6px;
+  display:flex; align-items:center; gap:13px; line-height:1.25;
+}
+h2.sec .n{
+  flex:none; width:46px; height:46px; border-radius:14px; display:grid; place-items:center;
+  font-size:1.02rem; font-weight:850; background:var(--gold-grad); color:#3A2D06;
+}
+h3.sub{font-size:1.13rem; font-weight:800; margin:30px 0 8px; color:var(--i2); letter-spacing:-.2px;}
+h4.mini{font-size:.79rem; font-weight:850; letter-spacing:1.2px; text-transform:uppercase; color:var(--ink-soft); margin:22px 0 7px;}
+p{margin:0 0 14px;}
+.lead{font-size:1.08rem; color:#37414D;}
+
+/* ── CARDS / CALLOUTS ────────────────────────────────────────────── */
+.card{border-radius:var(--radius); padding:19px 22px; margin:18px 0; border:1px solid rgba(0,0,0,.05);}
+.card .hd{display:flex; align-items:center; gap:9px; font-weight:840; font-size:.87rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:9px;}
+.card p:last-child,.card ul:last-child,.card ol:last-child{margin-bottom:0;}
+.c-tldr{background:var(--p6);} .c-tldr .hd{color:var(--i6);}
+.c-concept{background:var(--p2);} .c-concept .hd{color:var(--i2);}
+.c-recap{background:var(--p3);} .c-recap .hd{color:var(--i3);}
+.c-term{background:var(--p4);} .c-term .hd{color:var(--i4);}
+.c-biz{background:var(--p5);} .c-biz .hd{color:var(--i5);}
+.c-warn{background:var(--p1);} .c-warn .hd{color:var(--i1);}
+.c-try{background:var(--p8);} .c-try .hd{color:var(--i8);}
+.c-ref{background:var(--p7);} .c-ref .hd{color:var(--i7);}
+.c-neutral{background:var(--p9);} .c-neutral .hd{color:var(--i9);}
+
+/* ── INLINE BITS ─────────────────────────────────────────────────── */
+.kt{background:var(--p4); color:var(--i4); font-weight:750; padding:1px 7px; border-radius:6px; white-space:nowrap;}
+.hl{background:var(--p6); padding:1px 5px; border-radius:5px; font-weight:650;}
+.no{color:var(--i1); font-weight:750;}
+.yes{color:var(--i3); font-weight:750;}
+code,.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.9em; background:var(--p9); padding:2px 6px; border-radius:5px;}
+.formula{
+  background:#fff; border:2px dashed var(--gold); border-radius:12px; padding:13px 18px;
+  margin:14px 0; text-align:center; font-family:"Cambria Math",Georgia,serif; font-size:1.06rem;
+}
+
+/* ── TABLES ──────────────────────────────────────────────────────── */
+.tbl-scroll{overflow-x:auto; margin:16px 0; border-radius:14px; border:1px solid var(--line);}
+table{width:100%; border-collapse:collapse; font-size:.92rem; background:#fff; min-width:560px;}
+th{background:var(--p4); color:var(--i4); text-align:left; padding:11px 14px; font-weight:820; font-size:.78rem; letter-spacing:.7px; text-transform:uppercase;}
+td{padding:11px 14px; border-top:1px solid var(--line); vertical-align:top;}
+tbody tr:nth-child(even) td{background:#FAFBFC;}
+td.ctr,th.ctr{text-align:center;}
+
+/* ── ACCORDION ───────────────────────────────────────────────────── */
+details.acc{background:#fff; border:1px solid var(--line); border-radius:14px; margin:11px 0; overflow:hidden;}
+details.acc>summary{
+  cursor:pointer; padding:14px 18px; font-weight:750; list-style:none;
+  display:flex; align-items:center; gap:11px; transition:.15s;
+}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:"＋"; margin-left:auto; font-weight:800; color:var(--ink-soft); font-size:1.1rem;}
+details.acc[open]>summary::after{content:"−";}
+details.acc>summary:hover{background:var(--p9);}
+details.acc[open]>summary{background:var(--p9); border-bottom:1px solid var(--line);}
+.acc-body{padding:16px 18px 18px;}
+.acc-body p:last-child,.acc-body ul:last-child{margin-bottom:0;}
+
+/* ── GRID ────────────────────────────────────────────────────────── */
+.grid{display:grid; gap:14px; margin:18px 0;}
+.g2{grid-template-columns:repeat(auto-fit,minmax(255px,1fr));}
+.g3{grid-template-columns:repeat(auto-fit,minmax(195px,1fr));}
+.g4{grid-template-columns:repeat(auto-fit,minmax(158px,1fr));}
+.tile{border-radius:14px; padding:16px 17px; border:1px solid rgba(0,0,0,.05);}
+.tile .ic{font-size:1.5rem; line-height:1; display:block; margin-bottom:8px;}
+.tile b{display:block; font-size:.98rem; margin-bottom:4px;}
+.tile span.d{font-size:.85rem; color:#4A5461; line-height:1.55;}
+
+/* ── STEPS ───────────────────────────────────────────────────────── */
+.steps{counter-reset:s; padding:0; margin:16px 0; list-style:none;}
+.steps li{counter-increment:s; position:relative; padding-left:48px; margin-bottom:15px;}
+.steps li::before{
+  content:counter(s); position:absolute; left:0; top:-1px; width:33px; height:33px;
+  border-radius:11px; background:var(--p5); color:var(--i5);
+  display:grid; place-items:center; font-weight:850; font-size:.94rem;
+}
+
+/* ── QUIZ ────────────────────────────────────────────────────────── */
+.quizbar{
+  position:sticky; top:52px; z-index:90; background:#fff; border:1px solid var(--line);
+  border-radius:14px; padding:12px 17px; margin:18px 0; display:flex; flex-wrap:wrap;
+  align-items:center; gap:12px; box-shadow:var(--shadow);
+}
+.quizbar .score{font-weight:850; font-size:1rem;}
+.quizbar .meter{flex:1; min-width:130px; height:9px; background:var(--p9); border-radius:99px; overflow:hidden;}
+.quizbar .meter i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--gold),var(--blue)); transition:width .3s;}
+.btn{
+  border:none; border-radius:999px; padding:8px 17px; font-size:.83rem; font-weight:750;
+  cursor:pointer; font-family:inherit; transition:.15s; background:var(--p9); color:var(--ink);
+}
+.btn:hover{filter:brightness(.96);}
+.btn.primary{background:var(--gold-grad); color:#3A2D06;}
+.btn.ghost{background:transparent; border:1px solid var(--line); color:var(--ink-soft);}
+
+.q{background:#fff; border:1px solid var(--line); border-radius:16px; padding:19px 21px; margin:14px 0;}
+.q .qhead{display:flex; gap:12px; align-items:flex-start; margin-bottom:13px;}
+.q .qnum{
+  flex:none; width:32px; height:32px; border-radius:10px; background:var(--p4); color:var(--i4);
+  display:grid; place-items:center; font-weight:850; font-size:.86rem;
+}
+.q .qtext{font-weight:620; line-height:1.6;}
+.q .qtext .scen{display:block; color:var(--ink-soft); font-weight:450; font-size:.93rem; margin-bottom:6px;}
+.q .bloom{
+  display:inline-block; font-size:.66rem; font-weight:850; letter-spacing:1px; text-transform:uppercase;
+  background:var(--p7); color:var(--i7); padding:3px 9px; border-radius:999px; margin-bottom:8px;
+}
+.opts{display:grid; gap:8px;}
+.opt{
+  display:flex; gap:11px; align-items:flex-start; padding:11px 14px; border-radius:11px;
+  border:1.5px solid var(--line); background:#fff; cursor:pointer; transition:.14s;
+  font-size:.94rem; line-height:1.5; text-align:left; font-family:inherit; color:var(--ink); width:100%;
+}
+.opt:hover:not(.locked){background:var(--p9); border-color:#CDD5DE;}
+.opt .ltr{
+  flex:none; width:24px; height:24px; border-radius:7px; background:var(--p9); color:var(--ink-soft);
+  display:grid; place-items:center; font-weight:850; font-size:.78rem;
+}
+.opt.correct{background:var(--p3); border-color:var(--i3);}
+.opt.correct .ltr{background:var(--i3); color:#fff;}
+.opt.wrong{background:var(--p1); border-color:var(--i1);}
+.opt.wrong .ltr{background:var(--i1); color:#fff;}
+.opt.locked{cursor:default;}
+.expl{margin-top:13px; border-radius:12px; padding:15px 17px; background:var(--p9); display:none;}
+.expl.show{display:block;}
+.expl .vt{font-weight:850; font-size:.85rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:7px; display:flex; align-items:center; gap:7px;}
+.expl .vt.ok{color:var(--i3);} .expl .vt.no{color:var(--i1);}
+.expl p{font-size:.93rem; margin:0 0 9px;}
+.expl .dis{margin-top:10px; padding-top:10px; border-top:1px dashed #CFD6DE;}
+.expl .dis div{font-size:.885rem; margin-bottom:5px; color:#404A56;}
+.expl .dis b{color:var(--i1);}
+
+/* ── ESSAY ───────────────────────────────────────────────────────── */
+.essay{background:#fff; border:1px solid var(--line); border-left:6px solid var(--p5); border-radius:16px; padding:21px 23px; margin:18px 0;}
+.essay .etag{font-size:.72rem; font-weight:850; letter-spacing:1.2px; text-transform:uppercase; color:var(--i5); margin-bottom:7px;}
+.essay .eq{font-size:1.04rem; font-weight:750; margin-bottom:11px; line-height:1.5;}
+.rubric{font-size:.88rem;}
+.rubric td,.rubric th{padding:8px 12px;}
+
+/* ── GLOSSARY ────────────────────────────────────────────────────── */
+.gloss{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(268px,1fr)); margin:16px 0;}
+.gitem{background:var(--p7); border-radius:12px; padding:13px 15px;}
+.gitem b{display:block; color:var(--i7); font-size:.95rem; margin-bottom:3px;}
+.gitem span{font-size:.87rem; color:#3E4854; line-height:1.55;}
+
+/* ── MISC ────────────────────────────────────────────────────────── */
+.palette{display:flex; gap:5px; margin:12px 0 0; flex-wrap:wrap;}
+.sw{width:38px; height:38px; border-radius:9px; border:1px solid rgba(0,0,0,.07);}
+hr.div{border:none; border-top:1px solid var(--line); margin:44px 0;}
+footer.end{margin-top:56px; padding:30px 0 0; border-top:1px solid var(--line); font-size:.86rem; color:var(--ink-soft);}
+.backtop{position:fixed; right:18px; bottom:18px; z-index:120; width:46px; height:46px; border-radius:50%;
+  background:var(--gold-grad); color:#3A2D06; border:none; font-size:1.15rem; cursor:pointer; box-shadow:var(--shadow); display:none;}
+.backtop.on{display:block;}
+
+@media(max-width:640px){
+  body{font-size:16px;}
+  .hero{padding:28px 22px; border-radius:20px;}
+  h2.sec{font-size:1.36rem;}
+  h2.sec .n{width:38px; height:38px; font-size:.9rem;}
+  .card{padding:16px 17px;}
+  .q{padding:16px 15px;}
+  .quizbar{top:50px;}
+}
+/* ── PRINT / PDF ─────────────────────────────────────────────────
+   Turns the interactive module into a static answer-key workbook:
+   every explanation, model answer and rubric is forced open, all
+   chrome is stripped, and nothing that must be read together is
+   allowed to break across a page.                                  */
+@page{ size:Letter; margin:14mm 12mm 15mm; }
+
+@media print{
+  /* strip interactive chrome */
+  nav#topnav,#progress,.backtop,.quizbar{ display:none !important; }
+
+  /* force every hidden layer open */
+  .expl{ display:block !important; }
+  details.acc{ page-break-inside:avoid; }
+  details.acc>summary::after{ content:"" !important; }
+  details.acc>summary{ background:var(--p9) !important; border-bottom:1px solid var(--line); }
+  details.acc:not([open])>.acc-body{ display:block !important; }
+
+  /* keep tint fills — they carry the semantic colour coding */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+
+  body{ font-size:10pt; line-height:1.5; background:#fff; }
+  .wrap{ max-width:none; padding:0 0 8pt; }
+  html{ scroll-behavior:auto; }
+
+  /* never split a unit of meaning across pages */
+  .card,.essay,.tile,.gitem,.formula,.acc-body,
+  .hero,.opts,.expl,.steps li{ page-break-inside:avoid; break-inside:avoid; }
+  /* Long reference tables must be allowed to flow. This chapter has several that
+     exceed a full page (the formula card, the case model answers); forcing them
+     whole strands the page before each one. Rows stay intact and the header
+     repeats on every page the table spans. */
+  .tbl-scroll{ break-inside:auto; page-break-inside:auto; }
+  /* An item may split, but only at the seam between its options and its
+     explanation — the stem+options block and the explanation each stay whole. */
+  .q{ break-inside:auto; }
+  .q .qhead{ break-after:avoid; }
+  /* Essay model answers and rubrics run close to a full page; keeping them
+     atomic would strand half a page before each. Let them flow, but keep
+     their internal tables and paragraphs whole. */
+  .essay details.acc, .essay .acc-body{ break-inside:auto; page-break-inside:auto; }
+  .essay details.acc>summary{ break-after:avoid; }
+  .essay .acc-body p, .essay .acc-body li{ break-inside:avoid; }
+  h2.sec,h3.sub,h4.mini{ page-break-after:avoid; break-after:avoid; }
+  tr,thead{ page-break-inside:avoid; }
+  thead{ display:table-header-group; }
+
+  /* major sections start a fresh page */
+  #cheat,#hots,#drill,#case{ page-break-before:always; }
+  hr.div{ display:none; }
+
+  /* tighten spacing that only exists for on-screen scrolling */
+  h2.sec{ margin:20pt 0 4pt; font-size:15pt; }
+  h3.sub{ margin:14pt 0 4pt; }
+  .card,.q,.essay{ margin:8pt 0; }
+  section{ scroll-margin-top:0; }
+  table{ min-width:0; font-size:8.6pt; }
+  .tbl-scroll{ overflow:visible; }
+  .grid{ gap:8pt; }
+
+  /* Quiz items are the bulk of the page count. Because each item is kept
+     whole (page-break-inside:avoid), an item taller than half a page wastes
+     the remainder. These densities are tuned so two reinforcement items fit
+     per page while the item stays comfortably readable. */
+  .q{ padding:11px 13px; margin:6pt 0; }
+  .q .qhead{ margin-bottom:8px; }
+  .q .qnum{ width:26px; height:26px; font-size:.78rem; }
+  .q .qtext{ font-size:9.5pt; line-height:1.45; }
+  .q .qtext .scen{ font-size:9pt; margin-bottom:4px; }
+  .q .bloom{ font-size:.62rem; padding:2px 7px; margin-bottom:5px; }
+  .opts{ gap:5px; }
+  .expl{ margin-top:9px; padding:10px 12px; }
+  .expl .vt{ font-size:.78rem; margin-bottom:5px; }
+  .expl p{ font-size:8.9pt; line-height:1.45; margin-bottom:6px; }
+  .expl .dis{ margin-top:7px; padding-top:7px; }
+  .expl .dis div{ font-size:8.5pt; line-height:1.42; margin-bottom:4px; }
+
+
+  figure.fig, .figcard, .figpair, .calc, pre.term{ page-break-inside:avoid; break-inside:avoid; }
+  .figpair.side{ grid-template-columns:1fr 1fr; }
+  figure.fig svg, .figcard svg{ max-height:none; }
+
+  /* answer key styling: correct option stays clearly marked */
+  .opt{ border-width:1px; padding:5px 10px; font-size:8.9pt; line-height:1.4; }
+  .opt .ltr{ width:20px; height:20px; font-size:.7rem; }
+  .opt.correct{ background:var(--p3) !important; border-color:var(--i3) !important; }
+  .opt.correct .ltr{ background:var(--i3) !important; color:#fff !important; }
+}
+
+/* ── CHART SERIES PALETTE ────────────────────────────────────────
+   The nine Pastel1 fills above are SURFACE colours: too light and too
+   low-chroma to encode data (measured — see §2.9). These five series
+   colours are GOLD-led and pushed into the accessible lightness/chroma
+   band. Verified with the dataviz validator: ALL CHECKS PASS on the
+   light surface (worst adjacent pair clears the floor with the legend
+   + direct labels every figure already carries).
+      gold → --s1   blue → --s2   green → --s3
+      plum → --s4   brick → --s5                                 */
+:root{
+  --s1:#A6790C; --s2:#1F5FA8; --s3:#3F8A3F; --s4:#8B4E9C; --s5:#B4523E;
+}
+
+/* ── FIGURES ─────────────────────────────────────────────────────── */
+figure.fig{ margin:18px 0; }
+figure.fig svg{ border:1px solid var(--line); border-radius:14px; background:#fff; }
+figcaption{ font-size:.85rem; color:var(--ink-soft); margin-top:7px; line-height:1.55; }
+figcaption b{ color:var(--ink); }
+.figpair{ display:grid; gap:14px; grid-template-columns:1fr; margin:18px 0; }
+@media(min-width:900px){ .figpair.side{ grid-template-columns:1fr 1fr; } }
+.figcard{ border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; }
+.figcard>.tag{
+  font-size:.74rem; font-weight:850; letter-spacing:1.1px; text-transform:uppercase;
+  padding:7px 13px; display:flex; align-items:center; gap:7px;
+}
+.figcard.bad>.tag{ background:var(--p1); color:var(--i1); }
+.figcard.good>.tag{ background:var(--p3); color:var(--i3); }
+.figcard svg{ border:none; border-radius:0; }
+.figcard>.note{ font-size:.83rem; color:#404A56; padding:10px 13px 12px; line-height:1.55; border-top:1px solid var(--line); }
+.figcard>.note b{ color:var(--ink); }
+.swatchrow{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin:10px 0; }
+.swatchrow .s{ width:30px; height:30px; border-radius:8px; border:1px solid rgba(0,0,0,.08); }
+.swatchrow .arrow{ color:var(--ink-soft); font-weight:800; }
+pre.term{
+  background:#1D2530; color:#D8DEE6; border-radius:12px; padding:13px 15px; margin:12px 0;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.74rem;
+  line-height:1.65; overflow-x:auto; white-space:pre;
+}
+pre.term .pass{ color:#8FD68F; } pre.term .fail{ color:#FF9A94; } pre.term .warn{ color:#F3D07A; }
+.calc{
+  background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold);
+  border-radius:12px; padding:14px 17px; margin:14px 0;
+  font-family:"Cambria Math",Georgia,serif; font-size:.97rem; line-height:1.85;
+}
+.calc .step{ display:block; }
+.calc .res{ font-weight:800; color:var(--i2); font-family:inherit; }
+.calc .lbl{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-size:.74rem; font-weight:850; letter-spacing:.9px; text-transform:uppercase;
+  color:var(--ink-soft); display:block; margin-bottom:4px; }
+
+/* ── Z-TABLE ─────────────────────────────────────────────────────── */
+table.ztab{ font-size:.68rem; min-width:640px; font-variant-numeric:tabular-nums; }
+table.ztab th{ font-size:.62rem; padding:5px 3px; text-align:center; letter-spacing:0; }
+table.ztab td{ padding:3.5px 3px; text-align:center; border-color:#EDF0F4; }
+table.ztab td.zh{ background:var(--p4); color:var(--i4); font-weight:850; }
+table.ztab td.hi{ background:var(--p6); font-weight:800; }
+table.ztab tbody tr:nth-child(even) td{ background:#FAFBFC; }
+table.ztab tbody tr:nth-child(even) td.zh{ background:var(--p4); }
+table.ztab tbody tr:nth-child(even) td.hi{ background:var(--p6); }
+
+/* ── DESIGN / CONCEPT CARDS ──────────────────────────────────────── */
+.dist{ border:1px solid var(--line); border-radius:16px; overflow:hidden; margin:14px 0; background:#fff; }
+.dist>.dh{ padding:9px 14px; font-weight:850; font-size:.92rem; display:flex; align-items:center; gap:9px; }
+.dist>.db{ padding:13px 15px; }
+.dist>.db p:last-child{ margin-bottom:0; }
+.dist.binom>.dh{ background:var(--p2); color:var(--i2); }
+.dist.pois>.dh{ background:var(--p3); color:var(--i3); }
+.dist.norm>.dh{ background:var(--p4); color:var(--i4); }
+.dist.warn>.dh{ background:var(--p1); color:var(--i1); }
+
+/* ── THE THREE-DISTRIBUTION DISAMBIGUATION STRIP ─────────────────── */
+.three{ display:grid; gap:0; grid-template-columns:1fr; border:1px solid var(--line);
+  border-radius:16px; overflow:hidden; margin:16px 0; background:#fff; }
+@media(min-width:760px){ .three{ grid-template-columns:repeat(3,1fr); } }
+.three>div{ padding:14px 16px; border-top:1px solid var(--line); }
+@media(min-width:760px){ .three>div{ border-top:none; border-left:1px solid var(--line); }
+  .three>div:first-child{ border-left:none; } }
+.three .tt{ font-weight:850; font-size:.9rem; margin-bottom:6px; display:flex; align-items:center; gap:7px; }
+.three .tf{ font-family:"Cambria Math",Georgia,serif; background:var(--p9); border-radius:8px;
+  padding:6px 9px; margin:8px 0; font-size:.92rem; text-align:center; }
+.three p{ font-size:.87rem; margin:0; color:#414B57; line-height:1.55; }
+
+/* ── TWO-VIEW TAB BAR (Lecture / Exercises) ─────────────────────── */
+.navtabs{ display:flex; gap:7px; margin-left:auto; flex:none; }
+.navtabs a{
+  display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+  font-size:.8rem; font-weight:800; letter-spacing:.2px; padding:7px 15px;
+  border-radius:999px; color:var(--blue-ink); background:var(--p2);
+  border:1px solid transparent; white-space:nowrap; transition:.15s;
+}
+.navtabs a:hover{ filter:brightness(.97); }
+.navtabs a.active{ background:var(--gold-grad); color:#3A2D06; box-shadow:0 1px 4px rgba(120,90,10,.3); }
+@media(max-width:720px){ .navtabs a .lbl2{ display:none; } }
+@media(max-width:640px){ .navtabs a{ padding:6px 11px; font-size:.74rem; } }
+
+/* ── PER-TOPIC VIDEO CARD ───────────────────────────────────────── */
+.vidbox{
+  display:flex; gap:14px; align-items:center; text-decoration:none; color:inherit;
+  background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold);
+  border-radius:13px; padding:12px 16px; margin:16px 0; transition:.15s;
+}
+.vidbox:hover{ background:var(--p6); box-shadow:var(--shadow); }
+.vidbox .play{
+  flex:none; width:46px; height:46px; border-radius:12px; background:#E12D2D;
+  display:grid; place-items:center; color:#fff; font-size:1.15rem;
+}
+.vidbox .vmeta{ min-width:0; }
+.vidbox .vk{ font-size:.68rem; font-weight:850; letter-spacing:1.1px; text-transform:uppercase; color:var(--gold-ink); display:block; margin-bottom:2px; }
+.vidbox .vt{ font-weight:750; font-size:.97rem; line-height:1.35; display:block; color:var(--ink); }
+.vidbox .vch{ font-size:.83rem; color:var(--ink-soft); }
+.vidbox .go{ margin-left:auto; flex:none; color:var(--ink-soft); font-weight:800; font-size:1.1rem; }
+@media(max-width:640px){ .vidbox .go{ display:none; } }
+@media print{ .vidbox,.navtabs{ display:none !important; } }
+
+/* ── static MCQ options + answer dropdowns (exercises pages) ─────── */
+.optrow{display:flex;gap:11px;align-items:flex-start;padding:9px 13px;border:1.5px solid var(--line);
+  border-radius:11px;margin:7px 0;background:#fff;font-size:.95rem;line-height:1.5;}
+.optrow .ltr{flex:none;width:24px;height:24px;border-radius:7px;background:var(--p9);color:var(--ink-soft);
+  display:grid;place-items:center;font-weight:850;font-size:.78rem;}
+.q .opts{display:block;margin-top:4px;}
+details.acc.ans{margin:12px 0 2px;}
+details.acc.ans>summary{color:var(--blue-ink);font-weight:800;}
+.ansbody .key,.acc-body .key{font-weight:850;color:var(--i3);}
+.exbar{position:sticky;top:52px;z-index:90;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:11px 16px;margin:16px 0;display:flex;flex-wrap:wrap;gap:10px;align-items:center;box-shadow:var(--shadow);}
+.exbar .lbl{font-weight:850;}
+@media print{.exbar{display:none!important;} details.acc.ans>.acc-body{display:block!important;}}
+
+</style>
+</head>
+<body data-palette="#A6790C,#1F5FA8,#3F8A3F,#8B4E9C,#B4523E">
+<div class="rtu-instructor-banner" style="background:linear-gradient(135deg,#12213f 0%,#1a2f5a 60%,#24457e 100%);color:#eaf0fb;border-bottom:3px solid #c9a227;font-family:-apple-system,'Segoe UI',Arial,sans-serif;text-align:center;padding:9px 16px;font-size:.82rem;line-height:1.45;letter-spacing:.02em;"><span style="font-weight:800;color:#fff;">🎓 Advanced Business Statistics</span>&nbsp;—&nbsp; a class of <b style="color:#f2d98b;">Dr.&nbsp;Ryan&nbsp;Manuel&nbsp;D.&nbsp;Guido</b><span style="opacity:.85;">&nbsp;·&nbsp; Rizal Technological University · CBEA</span></div>
+<nav id="topnav"><div class="navwrap"><span class="navbrand">✍️ CH 6 · EXERCISES &amp; ESSAYS</span><div class="navlinks"><a href="#exstart" class="on">Overview</a><a href="#reinf">⚡ Reinforcement</a><a href="#case">✍️ Case &amp; Essays</a></div><div class="navtabs"><a href="Chapter06.html">📖 <span class="lbl2">Lecture &amp; </span>Notes</a><a href="Chapter06_Exercises.html" class="active">✍️ <span class="lbl2">Exercises &amp; </span>Essays</a></div></div></nav>
+<div class="wrap">
+<section id="exstart"><div class="hero"><span class="eyebrow">✍️ Chapter 6 · Practice &amp; Assessment</span><h1>Hypothesis Testing<br>Exercises &amp; Essays</h1><p class="sub">Twenty higher-order multiple-choice items to test your reasoning, followed by a business-case essay test. For each question, decide on your answer first, then open the dropdown to check it and read a brief explanation. The full teaching material is on the <a href="Chapter06.html"><b>Lecture &amp; Notes</b></a> tab.</p><div class="chips"><span class="chip">⚡ 20 higher-order items</span><span class="chip">🧮 1 business case</span><span class="chip">✍️ 3 essays</span></div></div></section>
+<section id="reinf"><hr class="div"><h2 class="sec"><span class="n" style="background:var(--gold-grad); color:#3A2D06;">⚡</span>Part I · Reinforcement Exercises — Higher-Order Thinking</h2><p class="lead">Twenty multiple-choice items. Most turn on a judgement, not a formula. Choose your answer, then use the dropdown to check it and read why.</p><div class="exbar"><span class="lbl">20 items</span><button class="btn primary" onclick="exAll(true)">Reveal all answers</button><button class="btn ghost" onclick="exAll(false)">Hide all</button></div><div class="q"><div class="qhead"><div class="qnum">1</div><div class="qtext"><span class="scen">A pilot at <b>16</b> branches tests H₀: μ = 42 against H₁: μ &gt; 42 with σ = 12. The sample mean is 45, giving z = 1.00 and p = 0.159. The memo concludes: “<b>The new service model produced no improvement.</b>”</span>What is the most serious problem with that conclusion?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Failing to reject H₀ is not evidence that H₀ is true, and this study had only about 26% power to detect a 3-point improvement — so its null result carries almost no information.</span></div><div class="optrow"><span class="ltr">B</span><span>The conclusion is sound; p = 0.159 is well above 0.05.</span></div><div class="optrow"><span class="ltr">C</span><span>The pilot should have used a t-test, since 16 branches is a small sample.</span></div><div class="optrow"><span class="ltr">D</span><span>The test should have been two-tailed, which would have made the result significant.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> Failing to reject H₀ is not evidence that H₀ is true, and this study had only about 26% power to detect a 3-point improvement — so its null result carries almost no information.</p><p style="margin:0">With SE = 12/√16 = 3.00, the critical mean is 42 + 1.645(3.00) = <b>46.93</b> — the pilot needed a 4.93-point lift just to reach significance. If the true improvement were exactly the 3 points observed, the chance of detecting it was <b>0.26</b>; even a 5-point improvement would have been caught only about half the time. A study with 26% power fails to reject almost everything, so its failure to reject tells you essentially nothing about the world. Roughly <b>n = 99</b> would have been needed for 80% power. The honest sentence is “the pilot did not detect a significant improvement, but it was not large enough to have found one.”</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">2</div><div class="qtext"><span class="scen">A random sample of <b>64</b> deliveries has a mean of <b>98 minutes</b> against a target of <b>100 minutes</b>. The population standard deviation is known to be <b>8 minutes</b>.</span>Testing H₀: μ = 100 against H₁: μ &lt; 100, what are the test statistic and the p-value?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>z = −16.00, p ≈ 0</span></div><div class="optrow"><span class="ltr">B</span><span>z = −2.00, p = 0.0228</span></div><div class="optrow"><span class="ltr">C</span><span>z = −0.25, p = 0.4013</span></div><div class="optrow"><span class="ltr">D</span><span>z = −2.00, p = 0.0455</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> z = −2.00, p = 0.0228</p><p style="margin:0">SE = σ/√n = 8/√64 = 8/8 = <b>1.00</b>. Then z = (98 − 100)/1.00 = <b>−2.00</b>. The alternative is one-sided, so the p-value is the single left-tail area: P(Z &lt; −2.00) = <b>0.0228</b>. Since 0.0228 &lt; 0.05, reject H₀ — there is evidence that mean delivery time is below the 100-minute target.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">3</div><div class="qtext"><span class="scen">A marketing team plans a two-tailed test of H₀: p = 0.12 at α = 0.05. The data arrive: n = 1,600 with 216 conversions, so p̂ = 0.135, z = 1.846 and the two-tailed p-value is <b>0.0648</b>. The team then reports the result as one-tailed, giving <b>p = 0.0324</b>, and calls the campaign a success.</span>What exactly is wrong with this?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Nothing — a one-tailed test is legitimate when the result went in the expected direction.</span></div><div class="optrow"><span class="ltr">B</span><span>The z statistic should have been recomputed for the one-tailed test.</span></div><div class="optrow"><span class="ltr">C</span><span>By choosing the tail after seeing the direction, the team effectively kept both tails available, so its true Type I error rate is 10%, not 5%. The reported p understates the false-alarm risk by a factor of two.</span></div><div class="optrow"><span class="ltr">D</span><span>The sample of 1,600 is too small to support a one-tailed test.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> By choosing the tail after seeing the direction, the team effectively kept both tails available, so its true Type I error rate is 10%, not 5%. The reported p understates the false-alarm risk by a factor of two.</p><p style="margin:0">The validity of a one-tailed test rests entirely on the tail having been fixed <b>before</b> the data were seen. A team that would have used the left tail had the result gone the other way has, in effect, a rejection region covering both tails at 5% each — a genuine α of <b>0.10</b>. Reporting 0.0324 as though α were 0.05 is therefore a misstatement of the evidence, not a matter of taste. The honest options were to report the two-tailed p = 0.0648 and say the campaign fell short of significance, or to have pre-registered a one-tailed test with a business justification.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">4</div><div class="qtext"><span class="scen">A supplier's contract specifies a defect rate of no more than <b>30%</b> of shipments requiring rework. An audit of <b>500</b> shipments finds <b>170</b> needing rework.</span>Testing H₀: p = 0.30 against H₁: p &gt; 0.30, what is the test statistic?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>z = 0.040</span></div><div class="optrow"><span class="ltr">B</span><span>z = 43.64</span></div><div class="optrow"><span class="ltr">C</span><span>z = 1.888</span></div><div class="optrow"><span class="ltr">D</span><span>z = 1.952</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> z = 1.952</p><p style="margin:0">p̂ = 170/500 = <b>0.34</b>. The standard error for a <em>test</em> is built from the hypothesised value: SE = √[0.30 × 0.70/500] = √0.00042 = <b>0.020494</b>. Then z = (0.34 − 0.30)/0.020494 = <b>1.952</b>. Check the condition first: np₀ = 150 and n(1−p₀) = 350, both far above 5. Since 1.952 &gt; 1.645, reject H₀ at α = 0.05 (p = 0.0255).</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">5</div><div class="qtext"><span class="scen">A report states: “The test returned <b>p = 0.03</b>, so there is a 97% probability that our new pricing model increases revenue.”</span>How should this be assessed?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Correct only if the test was two-tailed.</span></div><div class="optrow"><span class="ltr">B</span><span>Incorrect. The p-value is computed <em>assuming H₀ is true</em>, so it is P(data | H₀) and cannot be turned into a probability about the hypothesis. It also says nothing about the size of any revenue increase.</span></div><div class="optrow"><span class="ltr">C</span><span>Incorrect, because the probability should be stated as 3%, not 97%.</span></div><div class="optrow"><span class="ltr">D</span><span>Correct, provided the sample was random.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> Incorrect. The p-value is computed <em>assuming H₀ is true</em>, so it is P(data | H₀) and cannot be turned into a probability about the hypothesis. It also says nothing about the size of any revenue increase.</p><p style="margin:0">Two errors are stacked here. The first is <b>inverting the conditional</b>: p = P(data at least this extreme | H₀ true), whereas the report claims something about P(H₁ true | data). Those differ in the same way P(wet | raining) differs from P(raining | wet), and a calculation that begins by assuming H₀ cannot end by reporting the probability that H₀ is false. The second is that H₁ is not a single hypothesis — it covers <em>every</em> value other than the null — so there is no one alternative for a 97% to describe. A Bayesian analysis with a stated prior can produce a probability about a hypothesis, but it is a different calculation and it is not what a p-value is.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">6</div><div class="qtext"><span class="scen">An analyst runs separate tests of campaign effectiveness on <b>twelve</b> customer segments, each at α = 0.05. One segment returns <b>p = 0.03</b>. The report headlines that segment as a confirmed opportunity.</span>What is the problem, and what is the corrected threshold?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The problem is the sample size within each segment, which should have been checked first.</span></div><div class="optrow"><span class="ltr">B</span><span>The segments should have been tested two-tailed rather than one-tailed.</span></div><div class="optrow"><span class="ltr">C</span><span>With twelve independent tests the chance of at least one false positive is 1 − 0.95¹² = 0.46, so a single “significant” result is unremarkable. A Bonferroni threshold of 0.05/12 = 0.0042 would be required, and p = 0.03 does not meet it.</span></div><div class="optrow"><span class="ltr">D</span><span>No problem — p = 0.03 is below 0.05 by any standard.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> With twelve independent tests the chance of at least one false positive is 1 − 0.95¹² = 0.46, so a single “significant” result is unremarkable. A Bonferroni threshold of 0.05/12 = 0.0042 would be required, and p = 0.03 does not meet it.</p><p style="margin:0">Running many tests inflates the <b>family-wide</b> error rate. If nothing at all were happening in any of the twelve segments, the probability of at least one result below 0.05 is 1 − 0.95¹² = <b>0.4596</b> — close to a coin flip. Finding one significant segment among twelve is therefore roughly what pure noise produces. The Bonferroni correction divides α by the number of tests: <b>0.05/12 = 0.00417</b>, and the observed 0.03 is seven times too large to clear it. The alternative to correcting is to label the finding <b>exploratory</b> and confirm it in a fresh sample before anyone acts on it.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">7</div><div class="qtext"><span class="scen">A quality engineer tests whether a filling line's variability has risen above the specified <b>σ = 4.5 g</b>. A sample of <b>20</b> units gives s = <b>5.6 g</b>. The relevant upper critical value at df = 19 and α = 0.05 is <b>30.144</b>.</span>What is the test statistic and the decision?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>χ² = 30.973 — reject H₀</span></div><div class="optrow"><span class="ltr">B</span><span>χ² = 23.644 — fail to reject H₀</span></div><div class="optrow"><span class="ltr">C</span><span>χ² = 1.549 — fail to reject H₀</span></div><div class="optrow"><span class="ltr">D</span><span>χ² = 29.424 — fail to reject H₀</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> χ² = 29.424 — fail to reject H₀</p><p style="margin:0">χ² = (n − 1)s²/σ₀² = 19 × 5.6² / 4.5² = 19 × 31.36 / 20.25 = 595.84/20.25 = <b>29.424</b>. Since 29.424 &lt; 30.144, the statistic falls short of the critical value and we <b>fail to reject H₀</b> (p = 0.0596). This is a genuinely borderline result and the report should say so: at α = 0.10 the same data would reject. The correct conclusion is that the evidence of excess variability is suggestive but not conclusive, and a larger sample is warranted before contractual action.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">8</div><div class="qtext"><span class="scen">Two studies test the same H₀: μ = 330 seconds. Study A has n = 40 and finds x̄ = 318 (p = 0.092). Study B has n = 250,000 and finds x̄ = 329.7 (p = 0.00086). Both use σ = 45.</span>Which study found the more important result, and why?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Study A. Its observed difference is 12 seconds against Study B's 0.3 seconds — forty times larger — and its Cohen's d is 0.267 against 0.007. Study B's significance comes entirely from its sample size, not from the size of the effect.</span></div><div class="optrow"><span class="ltr">B</span><span>Study B, because its p-value is a thousand times smaller.</span></div><div class="optrow"><span class="ltr">C</span><span>Study B, because a larger sample is always more reliable.</span></div><div class="optrow"><span class="ltr">D</span><span>Neither — p-values cannot be compared across studies.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> Study A. Its observed difference is 12 seconds against Study B's 0.3 seconds — forty times larger — and its Cohen's d is 0.267 against 0.007. Study B's significance comes entirely from its sample size, not from the size of the effect.</p><p style="margin:0">This is the central trap of the chapter. A p-value depends on the effect <em>and</em> on n, so a large enough sample makes any departure from H₀ significant. Study B's 0.3-second difference is real but commercially meaningless: across 250,000 calls it amounts to 75,000 seconds, or about <b>21 agent-hours a year</b>. Study A's 12-second difference, if genuine, is worth roughly 833 hours on the same volume — but with n = 40 the study lacked the precision to establish it. The correct reading is that Study A found something worth investigating with a larger sample, and Study B found something not worth acting on however certain it is.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">9</div><div class="qtext"><span class="scen">An operations director wants a pilot able to detect a <b>5-point</b> improvement in a satisfaction score with 90% power at α = 0.05, one-tailed. The historical standard deviation is <b>15 points</b>.</span>How many branches must the pilot cover?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>25</span></div><div class="optrow"><span class="ltr">B</span><span>10</span></div><div class="optrow"><span class="ltr">C</span><span>78</span></div><div class="optrow"><span class="ltr">D</span><span>36</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> 78</p><p style="margin:0">n = [ (z<sub>crit</sub> + z<sub>β</sub>) σ / δ ]², where z<sub>crit</sub> = z<sub>α</sub> = 1.645 because the test is one-tailed (a two-tailed design would use z<sub>α/2</sub> = 1.960) and z<sub>β</sub> = 1.282 for 90% power. So n = [(1.645 + 1.282) × 15 / 5]² = [2.927 × 3]² = (8.781)² = 77.1 → round <b>up to 78</b>. Note that the power calculation belongs at the <b>design</b> stage: once the data are collected, an underpowered study cannot be rescued, and its null result will carry no information.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">10</div><div class="qtext"><span class="scen">A franchise audit gives a 95% confidence interval for mean food cost of <b>[31.61%, 33.39%]</b> from n = 15. A colleague separately runs a two-tailed t-test of H₀: μ = 33.0 at α = 0.05 and asks what it will show.</span>What can you say without doing the test?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The test will reject H₀ only if the sample size is increased.</span></div><div class="optrow"><span class="ltr">B</span><span>Nothing — an interval and a test are different procedures and can disagree.</span></div><div class="optrow"><span class="ltr">C</span><span>The test will reject H₀, because 33.0 is close to the upper bound.</span></div><div class="optrow"><span class="ltr">D</span><span>The test will fail to reject H₀, because 33.0 lies inside the interval. A 95% interval is exactly the set of null values a two-sided 5% test would not reject.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> The test will fail to reject H₀, because 33.0 lies inside the interval. A 95% interval is exactly the set of null values a two-sided 5% test would not reject.</p><p style="margin:0">For a two-sided test, the interval and the test are the same calculation read in opposite directions. The interval is x̄ ± t·SE; the test rejects μ₀ when |x̄ − μ₀| &gt; t·SE — which happens exactly when μ₀ falls outside the interval. Since 33.0 sits inside [31.61, 33.39], the test cannot reject it, and indeed t = −1.200 against a critical ±2.145, p = 0.250. This equivalence is also the cleanest argument against “accepting H₀”: the interval is <b>full</b> of other values the test would equally have failed to reject — 32.0 and 33.2 among them — so failing to reject 33.0 does not single it out.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">11</div><div class="qtext"><span class="scen">A test of H₀: μ = 50 against H₁: μ ≠ 50 gives <b>t = 2.00</b> with <b>df = 35</b>. The two-tailed critical value at α = 0.05 is 2.030.</span>What is the correct decision and p-value?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Fail to reject H₀; p = 0.053</span></div><div class="optrow"><span class="ltr">B</span><span>Fail to reject H₀; p = 0.027</span></div><div class="optrow"><span class="ltr">C</span><span>Reject H₀; p = 0.027</span></div><div class="optrow"><span class="ltr">D</span><span>Reject H₀; p = 0.053</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> Fail to reject H₀; p = 0.053</p><p style="margin:0">|t| = 2.00 &lt; 2.030, so the statistic falls just short of the rejection region and we <b>fail to reject H₀</b>. The two-tailed p-value is 2 × P(T₃₅ &gt; 2.00) = 2 × 0.0267 = <b>0.0533</b>, which is consistent: 0.0533 &gt; 0.05. This is a textbook borderline case, and the professional report says “p = 0.053” rather than “not significant” — the difference between 0.053 and 0.047 is not a real distinction in the evidence, and labelling one a discovery and the other a non-result is an artefact of the threshold.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">12</div><div class="qtext"><span class="scen">A researcher writes: “We tested H₀: μ ≤ 100 against H₁: μ &gt; 100.”</span>What is wrong with the way these hypotheses are stated, and does it matter?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The inequality should be reversed: H₀: μ ≥ 100 against H₁: μ &lt; 100.</span></div><div class="optrow"><span class="ltr">B</span><span>H₀ must name a single value in order for a sampling distribution to be built around it, so the testable form is H₀: μ = 100. In practice the test is computed at the boundary and the two forms give identical arithmetic — but the equals sign is what makes the calculation possible.</span></div><div class="optrow"><span class="ltr">C</span><span>Nothing is wrong; H₀ may name a range of values, provided H₁ is directional.</span></div><div class="optrow"><span class="ltr">D</span><span>H₁ should have been μ ≥ 100, to cover the boundary case.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> H₀ must name a single value in order for a sampling distribution to be built around it, so the testable form is H₀: μ = 100. In practice the test is computed at the boundary and the two forms give identical arithmetic — but the equals sign is what makes the calculation possible.</p><p style="margin:0">A test needs one specific value to centre the sampling distribution on. “μ ≤ 100” names a whole range, and there is no single distribution to compute a p-value from. The resolution is that the test is always evaluated at the <b>boundary</b>, μ = 100, because that is the value in H₀ least favourable to rejection — if the data are surprising under μ = 100, they are even more surprising under any smaller μ. So the two notations produce exactly the same z, the same p and the same decision. Many textbooks do write the compound form, and because the arithmetic is identical it is not an error of substance — but the range as written cannot be computed from, and <b>H₀: μ = 100</b> makes the mechanism visible. It is the safer habit in an exam.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">13</div><div class="qtext"><span class="scen">A random sample of <b>25</b> invoices has a mean of <b>18.4 minutes</b> and a sample standard deviation of <b>2.5 minutes</b>, against a claimed processing standard of <b>20 minutes</b>. The population standard deviation is unknown.</span>Testing H₀: μ = 20 against H₁: μ ≠ 20, what is the test statistic and the decision at α = 0.05?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>t = −3.20, fail to reject</span></div><div class="optrow"><span class="ltr">B</span><span>t = −0.64, fail to reject</span></div><div class="optrow"><span class="ltr">C</span><span>z = −3.20, reject</span></div><div class="optrow"><span class="ltr">D</span><span>t = −3.20, reject</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> t = −3.20, reject</p><p style="margin:0">σ is unknown, so this is a <b>t-test</b> with df = 25 − 1 = 24. SE = 2.5/√25 = 2.5/5 = <b>0.50</b>, and t = (18.4 − 20)/0.50 = <b>−3.20</b>. The two-tailed critical value at df = 24 is ±2.064, and |−3.20| &gt; 2.064, so <b>reject H₀</b> (p = 0.0038). There is strong evidence that mean processing time differs from — specifically, is below — the claimed 20-minute standard.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">14</div><div class="qtext"><span class="scen">An A/B test on a website runs for six weeks. The analyst checks the p-value every morning and stops the test the day it first drops below 0.05, reporting a significant improvement.</span>Why is this conclusion unreliable?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The p-value fluctuates as data accumulate, so checking repeatedly and stopping at the first crossing gives many chances to cross 0.05 by luck alone. The true Type I error rate is far above 5%.</span></div><div class="optrow"><span class="ltr">B</span><span>Six weeks is too short a period for an A/B test.</span></div><div class="optrow"><span class="ltr">C</span><span>The analyst should have used a one-tailed test, since only an improvement matters.</span></div><div class="optrow"><span class="ltr">D</span><span>The p-value cannot be computed until all the data are collected.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> The p-value fluctuates as data accumulate, so checking repeatedly and stopping at the first crossing gives many chances to cross 0.05 by luck alone. The true Type I error rate is far above 5%.</p><p style="margin:0">This is <b>optional stopping</b>, a form of p-hacking, and it is the multiple-testing problem in disguise. Each morning's check is effectively another test, so across forty-two days there are forty-two chances for random fluctuation to push the p-value below the threshold — and under a true null it will do so far more often than 5% of the time. Simulation studies routinely find true error rates above 20% for this practice. The defences are to <b>fix the sample size in advance</b> from a power calculation and analyse once, or to use a sequential design with correctly adjusted boundaries that account for the repeated looks.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">15</div><div class="qtext"><span class="scen">A supplier audit tests H₀: p = 0.04 against H₁: p &gt; 0.04 and rejects, with p̂ = 0.052 and p = 0.003. The supplier replies: “A difference of 1.2 percentage points on 2,000 loans is 24 extra defaults. That is commercially trivial.”</span>How should an analyst respond?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The supplier is wrong because p = 0.003 proves the difference is large.</span></div><div class="optrow"><span class="ltr">B</span><span>The supplier has raised a legitimate and separate question. The test establishes that the excess is real, not that it matters — so the answer requires pricing 1.2 percentage points against the portfolio, which on a large book is substantial, and reporting both findings.</span></div><div class="optrow"><span class="ltr">C</span><span>The analyst should re-run the test at α = 0.01 to settle the matter.</span></div><div class="optrow"><span class="ltr">D</span><span>The supplier is right; a 1.2-point difference is within normal variation.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> The supplier has raised a legitimate and separate question. The test establishes that the excess is real, not that it matters — so the answer requires pricing 1.2 percentage points against the portfolio, which on a large book is substantial, and reporting both findings.</p><p style="margin:0">Statistical significance and commercial materiality are <b>separate questions</b>, and a complete audit answers both. The test has done its job: an excess of this size is very unlikely to be sampling noise, so the difference is real. Whether it is worth acting on depends on arithmetic the test does not perform — 1.2 percentage points on a ₱4 billion book is roughly ₱48 million of additional exposure, which is not trivial by any reading. The professional response neither dismisses the supplier's point nor answers it with a p-value: it reports the effect size, the confidence interval, and the peso consequence alongside the test.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">16</div><div class="qtext"><span class="scen">For a two-tailed test at <b>α = 0.01</b> with a large sample and σ known:</span>What is the critical value, and what would it be for the same test at one tail?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>±2.576 two-tailed; 1.960 one-tailed</span></div><div class="optrow"><span class="ltr">B</span><span>±1.960 two-tailed; 1.645 one-tailed</span></div><div class="optrow"><span class="ltr">C</span><span>±2.576 two-tailed; 2.326 one-tailed</span></div><div class="optrow"><span class="ltr">D</span><span>±2.326 two-tailed; 2.576 one-tailed</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> ±2.576 two-tailed; 2.326 one-tailed</p><p style="margin:0">At α = 0.01 two-tailed, 0.005 sits in each tail, giving <b>z = ±2.576</b>. At α = 0.01 one-tailed, the whole 0.01 sits in one tail, giving <b>z = 2.326</b>. The one-tailed value is always the <em>smaller</em> of the two, which is precisely why a one-tailed test is easier to pass and why the tail must be fixed before the data are seen.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">17</div><div class="qtext"><span class="scen">You are writing the statistical methods paragraph for a study that will test whether a new onboarding flow changes completion time.</span>Which set of elements makes the paragraph professionally complete?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The hypotheses with the tail justified; α fixed in advance and any multiplicity correction; the test statistic with its degrees of freedom and the exact p-value; the effect size and a confidence interval in minutes; the sample size and design; and — if the result is null — the power to detect an effect worth detecting.</span></div><div class="optrow"><span class="ltr">B</span><span>The hypotheses, the p-value, and a statement that the result is statistically significant.</span></div><div class="optrow"><span class="ltr">C</span><span>The confidence interval alone, since it contains everything the test would tell you.</span></div><div class="optrow"><span class="ltr">D</span><span>The p-value and the decision at α = 0.05.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> The hypotheses with the tail justified; α fixed in advance and any multiplicity correction; the test statistic with its degrees of freedom and the exact p-value; the effect size and a confidence interval in minutes; the sample size and design; and — if the result is null — the power to detect an effect worth detecting.</p><p style="margin:0">Each element does a distinct job. The <b>hypotheses and tail</b> must be justified from the business question, or a reader cannot tell whether the tail was chosen after the fact. <b>α fixed in advance</b> and any correction belong in the methods, not the results. The <b>statistic, df and exact p</b> let a reader apply their own threshold rather than yours. The <b>effect size and interval in minutes</b> answer “how much”, which no p-value does. The <b>sample size and design</b> cover the non-sampling errors invisible to every formula in this chapter. And for a <b>null result the power</b> is essential, because without it “no significant difference” cannot be distinguished from “we could not have found one”.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">18</div><div class="qtext"><span class="scen">A test of H₀: σ = 3.0 g against H₁: σ &gt; 3.0 g on <b>n = 250</b> packs returns χ² = 341.2 with p = 0.0009. The analyst notes that the net weights are strongly right-skewed but argues: “n = 250 is large, so the Central Limit Theorem makes this valid.”</span>How should the argument be assessed?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Sound, provided a finite population correction is applied.</span></div><div class="optrow"><span class="ltr">B</span><span>Unsound, because the chi-square test requires n ≤ 30.</span></div><div class="optrow"><span class="ltr">C</span><span>Unsound. The CLT applies to sample <em>means</em>, not to sample variances. The chi-square test requires an approximately normal <em>population</em> and is not robust to skew at any sample size.</span></div><div class="optrow"><span class="ltr">D</span><span>Sound — n = 250 far exceeds any conventional threshold.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> Unsound. The CLT applies to sample <em>means</em>, not to sample variances. The chi-square test requires an approximately normal <em>population</em> and is not robust to skew at any sample size.</p><p style="margin:0">This is the most consequential assumption in the chapter and the one most often waved away. The CLT guarantees that the sampling distribution of <b>x̄</b> approaches normality as n grows, which is why t-tests for a mean are robust to non-normality. It says nothing about the sampling distribution of <b>s²</b>, whose reference distribution is chi-square <em>only</em> when the underlying population is normal. With strongly skewed data this test can be badly wrong at n = 25 and equally wrong at n = 2,500 — more data buys precision around the wrong distribution. The standard modern remedy is a bootstrap procedure, which makes no normality assumption.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">19</div><div class="qtext"><span class="scen">A one-tailed test at α = 0.05 with σ = 15 and n = 36 aims to detect a <b>5-point</b> improvement over the null value.</span>What is the power of this test against that specific alternative?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>0.95</span></div><div class="optrow"><span class="ltr">B</span><span>0.64</span></div><div class="optrow"><span class="ltr">C</span><span>0.05</span></div><div class="optrow"><span class="ltr">D</span><span>0.80</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> 0.64</p><p style="margin:0">SE = 15/√36 = <b>2.50</b>. The critical value sits at μ₀ + 1.645(2.50) = μ₀ + 4.11. If the true mean is μ₀ + 5, then the distance from the true mean to the critical value is (4.11 − 5)/2.50 = −0.355 standard errors, so power = P(Z &gt; −0.355) = <b>0.639</b>. In words: even when the improvement is genuinely 5 points, this study would miss it more than a third of the time. Reaching the conventional 0.80 would need n = 56, and 0.90 would need n = 78.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">20</div><div class="qtext"><span class="scen">Four analysts report the same two-tailed test result of p = 0.048 with n = 30.</span>Which report is defensible?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>“The result is significant at α = 0.05 (p = 0.048), so the difference is proven.”</span></div><div class="optrow"><span class="ltr">B</span><span>“Since p is close to 0.05, we can also claim significance at α = 0.01.”</span></div><div class="optrow"><span class="ltr">C</span><span>“p = 0.048, so 95.2% of future studies would replicate this finding.”</span></div><div class="optrow"><span class="ltr">D</span><span>“At α = 0.05 the result is significant (p = 0.048), though only marginally; the 95% interval runs from just above zero, so the effect could be small. We recommend confirming in a larger sample before acting.”</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> “At α = 0.05 the result is significant (p = 0.048), though only marginally; the 95% interval runs from just above zero, so the effect could be small. We recommend confirming in a larger sample before acting.”</p><p style="margin:0">The defensible report does four things: it states the level and the exact p rather than a bare label; it flags that <b>0.048 is marginal</b> and would not survive a stricter threshold; it reports the interval so the reader can see the effect could be near zero; and it recommends a proportionate next step rather than treating a borderline result as settled. Nothing in it overclaims. Note in particular the refusal to say “proven” — a single test at p = 0.048 is weak evidence, and with n = 30 the study's power against a modest effect is likely poor.</p></div></details></div></section>
+<section id="case"><hr class="div"><h2 class="sec"><span class="n" style="background:var(--p2); color:var(--i2);">✍️</span>Part II · Business Case &amp; Essay Test</h2><p class="lead">Read the case, then answer the three essay questions. Write your response first; the dropdown under each item reveals a brief answer key — what a strong response must establish.</p><p class="lead">One quarterly evidence review, six statistical claims, and a board that is about to act on all of them. Read the case, then answer three essay questions. Model answers with full arithmetic and point-allocated rubrics follow — write yours <b>before</b> you open them.</p><div class="card c-biz">
+  <div class="hd">🏦 Case: Tuklas Digital Bank — the quarterly evidence review</div>
+
+  <p><b>Background.</b> Tuklas Digital Bank serves 1.4 million customers through an app-only model. Its analytics unit produces a quarterly evidence review that feeds directly into product, credit and operations decisions. <em>Every sample below was drawn competently at random, and every arithmetic step is executed correctly; what you are auditing is the choice of procedure and the reasoning built on top of it.</em></p>
+
+  <div class="tbl-scroll" style="margin:14px 0;">
+  <table>
+    <thead><tr><th style="width:5%">#</th><th style="width:22%">Study</th><th style="width:38%">Data and test</th><th>What the review concluded</th></tr></thead>
+    <tbody>
+      <tr><td class="ctr"><b>A</b></td><td><b>Onboarding redesign</b></td><td>n = <b>40</b> new customers. Mean completion time x̄ = <b>7.6 min</b>, s = <b>1.5 min</b>. Two-tailed t-test of H₀: μ = 8.0 gives t = −1.687, df = 39, <b>p = 0.0997</b>.</td><td>"The redesign had <b>no effect</b>; completion time <b>is</b> 8.0 minutes."</td></tr>
+      <tr><td class="ctr"><b>B</b></td><td><b>Referral campaign</b></td><td>n = <b>1,600</b> targeted users, <b>216</b> converted (p̂ = 0.135) against a baseline p₀ = <b>0.12</b>. A two-tailed test was planned; z = 1.846, two-tailed <b>p = 0.0648</b>.</td><td>Reported one-tailed as <b>p = 0.0324</b>: "the campaign significantly lifted conversion."</td></tr>
+      <tr><td class="ctr"><b>C</b></td><td><b>Partner default rate</b></td><td>Contract ceiling p₀ = <b>4%</b>. Audit of <b>2,000</b> loans found <b>104</b> in default (p̂ = 0.052). Analyst computed SE = √[p̂(1−p̂)/n] = 0.004965, giving z = <b>2.417</b>, p = 0.0078.</td><td>"Reject H₀ — the partner exceeds the contracted ceiling."</td></tr>
+      <tr><td class="ctr"><b>D</b></td><td><b>Contact-centre script</b></td><td>n = <b>250,000</b> calls, σ = <b>45 s</b> known. x̄ = <b>329.7 s</b> against the 330 s standard. z = −3.333, <b>p = 0.00086</b>.</td><td>"<b>Highly significant</b> improvement. Roll the new script out nationally at a cost of ₱18 million."</td></tr>
+      <tr><td class="ctr"><b>E</b></td><td><b>Segment analysis</b></td><td><b>20</b> customer segments each tested separately at α = 0.05 for a response to the referral campaign. One segment ("young professionals, NCR") returned <b>p = 0.03</b>.</td><td>"We have identified a high-response segment. Reallocate the campaign budget to it."</td></tr>
+      <tr><td class="ctr"><b>F</b></td><td><b>Branch service pilot</b></td><td>n = <b>20</b> branches, σ = <b>12</b> NPS points known. x̄ = <b>45.5</b> against the current mean of 42. Right-tailed z-test: z = 1.304, <b>p = 0.096</b>.</td><td>"No significant improvement. <b>Discontinue the pilot.</b>"</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p style="margin:0"><b>Every one of the six conclusions is unsafe</b>, and they fail in six distinct ways — one accepting the null, one choosing a tail after the fact, one using the wrong standard error, one mistaking significance for importance, one ignoring multiplicity, and one reading a null result from a study that could not have found anything. Your job is to identify each failure, correct it where correction is possible, and say what it would have cost the bank.</p>
+</div><div class="essay"><div class="etag">Essay 1 · 20 points · Apply & Analyse</div><div class="eq">Audit items <b>B</b> and <b>C</b>. For each, identify the specific procedural error, produce the correct calculation with your arithmetic shown, state whether the corrected result changes the conclusion, and explain what the error would have cost had it gone undetected.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>For B, the reason a post-hoc tail choice inflates α, stated as a number rather than as a principle.</li>
+        <li>For C, the correct standard error recomputed, with the reason a test uses p₀ rather than p̂.</li>
+        <li>Recognition that <b>one</b> of the two errors changes the conclusion and the other does not.</li>
+        <li>The np₀ condition checked before either test is trusted.</li>
+        <li>A business consequence for each, not merely a corrected number.</li>
+      </ul>
+    </div></details></div>
+<div class="essay"><div class="etag">Essay 2 · 25 points · Analyse & Evaluate</div><div class="eq">Audit items <b>A</b> and <b>F</b>, both of which report a null result. For each, explain precisely why the stated conclusion is unsafe, compute what the study could actually have detected, and state what the bank should do instead. Then explain, in language a non-statistical board member would follow, why "we found no significant difference" and "there is no difference" are different statements.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>The accept-the-null error named explicitly in item A, with the confidence interval used as the argument.</li>
+        <li>A power calculation for item F, against a stated effect size.</li>
+        <li>The sample size that would have been required, computed.</li>
+        <li>Recognition that A and F are <em>not</em> the same error, though both involve a null result.</li>
+        <li>A plain-language explanation that does not use the word "null".</li>
+      </ul>
+    </div></details></div>
+<div class="essay"><div class="etag">Essay 3 · 25 points · Evaluate & Create</div><div class="eq">Audit items <b>D</b> and <b>E</b>. For each, explain why a technically correct calculation supports an indefensible decision, quantify the problem, and state what the bank should do. Then draft the analytics unit's revised reporting standard — the rules that would have prevented all six failures — and recommend what the board should do about the ₱18 million script rollout.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>For D, the effect size computed and translated into a business unit.</li>
+        <li>Recognition that D's arithmetic is entirely correct — the failure is one of judgement.</li>
+        <li>For E, the family-wide error rate computed, and the corrected threshold.</li>
+        <li>A reporting standard with rules that map onto all six failures, not a generic list of good practice.</li>
+        <li>A recommendation on the ₱18 million with a stated basis.</li>
+      </ul>
+    </div></details></div></section>
+<footer class="end"><p><b>Advanced Business Statistics</b> · Chapter 6 — Hypothesis Testing · Exercises &amp; Essays. Bachelor of Science in Business Administration, College of Business, Entrepreneurship and Accountancy, Rizal Technological University.</p></footer>
+</div>
+<script>
+(function(){
+  function s(e){var h=this.getAttribute("href");if(!h||h[0]!=="#")return;var el=document.getElementById(h.slice(1));
+    if(el){e.preventDefault();el.scrollIntoView({behavior:"smooth",block:"start"});}}
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener("click",s);});
+  window.exAll=function(open){document.querySelectorAll("details.ans").forEach(function(d){d.open=open;});};
+})();
+</script>
+</body>
+</html>

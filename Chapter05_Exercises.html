@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 5 — Exercises &amp; Essays</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   CHAPTER 11 · MULTIPLE REGRESSION
+   Interactive learning module · single standalone file · no libraries
+   ───────────────────────────────────────────────────────────────────
+   COLOUR SYSTEM — Rizal Technological University: GOLD-dominant with
+   Royal BLUE. Nine light surface tints, each paired with a darkened
+   "ink" variant used only for text, borders and icons so that every
+   text/background pair clears WCAG AA contrast. The gold family carries
+   most surfaces; blue, green and red are kept functional (concepts,
+   recaps, warnings). The five-colour chart series palette below is
+   gold-led and validated with the dataviz colour checker.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  /* --- nine light surface tints (GOLD-dominant + BLUE) --- */
+  --p1:#F6D8CF;  /* warm red   → mistakes, warnings, "don't do this"  */
+  --p2:#DCE7F6;  /* royal blue → core concepts, definitions           */
+  --p3:#D8EACF;  /* green      → recaps, correct answers, wins         */
+  --p4:#F0E1B0;  /* amber      → key terms, vocabulary                */
+  --p5:#FBEEC2;  /* gold cream → business cases, real-world (dominant)*/
+  --p6:#FCF6D2;  /* pale gold  → TL;DR, highlights                    */
+  --p7:#ECDFBB;  /* sand       → glossary, reference tables           */
+  --p8:#F7E1BE;  /* warm gold  → activities, "try it"                 */
+  --p9:#F3F0E6;  /* warm mist  → neutral surfaces                     */
+
+  /* --- matching ink (text/border) variants, all clear WCAG AA --- */
+  --i1:#A23A29; --i2:#1C4E86; --i3:#3B6E2E; --i4:#7A5A10; --i5:#86620A;
+  --i6:#7C6710; --i7:#6C5A2A; --i8:#8A5716; --i9:#55514A;
+
+  /* --- RTU brand accents --- */
+  --gold:#D9A82C;      /* brand gold — rings, rules, accents  */
+  --gold-ink:#856408;  /* dark gold for gold text on white    */
+  --blue:#1F5FA8;      /* brand blue — secondary              */
+  --blue-ink:#184E86;
+  --gold-grad:linear-gradient(135deg,#EAC24C,#D7A62C);
+
+  --ink:#232A33;      /* body text            */
+  --ink-soft:#5C5A50; /* secondary text       */
+  --line:#E7E0CC;     /* warm hairline rules  */
+  --bg:#FDFBF3;       /* warm cream page      */
+  --radius:16px;
+  --shadow:0 1px 2px rgba(60,50,20,.06), 0 8px 24px rgba(60,50,20,.07);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; scroll-padding-top:96px;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16.5px; line-height:1.68; -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;}
+
+/* ── PROGRESS BAR ────────────────────────────────────────────────── */
+#progress{
+  position:fixed; top:0; left:0; height:5px; width:0%; z-index:200;
+  background:linear-gradient(90deg,var(--gold),#E8C24E,var(--blue));
+  transition:width .12s linear;
+}
+
+/* ── STICKY NAV ──────────────────────────────────────────────────── */
+nav#topnav{
+  position:sticky; top:0; z-index:150; background:rgba(252,252,253,.92);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+}
+.navwrap{max-width:1080px; margin:0 auto; padding:9px 20px; display:flex; align-items:center; gap:14px;}
+.navbrand{font-weight:800; font-size:.86rem; letter-spacing:.4px; white-space:nowrap; color:var(--gold-ink);}
+.navlinks{display:flex; gap:5px; overflow-x:auto; scrollbar-width:none; flex:1;}
+.navlinks::-webkit-scrollbar{display:none;}
+.navlinks a{
+  font-size:.78rem; font-weight:600; text-decoration:none; color:var(--ink-soft);
+  padding:5px 11px; border-radius:999px; white-space:nowrap; transition:.15s;
+}
+.navlinks a:hover{background:var(--p9); color:var(--ink);}
+.navlinks a.on{background:var(--gold-grad); color:#3A2D06;}
+
+/* ── LAYOUT ──────────────────────────────────────────────────────── */
+.wrap{max-width:1080px; margin:0 auto; padding:0 20px 100px;}
+section{scroll-margin-top:96px;}
+
+/* ── HERO ────────────────────────────────────────────────────────── */
+.hero{
+  margin:26px 0 34px; padding:38px 34px; border-radius:26px; position:relative; overflow:hidden;
+  background:
+    radial-gradient(circle at 90% 6%,#F7E9A6 0,transparent 44%),
+    radial-gradient(circle at 4% 96%,#CBDDF4 0,transparent 46%),
+    radial-gradient(circle at 62% 104%,#FBEFC0 0,transparent 42%),
+    linear-gradient(135deg,#F6E6A0 0%,#EBCB5E 52%,#DCE6F6 100%);
+}
+.hero .eyebrow{
+  display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.72);
+  padding:5px 15px; border-radius:999px; font-size:.74rem; font-weight:800;
+  letter-spacing:1.3px; text-transform:uppercase; color:var(--gold-ink);
+}
+.hero h1{
+  font-size:clamp(1.9rem,4.6vw,3.05rem); line-height:1.12; margin:16px 0 10px;
+  font-weight:850; letter-spacing:-.9px; color:#22303B;
+}
+.hero .sub{font-size:1.04rem; max-width:62ch; color:#2E3945; margin:0 0 20px;}
+.chips{display:flex; flex-wrap:wrap; gap:9px;}
+.chip{
+  background:rgba(255,255,255,.82); border-radius:999px; padding:7px 15px;
+  font-size:.79rem; font-weight:700; color:#2E3945; display:inline-flex; align-items:center; gap:7px;
+}
+
+/* ── HEADINGS ────────────────────────────────────────────────────── */
+h2.sec{
+  font-size:1.62rem; font-weight:840; letter-spacing:-.5px; margin:52px 0 6px;
+  display:flex; align-items:center; gap:13px; line-height:1.25;
+}
+h2.sec .n{
+  flex:none; width:46px; height:46px; border-radius:14px; display:grid; place-items:center;
+  font-size:1.02rem; font-weight:850; background:var(--gold-grad); color:#3A2D06;
+}
+h3.sub{font-size:1.13rem; font-weight:800; margin:30px 0 8px; color:var(--i2); letter-spacing:-.2px;}
+h4.mini{font-size:.79rem; font-weight:850; letter-spacing:1.2px; text-transform:uppercase; color:var(--ink-soft); margin:22px 0 7px;}
+p{margin:0 0 14px;}
+.lead{font-size:1.08rem; color:#37414D;}
+
+/* ── CARDS / CALLOUTS ────────────────────────────────────────────── */
+.card{border-radius:var(--radius); padding:19px 22px; margin:18px 0; border:1px solid rgba(0,0,0,.05);}
+.card .hd{display:flex; align-items:center; gap:9px; font-weight:840; font-size:.87rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:9px;}
+.card p:last-child,.card ul:last-child,.card ol:last-child{margin-bottom:0;}
+.c-tldr{background:var(--p6);} .c-tldr .hd{color:var(--i6);}
+.c-concept{background:var(--p2);} .c-concept .hd{color:var(--i2);}
+.c-recap{background:var(--p3);} .c-recap .hd{color:var(--i3);}
+.c-term{background:var(--p4);} .c-term .hd{color:var(--i4);}
+.c-biz{background:var(--p5);} .c-biz .hd{color:var(--i5);}
+.c-warn{background:var(--p1);} .c-warn .hd{color:var(--i1);}
+.c-try{background:var(--p8);} .c-try .hd{color:var(--i8);}
+.c-ref{background:var(--p7);} .c-ref .hd{color:var(--i7);}
+.c-neutral{background:var(--p9);} .c-neutral .hd{color:var(--i9);}
+
+/* ── INLINE BITS ─────────────────────────────────────────────────── */
+.kt{background:var(--p4); color:var(--i4); font-weight:750; padding:1px 7px; border-radius:6px; white-space:nowrap;}
+.hl{background:var(--p6); padding:1px 5px; border-radius:5px; font-weight:650;}
+.no{color:var(--i1); font-weight:750;}
+.yes{color:var(--i3); font-weight:750;}
+code,.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.9em; background:var(--p9); padding:2px 6px; border-radius:5px;}
+.formula{
+  background:#fff; border:2px dashed var(--gold); border-radius:12px; padding:13px 18px;
+  margin:14px 0; text-align:center; font-family:"Cambria Math",Georgia,serif; font-size:1.06rem;
+}
+
+/* ── TABLES ──────────────────────────────────────────────────────── */
+.tbl-scroll{overflow-x:auto; margin:16px 0; border-radius:14px; border:1px solid var(--line);}
+table{width:100%; border-collapse:collapse; font-size:.92rem; background:#fff; min-width:560px;}
+th{background:var(--p4); color:var(--i4); text-align:left; padding:11px 14px; font-weight:820; font-size:.78rem; letter-spacing:.7px; text-transform:uppercase;}
+td{padding:11px 14px; border-top:1px solid var(--line); vertical-align:top;}
+tbody tr:nth-child(even) td{background:#FAFBFC;}
+td.ctr,th.ctr{text-align:center;}
+
+/* ── ACCORDION ───────────────────────────────────────────────────── */
+details.acc{background:#fff; border:1px solid var(--line); border-radius:14px; margin:11px 0; overflow:hidden;}
+details.acc>summary{
+  cursor:pointer; padding:14px 18px; font-weight:750; list-style:none;
+  display:flex; align-items:center; gap:11px; transition:.15s;
+}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:"＋"; margin-left:auto; font-weight:800; color:var(--ink-soft); font-size:1.1rem;}
+details.acc[open]>summary::after{content:"−";}
+details.acc>summary:hover{background:var(--p9);}
+details.acc[open]>summary{background:var(--p9); border-bottom:1px solid var(--line);}
+.acc-body{padding:16px 18px 18px;}
+.acc-body p:last-child,.acc-body ul:last-child{margin-bottom:0;}
+
+/* ── GRID ────────────────────────────────────────────────────────── */
+.grid{display:grid; gap:14px; margin:18px 0;}
+.g2{grid-template-columns:repeat(auto-fit,minmax(255px,1fr));}
+.g3{grid-template-columns:repeat(auto-fit,minmax(195px,1fr));}
+.g4{grid-template-columns:repeat(auto-fit,minmax(158px,1fr));}
+.tile{border-radius:14px; padding:16px 17px; border:1px solid rgba(0,0,0,.05);}
+.tile .ic{font-size:1.5rem; line-height:1; display:block; margin-bottom:8px;}
+.tile b{display:block; font-size:.98rem; margin-bottom:4px;}
+.tile span.d{font-size:.85rem; color:#4A5461; line-height:1.55;}
+
+/* ── STEPS ───────────────────────────────────────────────────────── */
+.steps{counter-reset:s; padding:0; margin:16px 0; list-style:none;}
+.steps li{counter-increment:s; position:relative; padding-left:48px; margin-bottom:15px;}
+.steps li::before{
+  content:counter(s); position:absolute; left:0; top:-1px; width:33px; height:33px;
+  border-radius:11px; background:var(--p5); color:var(--i5);
+  display:grid; place-items:center; font-weight:850; font-size:.94rem;
+}
+
+/* ── QUIZ ────────────────────────────────────────────────────────── */
+.quizbar{
+  position:sticky; top:52px; z-index:90; background:#fff; border:1px solid var(--line);
+  border-radius:14px; padding:12px 17px; margin:18px 0; display:flex; flex-wrap:wrap;
+  align-items:center; gap:12px; box-shadow:var(--shadow);
+}
+.quizbar .score{font-weight:850; font-size:1rem;}
+.quizbar .meter{flex:1; min-width:130px; height:9px; background:var(--p9); border-radius:99px; overflow:hidden;}
+.quizbar .meter i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--gold),var(--blue)); transition:width .3s;}
+.btn{
+  border:none; border-radius:999px; padding:8px 17px; font-size:.83rem; font-weight:750;
+  cursor:pointer; font-family:inherit; transition:.15s; background:var(--p9); color:var(--ink);
+}
+.btn:hover{filter:brightness(.96);}
+.btn.primary{background:var(--gold-grad); color:#3A2D06;}
+.btn.ghost{background:transparent; border:1px solid var(--line); color:var(--ink-soft);}
+
+.q{background:#fff; border:1px solid var(--line); border-radius:16px; padding:19px 21px; margin:14px 0;}
+.q .qhead{display:flex; gap:12px; align-items:flex-start; margin-bottom:13px;}
+.q .qnum{
+  flex:none; width:32px; height:32px; border-radius:10px; background:var(--p4); color:var(--i4);
+  display:grid; place-items:center; font-weight:850; font-size:.86rem;
+}
+.q .qtext{font-weight:620; line-height:1.6;}
+.q .qtext .scen{display:block; color:var(--ink-soft); font-weight:450; font-size:.93rem; margin-bottom:6px;}
+.q .bloom{
+  display:inline-block; font-size:.66rem; font-weight:850; letter-spacing:1px; text-transform:uppercase;
+  background:var(--p7); color:var(--i7); padding:3px 9px; border-radius:999px; margin-bottom:8px;
+}
+.opts{display:grid; gap:8px;}
+.opt{
+  display:flex; gap:11px; align-items:flex-start; padding:11px 14px; border-radius:11px;
+  border:1.5px solid var(--line); background:#fff; cursor:pointer; transition:.14s;
+  font-size:.94rem; line-height:1.5; text-align:left; font-family:inherit; color:var(--ink); width:100%;
+}
+.opt:hover:not(.locked){background:var(--p9); border-color:#CDD5DE;}
+.opt .ltr{
+  flex:none; width:24px; height:24px; border-radius:7px; background:var(--p9); color:var(--ink-soft);
+  display:grid; place-items:center; font-weight:850; font-size:.78rem;
+}
+.opt.correct{background:var(--p3); border-color:var(--i3);}
+.opt.correct .ltr{background:var(--i3); color:#fff;}
+.opt.wrong{background:var(--p1); border-color:var(--i1);}
+.opt.wrong .ltr{background:var(--i1); color:#fff;}
+.opt.locked{cursor:default;}
+.expl{margin-top:13px; border-radius:12px; padding:15px 17px; background:var(--p9); display:none;}
+.expl.show{display:block;}
+.expl .vt{font-weight:850; font-size:.85rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:7px; display:flex; align-items:center; gap:7px;}
+.expl .vt.ok{color:var(--i3);} .expl .vt.no{color:var(--i1);}
+.expl p{font-size:.93rem; margin:0 0 9px;}
+.expl .dis{margin-top:10px; padding-top:10px; border-top:1px dashed #CFD6DE;}
+.expl .dis div{font-size:.885rem; margin-bottom:5px; color:#404A56;}
+.expl .dis b{color:var(--i1);}
+
+/* ── ESSAY ───────────────────────────────────────────────────────── */
+.essay{background:#fff; border:1px solid var(--line); border-left:6px solid var(--p5); border-radius:16px; padding:21px 23px; margin:18px 0;}
+.essay .etag{font-size:.72rem; font-weight:850; letter-spacing:1.2px; text-transform:uppercase; color:var(--i5); margin-bottom:7px;}
+.essay .eq{font-size:1.04rem; font-weight:750; margin-bottom:11px; line-height:1.5;}
+.rubric{font-size:.88rem;}
+.rubric td,.rubric th{padding:8px 12px;}
+
+/* ── GLOSSARY ────────────────────────────────────────────────────── */
+.gloss{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(268px,1fr)); margin:16px 0;}
+.gitem{background:var(--p7); border-radius:12px; padding:13px 15px;}
+.gitem b{display:block; color:var(--i7); font-size:.95rem; margin-bottom:3px;}
+.gitem span{font-size:.87rem; color:#3E4854; line-height:1.55;}
+
+/* ── MISC ────────────────────────────────────────────────────────── */
+.palette{display:flex; gap:5px; margin:12px 0 0; flex-wrap:wrap;}
+.sw{width:38px; height:38px; border-radius:9px; border:1px solid rgba(0,0,0,.07);}
+hr.div{border:none; border-top:1px solid var(--line); margin:44px 0;}
+footer.end{margin-top:56px; padding:30px 0 0; border-top:1px solid var(--line); font-size:.86rem; color:var(--ink-soft);}
+.backtop{position:fixed; right:18px; bottom:18px; z-index:120; width:46px; height:46px; border-radius:50%;
+  background:var(--gold-grad); color:#3A2D06; border:none; font-size:1.15rem; cursor:pointer; box-shadow:var(--shadow); display:none;}
+.backtop.on{display:block;}
+
+@media(max-width:640px){
+  body{font-size:16px;}
+  .hero{padding:28px 22px; border-radius:20px;}
+  h2.sec{font-size:1.36rem;}
+  h2.sec .n{width:38px; height:38px; font-size:.9rem;}
+  .card{padding:16px 17px;}
+  .q{padding:16px 15px;}
+  .quizbar{top:50px;}
+}
+/* ── PRINT / PDF ─────────────────────────────────────────────────
+   Turns the interactive module into a static answer-key workbook:
+   every explanation, model answer and rubric is forced open, all
+   chrome is stripped, and nothing that must be read together is
+   allowed to break across a page.                                  */
+@page{ size:Letter; margin:14mm 12mm 15mm; }
+
+@media print{
+  /* strip interactive chrome */
+  nav#topnav,#progress,.backtop,.quizbar{ display:none !important; }
+
+  /* force every hidden layer open */
+  .expl{ display:block !important; }
+  details.acc{ page-break-inside:avoid; }
+  details.acc>summary::after{ content:"" !important; }
+  details.acc>summary{ background:var(--p9) !important; border-bottom:1px solid var(--line); }
+  details.acc:not([open])>.acc-body{ display:block !important; }
+
+  /* keep tint fills — they carry the semantic colour coding */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+
+  body{ font-size:10pt; line-height:1.5; background:#fff; }
+  .wrap{ max-width:none; padding:0 0 8pt; }
+  html{ scroll-behavior:auto; }
+
+  /* never split a unit of meaning across pages */
+  .card,.essay,.tile,.gitem,.formula,.acc-body,
+  .hero,.opts,.expl,.steps li{ page-break-inside:avoid; break-inside:avoid; }
+  /* Long reference tables must be allowed to flow. This chapter has several that
+     exceed a full page (the formula card, the case model answers); forcing them
+     whole strands the page before each one. Rows stay intact and the header
+     repeats on every page the table spans. */
+  .tbl-scroll{ break-inside:auto; page-break-inside:auto; }
+  /* An item may split, but only at the seam between its options and its
+     explanation — the stem+options block and the explanation each stay whole. */
+  .q{ break-inside:auto; }
+  .q .qhead{ break-after:avoid; }
+  /* Essay model answers and rubrics run close to a full page; keeping them
+     atomic would strand half a page before each. Let them flow, but keep
+     their internal tables and paragraphs whole. */
+  .essay details.acc, .essay .acc-body{ break-inside:auto; page-break-inside:auto; }
+  .essay details.acc>summary{ break-after:avoid; }
+  .essay .acc-body p, .essay .acc-body li{ break-inside:avoid; }
+  h2.sec,h3.sub,h4.mini{ page-break-after:avoid; break-after:avoid; }
+  tr,thead{ page-break-inside:avoid; }
+  thead{ display:table-header-group; }
+
+  /* major sections start a fresh page */
+  #cheat,#hots,#drill,#case{ page-break-before:always; }
+  hr.div{ display:none; }
+
+  /* tighten spacing that only exists for on-screen scrolling */
+  h2.sec{ margin:20pt 0 4pt; font-size:15pt; }
+  h3.sub{ margin:14pt 0 4pt; }
+  .card,.q,.essay{ margin:8pt 0; }
+  section{ scroll-margin-top:0; }
+  table{ min-width:0; font-size:8.6pt; }
+  .tbl-scroll{ overflow:visible; }
+  .grid{ gap:8pt; }
+
+  /* Quiz items are the bulk of the page count. Because each item is kept
+     whole (page-break-inside:avoid), an item taller than half a page wastes
+     the remainder. These densities are tuned so two reinforcement items fit
+     per page while the item stays comfortably readable. */
+  .q{ padding:11px 13px; margin:6pt 0; }
+  .q .qhead{ margin-bottom:8px; }
+  .q .qnum{ width:26px; height:26px; font-size:.78rem; }
+  .q .qtext{ font-size:9.5pt; line-height:1.45; }
+  .q .qtext .scen{ font-size:9pt; margin-bottom:4px; }
+  .q .bloom{ font-size:.62rem; padding:2px 7px; margin-bottom:5px; }
+  .opts{ gap:5px; }
+  .expl{ margin-top:9px; padding:10px 12px; }
+  .expl .vt{ font-size:.78rem; margin-bottom:5px; }
+  .expl p{ font-size:8.9pt; line-height:1.45; margin-bottom:6px; }
+  .expl .dis{ margin-top:7px; padding-top:7px; }
+  .expl .dis div{ font-size:8.5pt; line-height:1.42; margin-bottom:4px; }
+
+
+  figure.fig, .figcard, .figpair, .calc, pre.term{ page-break-inside:avoid; break-inside:avoid; }
+  .figpair.side{ grid-template-columns:1fr 1fr; }
+  figure.fig svg, .figcard svg{ max-height:none; }
+
+  /* answer key styling: correct option stays clearly marked */
+  .opt{ border-width:1px; padding:5px 10px; font-size:8.9pt; line-height:1.4; }
+  .opt .ltr{ width:20px; height:20px; font-size:.7rem; }
+  .opt.correct{ background:var(--p3) !important; border-color:var(--i3) !important; }
+  .opt.correct .ltr{ background:var(--i3) !important; color:#fff !important; }
+}
+
+/* ── CHART SERIES PALETTE ────────────────────────────────────────
+   The nine Pastel1 fills above are SURFACE colours: too light and too
+   low-chroma to encode data (measured — see §2.9). These five series
+   colours are GOLD-led and pushed into the accessible lightness/chroma
+   band. Verified with the dataviz validator: ALL CHECKS PASS on the
+   light surface (worst adjacent pair clears the floor with the legend
+   + direct labels every figure already carries).
+      gold → --s1   blue → --s2   green → --s3
+      plum → --s4   brick → --s5                                 */
+:root{
+  --s1:#A6790C; --s2:#1F5FA8; --s3:#3F8A3F; --s4:#8B4E9C; --s5:#B4523E;
+}
+
+/* ── FIGURES ─────────────────────────────────────────────────────── */
+figure.fig{ margin:18px 0; }
+figure.fig svg{ border:1px solid var(--line); border-radius:14px; background:#fff; }
+figcaption{ font-size:.85rem; color:var(--ink-soft); margin-top:7px; line-height:1.55; }
+figcaption b{ color:var(--ink); }
+.figpair{ display:grid; gap:14px; grid-template-columns:1fr; margin:18px 0; }
+@media(min-width:900px){ .figpair.side{ grid-template-columns:1fr 1fr; } }
+.figcard{ border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; }
+.figcard>.tag{
+  font-size:.74rem; font-weight:850; letter-spacing:1.1px; text-transform:uppercase;
+  padding:7px 13px; display:flex; align-items:center; gap:7px;
+}
+.figcard.bad>.tag{ background:var(--p1); color:var(--i1); }
+.figcard.good>.tag{ background:var(--p3); color:var(--i3); }
+.figcard svg{ border:none; border-radius:0; }
+.figcard>.note{ font-size:.83rem; color:#404A56; padding:10px 13px 12px; line-height:1.55; border-top:1px solid var(--line); }
+.figcard>.note b{ color:var(--ink); }
+.swatchrow{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin:10px 0; }
+.swatchrow .s{ width:30px; height:30px; border-radius:8px; border:1px solid rgba(0,0,0,.08); }
+.swatchrow .arrow{ color:var(--ink-soft); font-weight:800; }
+pre.term{
+  background:#1D2530; color:#D8DEE6; border-radius:12px; padding:13px 15px; margin:12px 0;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.74rem;
+  line-height:1.65; overflow-x:auto; white-space:pre;
+}
+pre.term .pass{ color:#8FD68F; } pre.term .fail{ color:#FF9A94; } pre.term .warn{ color:#F3D07A; }
+.calc{
+  background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold);
+  border-radius:12px; padding:14px 17px; margin:14px 0;
+  font-family:"Cambria Math",Georgia,serif; font-size:.97rem; line-height:1.85;
+}
+.calc .step{ display:block; }
+.calc .res{ font-weight:800; color:var(--i2); font-family:inherit; }
+.calc .lbl{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-size:.74rem; font-weight:850; letter-spacing:.9px; text-transform:uppercase;
+  color:var(--ink-soft); display:block; margin-bottom:4px; }
+
+/* ── Z-TABLE ─────────────────────────────────────────────────────── */
+table.ztab{ font-size:.68rem; min-width:640px; font-variant-numeric:tabular-nums; }
+table.ztab th{ font-size:.62rem; padding:5px 3px; text-align:center; letter-spacing:0; }
+table.ztab td{ padding:3.5px 3px; text-align:center; border-color:#EDF0F4; }
+table.ztab td.zh{ background:var(--p4); color:var(--i4); font-weight:850; }
+table.ztab td.hi{ background:var(--p6); font-weight:800; }
+table.ztab tbody tr:nth-child(even) td{ background:#FAFBFC; }
+table.ztab tbody tr:nth-child(even) td.zh{ background:var(--p4); }
+table.ztab tbody tr:nth-child(even) td.hi{ background:var(--p6); }
+
+/* ── DESIGN / CONCEPT CARDS ──────────────────────────────────────── */
+.dist{ border:1px solid var(--line); border-radius:16px; overflow:hidden; margin:14px 0; background:#fff; }
+.dist>.dh{ padding:9px 14px; font-weight:850; font-size:.92rem; display:flex; align-items:center; gap:9px; }
+.dist>.db{ padding:13px 15px; }
+.dist>.db p:last-child{ margin-bottom:0; }
+.dist.binom>.dh{ background:var(--p2); color:var(--i2); }
+.dist.pois>.dh{ background:var(--p3); color:var(--i3); }
+.dist.norm>.dh{ background:var(--p4); color:var(--i4); }
+.dist.warn>.dh{ background:var(--p1); color:var(--i1); }
+
+/* ── THE THREE-DISTRIBUTION DISAMBIGUATION STRIP ─────────────────── */
+.three{ display:grid; gap:0; grid-template-columns:1fr; border:1px solid var(--line);
+  border-radius:16px; overflow:hidden; margin:16px 0; background:#fff; }
+@media(min-width:760px){ .three{ grid-template-columns:repeat(3,1fr); } }
+.three>div{ padding:14px 16px; border-top:1px solid var(--line); }
+@media(min-width:760px){ .three>div{ border-top:none; border-left:1px solid var(--line); }
+  .three>div:first-child{ border-left:none; } }
+.three .tt{ font-weight:850; font-size:.9rem; margin-bottom:6px; display:flex; align-items:center; gap:7px; }
+.three .tf{ font-family:"Cambria Math",Georgia,serif; background:var(--p9); border-radius:8px;
+  padding:6px 9px; margin:8px 0; font-size:.92rem; text-align:center; }
+.three p{ font-size:.87rem; margin:0; color:#414B57; line-height:1.55; }
+
+/* ── TWO-VIEW TAB BAR (Lecture / Exercises) ─────────────────────── */
+.navtabs{ display:flex; gap:7px; margin-left:auto; flex:none; }
+.navtabs a{
+  display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+  font-size:.8rem; font-weight:800; letter-spacing:.2px; padding:7px 15px;
+  border-radius:999px; color:var(--blue-ink); background:var(--p2);
+  border:1px solid transparent; white-space:nowrap; transition:.15s;
+}
+.navtabs a:hover{ filter:brightness(.97); }
+.navtabs a.active{ background:var(--gold-grad); color:#3A2D06; box-shadow:0 1px 4px rgba(120,90,10,.3); }
+@media(max-width:720px){ .navtabs a .lbl2{ display:none; } }
+@media(max-width:640px){ .navtabs a{ padding:6px 11px; font-size:.74rem; } }
+
+/* ── PER-TOPIC VIDEO CARD ───────────────────────────────────────── */
+.vidbox{
+  display:flex; gap:14px; align-items:center; text-decoration:none; color:inherit;
+  background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold);
+  border-radius:13px; padding:12px 16px; margin:16px 0; transition:.15s;
+}
+.vidbox:hover{ background:var(--p6); box-shadow:var(--shadow); }
+.vidbox .play{
+  flex:none; width:46px; height:46px; border-radius:12px; background:#E12D2D;
+  display:grid; place-items:center; color:#fff; font-size:1.15rem;
+}
+.vidbox .vmeta{ min-width:0; }
+.vidbox .vk{ font-size:.68rem; font-weight:850; letter-spacing:1.1px; text-transform:uppercase; color:var(--gold-ink); display:block; margin-bottom:2px; }
+.vidbox .vt{ font-weight:750; font-size:.97rem; line-height:1.35; display:block; color:var(--ink); }
+.vidbox .vch{ font-size:.83rem; color:var(--ink-soft); }
+.vidbox .go{ margin-left:auto; flex:none; color:var(--ink-soft); font-weight:800; font-size:1.1rem; }
+@media(max-width:640px){ .vidbox .go{ display:none; } }
+@media print{ .vidbox,.navtabs{ display:none !important; } }
+
+/* ── static MCQ options + answer dropdowns (exercises pages) ─────── */
+.optrow{display:flex;gap:11px;align-items:flex-start;padding:9px 13px;border:1.5px solid var(--line);
+  border-radius:11px;margin:7px 0;background:#fff;font-size:.95rem;line-height:1.5;}
+.optrow .ltr{flex:none;width:24px;height:24px;border-radius:7px;background:var(--p9);color:var(--ink-soft);
+  display:grid;place-items:center;font-weight:850;font-size:.78rem;}
+.q .opts{display:block;margin-top:4px;}
+details.acc.ans{margin:12px 0 2px;}
+details.acc.ans>summary{color:var(--blue-ink);font-weight:800;}
+.ansbody .key,.acc-body .key{font-weight:850;color:var(--i3);}
+.exbar{position:sticky;top:52px;z-index:90;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:11px 16px;margin:16px 0;display:flex;flex-wrap:wrap;gap:10px;align-items:center;box-shadow:var(--shadow);}
+.exbar .lbl{font-weight:850;}
+@media print{.exbar{display:none!important;} details.acc.ans>.acc-body{display:block!important;}}
+
+</style>
+</head>
+<body data-palette="#A6790C,#1F5FA8,#3F8A3F,#8B4E9C,#B4523E">
+<div class="rtu-instructor-banner" style="background:linear-gradient(135deg,#12213f 0%,#1a2f5a 60%,#24457e 100%);color:#eaf0fb;border-bottom:3px solid #c9a227;font-family:-apple-system,'Segoe UI',Arial,sans-serif;text-align:center;padding:9px 16px;font-size:.82rem;line-height:1.45;letter-spacing:.02em;"><span style="font-weight:800;color:#fff;">🎓 Advanced Business Statistics</span>&nbsp;—&nbsp; a class of <b style="color:#f2d98b;">Dr.&nbsp;Ryan&nbsp;Manuel&nbsp;D.&nbsp;Guido</b><span style="opacity:.85;">&nbsp;·&nbsp; Rizal Technological University · CBEA</span></div>
+<nav id="topnav"><div class="navwrap"><span class="navbrand">✍️ CH 5 · EXERCISES &amp; ESSAYS</span><div class="navlinks"><a href="#exstart" class="on">Overview</a><a href="#reinf">⚡ Reinforcement</a><a href="#case">✍️ Case &amp; Essays</a></div><div class="navtabs"><a href="Chapter05.html">📖 <span class="lbl2">Lecture &amp; </span>Notes</a><a href="Chapter05_Exercises.html" class="active">✍️ <span class="lbl2">Exercises &amp; </span>Essays</a></div></div></nav>
+<div class="wrap">
+<section id="exstart"><div class="hero"><span class="eyebrow">✍️ Chapter 5 · Practice &amp; Assessment</span><h1>Estimation &amp; Confidence Intervals<br>Exercises &amp; Essays</h1><p class="sub">Twenty higher-order multiple-choice items to test your reasoning, followed by a business-case essay test. For each question, decide on your answer first, then open the dropdown to check it and read a brief explanation. The full teaching material is on the <a href="Chapter05.html"><b>Lecture &amp; Notes</b></a> tab.</p><div class="chips"><span class="chip">⚡ 20 higher-order items</span><span class="chip">🧮 1 business case</span><span class="chip">✍️ 3 essays</span></div></div></section>
+<section id="reinf"><hr class="div"><h2 class="sec"><span class="n" style="background:var(--gold-grad); color:#3A2D06;">⚡</span>Part I · Reinforcement Exercises — Higher-Order Thinking</h2><p class="lead">Twenty multiple-choice items. Most turn on a judgement, not a formula. Choose your answer, then use the dropdown to check it and read why.</p><div class="exbar"><span class="lbl">20 items</span><button class="btn primary" onclick="exAll(true)">Reveal all answers</button><button class="btn ghost" onclick="exAll(false)">Hide all</button></div><div class="q"><div class="qhead"><div class="qnum">1</div><div class="qtext"><span class="scen">A report states: “Mean handle time is 312 seconds, 95% CI [303.18, 320.82]. <b>There is therefore a 95% probability that the true mean lies between 303.18 and 320.82 seconds.</b>”</span>What is wrong with the second sentence?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>μ is a fixed number and both endpoints are now fixed numbers, so the statement is either true or false — there is no probability left in it. The 95% describes how often the method captures μ across repeated samples.</span></div><div class="optrow"><span class="ltr">B</span><span>The probability should be stated as 97.5%, because the interval is two-sided.</span></div><div class="optrow"><span class="ltr">C</span><span>Nothing — that is the standard definition of a confidence interval.</span></div><div class="optrow"><span class="ltr">D</span><span>It should say 95% of calls last between those two values.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> μ is a fixed number and both endpoints are now fixed numbers, so the statement is either true or false — there is no probability left in it. The 95% describes how often the method captures μ across repeated samples.</p><p style="margin:0">The population mean is an unknown <em>constant</em>, not a random variable, and once you have computed [303.18, 320.82] the endpoints are constants too. Either μ is between them or it is not. What varies from sample to sample is the <b>interval</b>: 95% of the intervals a method like this produces would contain μ. The correct phrasing is “we are 95% <em>confident</em>”, where confidence is a technical claim about the procedure. Note that a Bayesian <span class="kt">credible interval</span> does legitimately support a probability statement — but it requires a prior distribution and is a different calculation.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">2</div><div class="qtext"><span class="scen">A random sample of <b>25</b> invoices has a mean processing time of <b>48 minutes</b> with a sample standard deviation of <b>6 minutes</b>. The population standard deviation is unknown.</span>What is the 95% confidence interval for the mean processing time?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>[46.80, 49.20]</span></div><div class="optrow"><span class="ltr">B</span><span>[45.52, 50.48]</span></div><div class="optrow"><span class="ltr">C</span><span>[45.65, 50.35]</span></div><div class="optrow"><span class="ltr">D</span><span>[36.24, 59.76]</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> [45.52, 50.48]</p><p style="margin:0">σ is unknown, so this is a <b>t-interval</b> with df = 25 − 1 = 24. SE = 6/√25 = 6/5 = <b>1.20</b>. The two-sided 95% value at df = 24 is <b>t = 2.064</b>, so E = 2.064 × 1.20 = <b>2.477</b> and the interval is 48 ± 2.48 = <b>[45.52, 50.48]</b>. Sanity check: the t multiplier must exceed 1.96, and 2.064 does.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">3</div><div class="qtext"><span class="scen">An analyst has <b>12</b> observations, computes s from the data, and builds a 95% interval using the multiplier <b>1.96</b>.</span>What is the consequence, and why?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The interval is too wide, because t would have been smaller than z at df = 11.</span></div><div class="optrow"><span class="ltr">B</span><span>The interval is invalid because 12 observations can never support an interval.</span></div><div class="optrow"><span class="ltr">C</span><span>The interval is too narrow. With σ unknown the multiplier should be t at df = 11, which is 2.201 — about 12% larger than 1.96 — so the reported precision is overstated.</span></div><div class="optrow"><span class="ltr">D</span><span>No consequence — 1.96 is correct for any 95% interval.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> The interval is too narrow. With σ unknown the multiplier should be t at df = 11, which is 2.201 — about 12% larger than 1.96 — so the reported precision is overstated.</p><p style="margin:0">Replacing σ with s introduces a second source of randomness, and the t distribution compensates with heavier tails and a larger multiplier. At df = 11 the two-sided 95% value is <b>2.201</b>, so using 1.96 shrinks the margin by roughly 11% and the interval is correspondingly too narrow. The direction matters: the analyst is claiming <em>more</em> precision than the data supports, which is the error that leads to overconfident decisions. At n = 12 the shortfall is material; at n = 100 it would be under 1.3%, which is why the shortcut is harmless at large n and still not worth taking.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">4</div><div class="qtext"><span class="scen">From n = 480 shoppers, with the population standard deviation known from a prior transaction census to be <b>σ = ₱2,900</b>, a 95% confidence interval for mean monthly spend is <b>[₱3,591, ₱4,109]</b>. A manager writes: “So 95% of our customers spend between ₱3,591 and ₱4,109 a month.”</span>How should this be assessed?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>It is wrong because confidence intervals never describe customers, only samples.</span></div><div class="optrow"><span class="ltr">B</span><span>It is a reasonable paraphrase for a non-technical audience.</span></div><div class="optrow"><span class="ltr">C</span><span>It is correct only if spending is normally distributed.</span></div><div class="optrow"><span class="ltr">D</span><span>It is wrong. The interval estimates the <em>mean</em>, whose standard error is σ/√n; the spread of individual customers is σ, which is √n times larger. At n = 480 and σ = ₱2,900, individual spending spans thousands of pesos, not hundreds.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> It is wrong. The interval estimates the <em>mean</em>, whose standard error is σ/√n; the spread of individual customers is σ, which is √n times larger. At n = 480 and σ = ₱2,900, individual spending spans thousands of pesos, not hundreds.</p><p style="margin:0">This is the second of the three classic misreadings, and the width itself gives it away: an interval only ₱518 wide cannot be describing individual customers whose standard deviation is ₱2,900. The interval concerns μ, and its half-width is 1.96 × 2900/√480 = ₱259. A range covering roughly 95% of <em>individuals</em> would be about 3,850 ± 1.96(2,900) — several thousand pesos wide, and mostly meaningless here because spending is skewed. <b>Whenever an interval feels suspiciously narrow for a statement about people, you are probably reading a confidence interval as if it were a data range.</b></p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">5</div><div class="qtext"><span class="scen">A research unit must estimate the proportion of customers who will switch to a new plan, with a 95% margin of error of <b>±4 percentage points</b>. No prior estimate of the proportion exists.</span>What sample size is required?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>25</span></div><div class="optrow"><span class="ltr">B</span><span>601</span></div><div class="optrow"><span class="ltr">C</span><span>385</span></div><div class="optrow"><span class="ltr">D</span><span>1,068</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> 601</p><p style="margin:0">With no prior information, use <b>p = 0.5</b>, which maximises p(1−p) and therefore guarantees the sample is large enough whatever the truth turns out to be. n = 0.25 × (1.96/0.04)² = 0.25 × (49)² = 0.25 × 2,401 = 600.25 → round <b>up to 601</b>. Verify: 1.96√(0.25/601) = 0.0400 ✓. Rounding down to 600 would leave the margin a hair above the promised ±4 points, which is the one direction the calculation exists to prevent.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">6</div><div class="qtext"><span class="scen">For n = 20 and s = 4.2, an analyst computes the 95% interval for σ² as <b>(19 × 17.64)/8.907</b> for the lower bound and <b>(19 × 17.64)/32.852</b> for the upper bound, obtaining “[37.63, 10.20]”.</span>What has gone wrong?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Nothing is wrong; chi-square intervals are conventionally written largest-first.</span></div><div class="optrow"><span class="ltr">B</span><span>The degrees of freedom should be 20, not 19.</span></div><div class="optrow"><span class="ltr">C</span><span>The two chi-square cut-offs are the wrong way round. Dividing by the larger value (32.852) produces the <em>lower</em> bound and dividing by the smaller (8.907) produces the upper, so the correct interval is [10.20, 37.63].</span></div><div class="optrow"><span class="ltr">D</span><span>The numerator should be n·s² = 20 × 17.64, not (n − 1)s².</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> The two chi-square cut-offs are the wrong way round. Dividing by the larger value (32.852) produces the <em>lower</em> bound and dividing by the smaller (8.907) produces the upper, so the correct interval is [10.20, 37.63].</p><p style="margin:0">The formula is (n−1)s²/χ²<sub>right</sub> &lt; σ² &lt; (n−1)s²/χ²<sub>left</sub>, and the crossover is arithmetic rather than convention: dividing a fixed numerator by a <em>bigger</em> denominator gives a <em>smaller</em> result. So 335.16/32.852 = <b>10.202</b> is the lower bound and 335.16/8.907 = <b>37.629</b> is the upper. The self-check is built in — if your “lower” bound comes out above your “upper”, you have swapped them. Taking square roots gives the interval for σ: <b>[3.194, 6.134]</b>.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">7</div><div class="qtext"><span class="scen">A director reviews two reports on the same data. Report 1 gives a 95% interval of [60.2%, 67.8%]. Report 2 gives a 99% interval of [59.0%, 69.0%]. The director concludes that Report 2 is “more accurate” and should be used.</span>How should this reasoning be assessed?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Correct — a higher confidence level means a more reliable estimate.</span></div><div class="optrow"><span class="ltr">B</span><span>Correct, because the wider interval is more likely to contain the true value.</span></div><div class="optrow"><span class="ltr">C</span><span>Incorrect, because the 99% interval should have been narrower than the 95% one.</span></div><div class="optrow"><span class="ltr">D</span><span>Incorrect. The 99% interval is wider, therefore <em>less</em> informative. It is right more often but says less; taken to the limit, a 100% interval spans every possible value and is worthless.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> Incorrect. The 99% interval is wider, therefore <em>less</em> informative. It is right more often but says less; taken to the limit, a 100% interval spans every possible value and is worthless.</p><p style="margin:0">Confidence and precision are traded against each other, not accumulated. Raising the level from 95% to 99% changes the multiplier from 1.96 to 2.576 and widens the interval by about 31% on identical data. The wider interval does contain μ more often — that much is true — but each extra percentage point of confidence is paid for in width, and width is exactly the information the reader wanted. <b>Neither report is more accurate; they are the same estimate stated with different tolerances for being wrong.</b> Raise the level when the cost of an error is severe and asymmetric, such as a safety limit or a regulatory threshold; otherwise 95% is the professional default.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">8</div><div class="qtext"><span class="scen">In a random sample of <b>400</b> subscribers, <b>140</b> said they would recommend the service.</span>What is the 95% confidence interval for the population proportion?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>[0.3033, 0.3967]</span></div><div class="optrow"><span class="ltr">B</span><span>[0.3268, 0.3732]</span></div><div class="optrow"><span class="ltr">C</span><span>[0.2565, 0.4435]</span></div><div class="optrow"><span class="ltr">D</span><span>[0.3396, 0.3604]</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> [0.3033, 0.3967]</p><p style="margin:0">p̂ = 140/400 = <b>0.35</b>. Check the condition: np̂ = 140 and n(1−p̂) = 260, both far above 5 ✓. SE = √[0.35 × 0.65/400] = √0.00056875 = <b>0.023848</b>. E = 1.96 × 0.023848 = <b>0.046743</b>, so the interval is 0.35 ± 0.0467 = <b>[0.3033, 0.3967]</b>, or 30.3% to 39.7% — a margin of ±4.7 percentage points.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">9</div><div class="qtext"><span class="scen">A board will approve a product launch if adoption exceeds <b>55%</b>. A pilot suggests adoption is near <b>64%</b>. The research manager proposes a survey sized for a 95% margin of error of ±1 percentage point, requiring n ≈ 8,900.</span>What is the strongest professional response?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Approve the plan; the tighter the margin, the better the evidence.</span></div><div class="optrow"><span class="ltr">B</span><span>Halve the budget by lowering the confidence level to 90% and keeping n at 8,900.</span></div><div class="optrow"><span class="ltr">C</span><span>Ask what precision the <em>decision</em> requires. The threshold is 9 points from the estimate, so a ±4-point margin (n ≈ 554 using p̂ = 0.64) would place the entire interval above 55% and answer the question at a fraction of the cost.</span></div><div class="optrow"><span class="ltr">D</span><span>Reject any survey and rely on the pilot, since 64% already exceeds 55%.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> Ask what precision the <em>decision</em> requires. The threshold is 9 points from the estimate, so a ±4-point margin (n ≈ 554 using p̂ = 0.64) would place the entire interval above 55% and answer the question at a fraction of the cost.</p><p style="margin:0">Sample size should be derived backwards from the decision. The board's threshold is 55% and the estimate is 64%, so the question is whether the interval can be kept clear of 55%. With p̂ = 0.64 and E = 0.04, n = 0.64 × 0.36 × (1.96/0.04)² = 0.2304 × 2,401 = 553.2 → <b>n = 554</b>, and the resulting interval of roughly [60%, 68%] sits entirely above the threshold. Going to ±1 point costs sixteen times the sample to answer the same question with the same conclusion. <b>Precision beyond what the decision needs is waste, and identifying that is the analyst's job rather than the board's.</b></p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">10</div><div class="qtext"><span class="scen">A franchisor's contractual food-cost target is <b>33.0%</b>. An audit of 15 branches gives a 95% interval of <b>[31.61%, 33.39%]</b>. The operations head writes: “We are running 0.5 points under target, so we can relax controls.”</span>What is the flaw in that conclusion?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The conclusion is sound but should be stated as a 0.5-point saving with a margin of error.</span></div><div class="optrow"><span class="ltr">B</span><span>The interval should have been computed at 99% before drawing any conclusion.</span></div><div class="optrow"><span class="ltr">C</span><span>The sample of 15 is too small for any conclusion to be drawn.</span></div><div class="optrow"><span class="ltr">D</span><span>33.0% lies inside the interval, so the data cannot distinguish the true food cost from the target. The point estimate of 32.5% is consistent with a true value of 33.2% just as much as with 32.0%, and no difference has been demonstrated.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> 33.0% lies inside the interval, so the data cannot distinguish the true food cost from the target. The point estimate of 32.5% is consistent with a true value of 33.2% just as much as with 32.0%, and no difference has been demonstrated.</p><p style="margin:0">The whole purpose of the interval is to say which conclusions the data can and cannot support. Because <b>33.0 falls inside [31.61, 33.39]</b>, a true food cost of exactly 33.0% is entirely consistent with this sample — as is 32.0% and 33.3%. Reporting a 0.5-point gap treats a difference the study cannot detect as an established fact, and relaxing controls on that basis risks acting on noise. The defensible statement is that the chain appears to be operating near target, with no evidence of a departure in either direction. Note that this comparison — <em>does the interval contain the claimed value?</em> — is hypothesis testing arrived at from the other direction, which is where Chapter 6 begins.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">11</div><div class="qtext"><span class="scen">A study with n = 100 produces a 95% confidence interval of width <b>8 units</b>. The team can afford to quadruple the sample to n = 400. Assume s is unchanged.</span>What will the new interval width be, approximately?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>4 units</span></div><div class="optrow"><span class="ltr">B</span><span>8 units — width does not depend on n</span></div><div class="optrow"><span class="ltr">C</span><span>2 units</span></div><div class="optrow"><span class="ltr">D</span><span>6 units</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> 4 units</p><p style="margin:0">The margin of error carries σ/√n, so quadrupling n divides the width by √4 = 2: 8 → <b>4 units</b>. This is the single most useful planning fact in the chapter — <b>halving the width costs four times the sample</b>. There is a small additional gain from the t multiplier falling (1.984 at df = 99 versus 1.966 at df = 399), but at these sample sizes it is under one percent and the √n relationship carries the answer.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">12</div><div class="qtext"><span class="scen">An analyst builds a chi-square confidence interval for σ from a sample of <b>n = 250</b> claim amounts. The distribution of claim amounts is strongly right-skewed. She argues: “n is large, so the Central Limit Theorem makes this valid.”</span>How should the argument be assessed?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Sound, provided the finite population correction is also applied.</span></div><div class="optrow"><span class="ltr">B</span><span>Unsound. The CLT applies to sample <em>means</em>, not to sample variances. The chi-square interval requires an approximately normal <em>population</em> and is not robust to skew at any sample size.</span></div><div class="optrow"><span class="ltr">C</span><span>Unsound, because the chi-square interval requires n ≤ 30.</span></div><div class="optrow"><span class="ltr">D</span><span>Sound — n = 250 far exceeds the n ≥ 30 threshold.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> Unsound. The CLT applies to sample <em>means</em>, not to sample variances. The chi-square interval requires an approximately normal <em>population</em> and is not robust to skew at any sample size.</p><p style="margin:0">This is the most consequential assumption in the chapter. The CLT guarantees that the sampling distribution of <b>x̄</b> approaches normality as n grows, whatever the population's shape — which is why t-intervals for a mean are robust. It says nothing about the sampling distribution of <b>s²</b>, whose reference distribution is chi-square only when the underlying population is normal. With strongly skewed data, the chi-square interval for σ can be badly wrong at n = 25 and equally wrong at n = 2,500; more data does not repair it. The standard modern remedy is a <b>bootstrap</b> interval, which makes no normality assumption.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">13</div><div class="qtext"><span class="scen">A sample of <b>12</b> delivery times has a standard deviation of <b>3.5 minutes</b>. The relevant chi-square cut-offs at df = 11 are <b>3.816</b> and <b>21.920</b>.</span>What is the 95% confidence interval for the population standard deviation σ?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>[2.916, 4.084]</span></div><div class="optrow"><span class="ltr">B</span><span>[2.590, 6.207]</span></div><div class="optrow"><span class="ltr">C</span><span>[6.147, 35.314]</span></div><div class="optrow"><span class="ltr">D</span><span>[2.479, 5.943]</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> [2.479, 5.943]</p><p style="margin:0">First the variance interval. (n − 1)s² = 11 × 3.5² = 11 × 12.25 = <b>134.75</b>. Lower bound: 134.75/21.920 = <b>6.147</b>. Upper bound: 134.75/3.816 = <b>35.314</b>. Then take square roots for σ: √6.147 = <b>2.479</b> and √35.314 = <b>5.943</b>, giving <b>[2.479, 5.943] minutes</b>. Notice the asymmetry — s = 3.5 sits 1.02 above the lower bound but 2.44 below the upper, because the chi-square distribution is right-skewed.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">14</div><div class="qtext"><span class="scen">A quality team inspects <b>80</b> units and finds <b>3</b> defective. They report p̂ = 0.0375 with a 95% interval of <b>[−0.0044, 0.0794]</b>.</span>What does the negative lower bound indicate?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The normality condition has failed. np̂ = 3, which is below 5, so the symmetric normal-based formula does not apply here and produces an impossible bound.</span></div><div class="optrow"><span class="ltr">B</span><span>A rounding error in the standard error; the bound should be exactly zero.</span></div><div class="optrow"><span class="ltr">C</span><span>That the defect rate is genuinely zero and the sample was unrepresentative.</span></div><div class="optrow"><span class="ltr">D</span><span>Nothing unusual — proportions intervals routinely extend below zero.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> The normality condition has failed. np̂ = 3, which is below 5, so the symmetric normal-based formula does not apply here and produces an impossible bound.</p><p style="margin:0">Check the condition before the arithmetic: np̂ = 80 × 0.0375 = <b>3</b>, comfortably below the threshold of 5, while n(1 − p̂) = 77 passes. <b>Both</b> must hold. When p̂ is extreme and n is modest, the true sampling distribution of p̂ is skewed and cannot be represented by a symmetric interval — which is exactly what the impossible negative bound is telling you. The remedies are to collect more data (n ≈ 134 would bring np̂ to 5 at this rate) or to use a method built for small counts, such as the Wilson or Clopper–Pearson interval, which are asymmetric by construction and cannot produce a negative bound.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">15</div><div class="qtext"><span class="scen">A marketing director asks an analyst to narrow a ±4-point margin of error without increasing the budget. The analyst quietly recomputes the interval at 90% confidence instead of 95% and reports the narrower result without comment.</span>What is the most serious problem with this response?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>Nothing — 90% is a recognised confidence level.</span></div><div class="optrow"><span class="ltr">B</span><span>The error rate has doubled from 1-in-20 to 1-in-10, and the report no longer states the level clearly, so the reader will compare it against 95% figures and believe the study is more precise than it is.</span></div><div class="optrow"><span class="ltr">C</span><span>90% confidence is never acceptable in business research.</span></div><div class="optrow"><span class="ltr">D</span><span>The analyst should have raised the confidence level to 99% instead.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> The error rate has doubled from 1-in-20 to 1-in-10, and the report no longer states the level clearly, so the reader will compare it against 95% figures and believe the study is more precise than it is.</p><p style="margin:0">Lowering the confidence level is a legitimate choice, but it is a choice about <b>how often you are willing to be wrong</b>, not a technique for getting more from the same data. Moving from 95% to 90% narrows the interval by about 16% and simultaneously doubles the long-run failure rate. Done openly, with the level stated and the reason given, it can be defensible. Done <em>quietly</em>, it manufactures apparent precision — and because most readers assume 95% by default, the narrower interval will be read as a better study rather than a laxer one. The honest options were to improve measurement or stratify, or to explain that ±4 points is what the budget buys and ask what decision the number feeds.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">16</div><div class="qtext"><span class="scen">A process has a known standard deviation of <b>12 grams</b>. Management requires a 95% margin of error of <b>±2 grams</b> on the mean.</span>What sample size is required?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>12</span></div><div class="optrow"><span class="ltr">B</span><span>71</span></div><div class="optrow"><span class="ltr">C</span><span>139</span></div><div class="optrow"><span class="ltr">D</span><span>554</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> 139</p><p style="margin:0">n = (zσ/E)² = (1.96 × 12/2)² = (11.76)² = 138.2976 → round <b>up to 139</b>. Verify: 1.96 × 12/√139 = 1.995 g ✓, just inside the target. Rounding down to 138 would give 2.002 g, marginally over the promised margin — which is why the rule is always to round up.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">17</div><div class="qtext"><span class="scen">You are drafting the results paragraph of a customer research report for a board that is not statistically trained.</span>Which set of elements makes the paragraph professionally complete?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The point estimate; the interval <em>with its confidence level stated</em>; the sample size; the sampling design and response rate; and what the interval implies for the decision at hand.</span></div><div class="optrow"><span class="ltr">B</span><span>The point estimate, the p-value and the sample size.</span></div><div class="optrow"><span class="ltr">C</span><span>The point estimate, the confidence interval, and a statement that the results are statistically significant.</span></div><div class="optrow"><span class="ltr">D</span><span>The confidence interval alone, since it contains the point estimate at its centre.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: A.</span> The point estimate; the interval <em>with its confidence level stated</em>; the sample size; the sampling design and response rate; and what the interval implies for the decision at hand.</p><p style="margin:0">Each element does a distinct job. The <b>point estimate</b> is the number that will be quoted onward regardless of what else you write. The <b>interval with its level</b> is uninterpretable without the level, since 95% and 99% intervals look identical on the page. The <b>sample size</b> lets a reader recompute and signals immediately how serious the study was. The <b>design and response rate</b> cover the non-sampling errors that no formula in this chapter can see — omit them and the reader will assume there were none. The <b>decision implication</b> is what distinguishes an analyst from a calculator. A board paragraph containing all five is both honest and actionable.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">18</div><div class="qtext"><span class="scen">A survey reports: “Satisfaction is 72%, with a 95% confidence interval of 68% to 76%.” A colleague summarises it as “a margin of error of 8 percentage points”.</span>What is the error in that summary?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>The margin of error is 8 points only at 99% confidence.</span></div><div class="optrow"><span class="ltr">B</span><span>The summary is correct; the margin of error is the interval's full width.</span></div><div class="optrow"><span class="ltr">C</span><span>The margin of error is 4 percentage points — half the width. The interval is estimate ± E, so E is the distance from the centre to either endpoint, not the distance between the endpoints.</span></div><div class="optrow"><span class="ltr">D</span><span>The margin of error cannot be recovered from a reported interval.</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: C.</span> The margin of error is 4 percentage points — half the width. The interval is estimate ± E, so E is the distance from the centre to either endpoint, not the distance between the endpoints.</p><p style="margin:0">The interval is written <b>estimate ± E</b>, so E is the half-width: (76 − 68)/2 = <b>4 percentage points</b>. Equivalently, 72 − 68 = 4 and 76 − 72 = 4. Doubling the margin is a common slip and it makes a study sound half as precise as it is. The check is quick — the point estimate should sit exactly at the midpoint of the interval, and E is its distance to either end. Working backwards further: E = 1.96 × SE gives SE = 0.0204, and solving 1.96√(0.72 × 0.28/n) = 0.04 gives n ≈ 484.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">19</div><div class="qtext"><span class="scen">Four intervals are reported for a mean customer spend of <b>₱3,850</b> from a sample of <b>n = 480</b>, with the population standard deviation known to be <b>σ = ₱2,900</b>. The reports disagree about which confidence level was used.</span>Which interval is arithmetically impossible for a sample of n = 480, whatever confidence level was intended?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>[₱3,509, ₱4,191]</span></div><div class="optrow"><span class="ltr">B</span><span>[₱3,846, ₱3,854]</span></div><div class="optrow"><span class="ltr">C</span><span>[₱3,559, ₱4,141]</span></div><div class="optrow"><span class="ltr">D</span><span>[₱3,591, ₱4,109]</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: B.</span> [₱3,846, ₱3,854]</p><p style="margin:0">SE = 2,900/√480 = <b>₱132.37</b>, so a 95% margin is 1.96 × 132.37 = <b>₱259.44</b> and the interval must be about ₱519 wide. An interval of [3,846, 3,854] is only ₱8 wide, implying a margin of ₱4 — which would require a standard error of ₱2.04 and therefore a sample of roughly <b>2 million</b>. It cannot come from 480 observations. The general check is worth internalising: compute s/√n mentally, multiply by about 2, and see whether the reported half-width is in the right neighbourhood.</p></div></details></div>
+<div class="q"><div class="qhead"><div class="qnum">20</div><div class="qtext"><span class="scen">A published report gives a 95% confidence interval for mean weekly sales as <b>[₱182,160, ₱197,840]</b> but omits the point estimate and the sample size. The population standard deviation is known to be <b>₱40,000</b>.</span>What are the point estimate and the sample size?</div></div><div class="opts"><div class="optrow"><span class="ltr">A</span><span>x̄ = ₱190,000 and n = 30</span></div><div class="optrow"><span class="ltr">B</span><span>x̄ = ₱197,840 and n = 100</span></div><div class="optrow"><span class="ltr">C</span><span>x̄ = ₱182,160 and n = 50</span></div><div class="optrow"><span class="ltr">D</span><span>x̄ = ₱190,000 and n = 100</span></div></div><details class="acc ans"><summary>Show correct answer &amp; explanation</summary><div class="acc-body"><p><span class="key">✓ Correct answer: D.</span> x̄ = ₱190,000 and n = 100</p><p style="margin:0">The point estimate is the <b>midpoint</b>: (182,160 + 197,840)/2 = <b>₱190,000</b>. The margin is the half-width: (197,840 − 182,160)/2 = <b>₱7,840</b>. Now invert the margin formula, using z because σ is known: n = (zσ/E)² = (1.96 × 40,000/7,840)² = (10)² = <b>100</b>. This reverse-engineering is a genuinely useful audit skill: any symmetric interval yields its point estimate, its margin of error and — given σ — the sample size behind it, which is how you audit a report that omits them.</p></div></details></div></section>
+<section id="case"><hr class="div"><h2 class="sec"><span class="n" style="background:var(--p2); color:var(--i2);">✍️</span>Part II · Business Case &amp; Essay Test</h2><p class="lead">Read the case, then answer the three essay questions. Write your response first; the dropdown under each item reveals a brief answer key — what a strong response must establish.</p><p class="lead">One research memo, six estimation claims, and a ₱240 million private-label launch resting on them. Read the case, then answer three essay questions. Model answers with full arithmetic and point-allocated rubrics follow — write yours <b>before</b> you open them.</p><div class="card c-biz">
+  <div class="hd">🛒 Case: Suki Mart — the private-label launch memo</div>
+
+  <p><b>Background.</b> Suki Mart operates 46 supermarkets across Luzon and the Visayas. The board is deciding whether to commit <b>₱240 million</b> to launching a private-label grocery line. A research unit has produced the memo below. <em>All the raw data were collected competently from probability samples; what you are auditing is the estimation.</em></p>
+
+  <div class="tbl-scroll" style="margin:14px 0;">
+  <table>
+    <thead><tr><th style="width:5%">#</th><th style="width:24%">Study</th><th style="width:36%">Data collected</th><th>What the memo concluded</th></tr></thead>
+    <tbody>
+      <tr><td class="ctr"><b>A</b></td><td><b>Category spend</b></td><td>Random sample of <b>18 store-months</b> drawn from the 552 store-months of the past trading year; mean monthly spend per shopper on the target category: x̄ = <b>₱1,485</b>, s = <b>₱620</b>. σ unknown.</td><td>95% CI reported as <b>[₱1,198.57, ₱1,771.43]</b></td></tr>
+      <tr><td class="ctr"><b>B</b></td><td><b>Purchase intention</b></td><td>Random sample of <b>250</b> shoppers; <b>155</b> said they would buy a Suki Mart private label.</td><td>"<b>62%</b> of our shoppers will buy the private label."</td></tr>
+      <tr><td class="ctr"><b>C</b></td><td><b>Interpretation</b></td><td>Same data as B.</td><td>"There is a <b>95% probability</b> that the true rate is inside our interval, and 95% of shoppers fall in that range."</td></tr>
+      <tr><td class="ctr"><b>D</b></td><td><b>Round-two plan</b></td><td>Board requires a 95% margin of error of <b>±3 percentage points</b> on purchase intention.</td><td>Unit proposes <b>n = 400</b></td></tr>
+      <tr><td class="ctr"><b>E</b></td><td><b>Supplier consistency</b></td><td>Random sample of <b>25</b> pilot packs; net-weight standard deviation s = <b>4.1 g</b>. Weights are approximately normal. Supplier's contract promises σ ≤ <b>3.0 g</b>.</td><td>"s = 4.1 is close to 3.0, so the supplier is broadly compliant."</td></tr>
+      <tr><td class="ctr"><b>F</b></td><td><b>Confidence policy</b></td><td>—</td><td>"To be safe, all figures in the final board pack will be reported at <b>99%</b> confidence rather than 95%, which will make them more accurate."</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p><b>The research unit's memo, verbatim:</b></p>
+  <div style="background:#fff; border-radius:12px; padding:15px 18px; margin:12px 0; border-left:4px solid var(--i5); font-style:italic;">
+    <p style="margin:0 0 9px"><b>A.</b> Category spend averages <b>₱1,485</b> per shopper per month. Using z = 1.96 and a standard error of ₱146.14, the 95% confidence interval is <b>₱1,198.57 to ₱1,771.43</b>.</p>
+    <p style="margin:0 0 9px"><b>B.</b> <b>62%</b> of shoppers will buy the private label. On 46 stores serving 1.2 million shoppers a month, that is 744,000 buyers, which supports the ₱240 million investment.</p>
+    <p style="margin:0 0 9px"><b>C.</b> There is a 95% probability that the true purchase-intention rate lies inside our confidence interval, and 95% of our shoppers fall within that range.</p>
+    <p style="margin:0 0 9px"><b>D.</b> The board wants ±3 percentage points. We propose <b>n = 400</b> for round two, which roughly doubles our current sample and will therefore halve the margin of error.</p>
+    <p style="margin:0 0 9px"><b>E.</b> Net-weight variability came in at <b>s = 4.1 g</b> against the supplier's promised 3.0 g. Since 4.1 is close to 3.0, the supplier is broadly compliant and no contractual action is needed.</p>
+    <p style="margin:0"><b>F.</b> All board-pack figures will be reported at <b>99%</b> confidence rather than 95%, which will make our estimates more accurate.</p>
+  </div>
+
+  <p style="margin:0"><b>Every one of the six conclusions is wrong</b>, and they fail in six different ways: a wrong multiplier, a point estimate reported as certainty, two misinterpretations of what an interval says, a sample-size relationship inverted, a specification tested against the wrong quantity, and confidence mistaken for accuracy. Your job is to identify each failure, correct it, and say what it would have cost the board.</p>
+</div><div class="essay"><div class="etag">Essay 1 · 20 points · Apply & Analyse</div><div class="eq">Recompute items <b>A</b> and <b>B</b> correctly. For each, name the specific error, produce the corrected figure with your arithmetic shown, quantify the size of the error, and state what practical consequence the uncorrected figure would have had for the ₱240 million decision.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>The z-versus-t decision made explicitly for item A, with df stated.</li>
+        <li>A quantified size of error, not merely "the interval is too narrow".</li>
+        <li>For item B, the np̂ and n(1−p̂) check performed before any interval is built.</li>
+        <li>The interval for B translated back into the units the board thinks in — buyers, not proportions.</li>
+        <li>A decision consequence for each, not just a corrected number.</li>
+      </ul>
+    </div></details></div>
+<div class="essay"><div class="etag">Essay 2 · 25 points · Analyse & Evaluate</div><div class="eq">Audit items <b>C</b>, <b>D</b> and <b>F</b>. For each, state precisely what has been misunderstood, give the correct statement or calculation, and explain the reasoning error in terms a non-statistical board member would follow. For item D, compute the sample size the board's requirement actually needs.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>Two <em>separate</em> errors identified in item C, not one.</li>
+        <li>An explanation of why μ or p being fixed is what breaks the probability statement.</li>
+        <li>A numerical demonstration of the √n relationship in item D, not just an assertion.</li>
+        <li>The sample size computed both with and without the prior estimate, with the choice justified.</li>
+        <li>For item F, the distinction between being <em>right more often</em> and being <em>more accurate</em>.</li>
+      </ul>
+    </div></details></div>
+<div class="essay"><div class="etag">Essay 3 · 25 points · Evaluate & Create</div><div class="eq">Audit item <b>E</b> and construct the correct analysis of supplier compliance. Then write the results section of the board memo as it should have been written — covering items A, B and E — and state what you would recommend the board do about the ₱240 million decision on the current evidence.</div><details class="acc ans"><summary>Show answer key — what a strong response must establish</summary><div class="acc-body">
+      <ul style="margin:0">
+        <li>Recognition that a specification on σ is a <em>variance</em> question requiring the chi-square interval.</li>
+        <li>The two chi-square cut-offs correctly assigned, with df stated.</li>
+        <li>A clear statement of what the interval does and does not establish about the contract.</li>
+        <li>A written results section containing all five reporting elements from §5.10.</li>
+        <li>A board recommendation with conditions attached, not a bare "proceed" or "abandon".</li>
+      </ul>
+    </div></details></div></section>
+<footer class="end"><p><b>Advanced Business Statistics</b> · Chapter 5 — Estimation &amp; Confidence Intervals · Exercises &amp; Essays. Bachelor of Science in Business Administration, College of Business, Entrepreneurship and Accountancy, Rizal Technological University.</p></footer>
+</div>
+<script>
+(function(){
+  function s(e){var h=this.getAttribute("href");if(!h||h[0]!=="#")return;var el=document.getElementById(h.slice(1));
+    if(el){e.preventDefault();el.scrollIntoView({behavior:"smooth",block:"start"});}}
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener("click",s);});
+  window.exAll=function(open){document.querySelectorAll("details.ans").forEach(function(d){d.open=open;});};
+})();
+</script>
+</body>
+</html>
